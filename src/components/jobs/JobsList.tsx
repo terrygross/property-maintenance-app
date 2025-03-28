@@ -25,6 +25,24 @@ const getAssignedJobs = (): Promise<JobCardProps[]> => {
           reportDate: "2023-10-07",
           priority: "high",
           status: "in_progress"
+        },
+        {
+          id: "job10",
+          title: "Hallway Painting",
+          description: "Hallway on 3rd floor needs repainting after water damage repair.",
+          property: "Property C",
+          reportDate: "2023-10-08",
+          priority: "medium",
+          status: "assigned"
+        },
+        {
+          id: "job11",
+          title: "Plumbing Leak Investigation",
+          description: "Water stains appearing on ceiling of unit 205. Need to investigate source from unit above.",
+          property: "Property B",
+          reportDate: "2023-10-06",
+          priority: "high",
+          status: "in_progress"
         }
       ]);
     }, 500);

@@ -40,6 +40,51 @@ const MOCK_JOB_CARDS: JobCardProps[] = [
     reportDate: "2023-10-10",
     priority: "medium",
     status: "unassigned"
+  },
+  {
+    id: "job5",
+    title: "Interior Painting",
+    description: "Unit 115 needs complete interior repainting before new tenant move-in.",
+    property: "Property B",
+    reportDate: "2023-10-20",
+    priority: "medium",
+    status: "unassigned"
+  },
+  {
+    id: "job6",
+    title: "Electrical Short Circuit",
+    description: "Outlets in the kitchen of unit 407 are not working. Potential short circuit in the wiring.",
+    property: "Property A",
+    reportDate: "2023-10-19",
+    priority: "high",
+    status: "unassigned"
+  },
+  {
+    id: "job7",
+    title: "Toilet Replacement",
+    description: "Toilet in master bathroom of unit 202 is cracked and needs complete replacement.",
+    property: "Property C",
+    reportDate: "2023-10-17",
+    priority: "high",
+    status: "unassigned"
+  },
+  {
+    id: "job8",
+    title: "Ceiling Paint Peeling",
+    description: "Bathroom ceiling paint is peeling in unit 305 due to moisture issues.",
+    property: "Property A",
+    reportDate: "2023-10-14",
+    priority: "low",
+    status: "unassigned"
+  },
+  {
+    id: "job9",
+    title: "Electrical Panel Inspection",
+    description: "Tenant reports flickering lights throughout unit 508. Electrical panel inspection required.",
+    property: "Property B",
+    reportDate: "2023-10-16",
+    priority: "medium",
+    status: "unassigned"
   }
 ];
 
