@@ -1,9 +1,8 @@
+
 import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { BarChart, Building, CreditCard, Users, Settings, AlertTriangle, PlusCircle, Wrench } from "lucide-react";
+import { PlusCircle } from "lucide-react";
 import AdminTab from "./AdminTab";
 import UserManagement from "./UserManagement";
 import PropertyManagement from "./PropertyManagement";
@@ -11,6 +10,9 @@ import MaintenanceConfig from "./maintenance/MaintenanceConfig";
 import Reports from "./maintenance/Reports";
 import ReporterJobCards from "./reporter/ReporterJobCards";
 import JobsList from "./jobs/JobsList";
+import AdminTabsList from "./admin/AdminTabsList";
+import OverviewTabContent from "./admin/OverviewTabContent";
+import GenericTabContent from "./admin/GenericTabContent";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -29,74 +31,10 @@ const AdminDashboard = () => {
       </div>
 
       <Tabs defaultValue="overview" className="w-full" onValueChange={setActiveTab}>
-        <div className="mb-6 overflow-x-auto">
-          <TabsList className="flex w-full justify-start">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="users">Users</TabsTrigger>
-            <TabsTrigger value="properties">Properties</TabsTrigger>
-            <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
-            <TabsTrigger value="reports">Reports</TabsTrigger>
-            <TabsTrigger value="billing">Billing</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
-            <TabsTrigger value="logs">Logs</TabsTrigger>
-            <TabsTrigger value="reporter">Reporter</TabsTrigger>
-            <TabsTrigger value="jobs">Jobs</TabsTrigger>
-            <TabsTrigger value="backup">Backup & Restore</TabsTrigger>
-          </TabsList>
-        </div>
+        <AdminTabsList />
 
         <TabsContent value="overview" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <AdminCard 
-              title="User Management" 
-              description="Manage all user accounts and permissions in the system"
-              icon={<Users className="h-6 w-6" />}
-              buttonText="Manage Users"
-              buttonAction={() => setActiveTab("users")}
-            />
-            
-            <AdminCard 
-              title="Property Management" 
-              description="Add, edit, and manage properties in your database"
-              icon={<Building className="h-6 w-6" />}
-              buttonText="Manage Properties"
-              buttonAction={() => setActiveTab("properties")}
-            />
-            
-            <AdminCard 
-              title="Maintenance Settings" 
-              description="Configure maintenance categories and service providers"
-              icon={<Wrench className="h-6 w-6" />}
-              buttonText="Configure Settings"
-              buttonAction={() => setActiveTab("maintenance")}
-            />
-            
-            <AdminCard 
-              title="Reports" 
-              description="Generate and view maintenance performance reports"
-              icon={<BarChart className="h-6 w-6" />}
-              buttonText="View Reports"
-              buttonAction={() => setActiveTab("reports")}
-              isLink={true}
-              linkTo="/reporter"
-            />
-            
-            <AdminCard 
-              title="Billing" 
-              description="Manage subscription plans and payment methods"
-              icon={<CreditCard className="h-6 w-6" />}
-              buttonText="Manage Billing"
-              buttonAction={() => setActiveTab("billing")}
-            />
-            
-            <AdminCard 
-              title="System Logs" 
-              description="View system activity, errors, and user actions"
-              icon={<AlertTriangle className="h-6 w-6" />}
-              buttonText="View Logs"
-              buttonAction={() => setActiveTab("logs")}
-            />
-          </div>
+          <OverviewTabContent setActiveTab={setActiveTab} />
         </TabsContent>
 
         <TabsContent value="users">
@@ -124,127 +62,46 @@ const AdminDashboard = () => {
         </TabsContent>
 
         <TabsContent value="billing">
-          <AdminTab title="Billing Management" description="Manage subscription and payment information">
-            <Card>
-              <CardHeader>
-                <CardTitle>Billing Management</CardTitle>
-                <CardDescription>View and manage subscription plans and payment methods</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p>Billing management functionality will be implemented here.</p>
-              </CardContent>
-            </Card>
-          </AdminTab>
+          <GenericTabContent 
+            title="Billing Management" 
+            description="View and manage subscription plans and payment methods" 
+          />
         </TabsContent>
 
         <TabsContent value="settings">
-          <AdminTab title="System Settings" description="Configure global system settings">
-            <Card>
-              <CardHeader>
-                <CardTitle>System Settings</CardTitle>
-                <CardDescription>Configure global parameters for your maintenance system</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p>System settings functionality will be implemented here.</p>
-              </CardContent>
-            </Card>
-          </AdminTab>
+          <GenericTabContent 
+            title="System Settings" 
+            description="Configure global parameters for your maintenance system" 
+          />
         </TabsContent>
 
         <TabsContent value="logs">
-          <AdminTab title="System Logs" description="View system activity records">
-            <Card>
-              <CardHeader>
-                <CardTitle>System Logs</CardTitle>
-                <CardDescription>View system events, errors, and user actions</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p>System logs functionality will be implemented here.</p>
-              </CardContent>
-            </Card>
-          </AdminTab>
+          <GenericTabContent 
+            title="System Logs" 
+            description="View system events, errors, and user actions" 
+          />
         </TabsContent>
 
         <TabsContent value="reporter">
           <AdminTab title="Reporter" description="View and assign reported maintenance issues">
-            <Card>
-              <CardHeader>
-                <CardTitle>Maintenance Reports</CardTitle>
-                <CardDescription>Review and assign maintenance requests</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ReporterJobCards />
-              </CardContent>
-            </Card>
+            <ReporterJobCards />
           </AdminTab>
         </TabsContent>
 
         <TabsContent value="jobs">
           <AdminTab title="Jobs" description="Manage assigned maintenance jobs">
-            <Card>
-              <CardHeader>
-                <CardTitle>Jobs Management</CardTitle>
-                <CardDescription>View and manage maintenance jobs that have been assigned</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <JobsList />
-              </CardContent>
-            </Card>
+            <JobsList />
           </AdminTab>
         </TabsContent>
 
         <TabsContent value="backup">
-          <AdminTab title="Backup & Restore" description="Backup and restore system data">
-            <Card>
-              <CardHeader>
-                <CardTitle>Backup & Restore</CardTitle>
-                <CardDescription>Backup and restore data from cloud storage</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p>Backup and restore functionality will be implemented here.</p>
-              </CardContent>
-            </Card>
-          </AdminTab>
+          <GenericTabContent 
+            title="Backup & Restore" 
+            description="Backup and restore data from cloud storage" 
+          />
         </TabsContent>
       </Tabs>
     </div>
-  );
-};
-
-interface AdminCardProps {
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-  buttonText: string;
-  buttonAction: () => void;
-  isLink?: boolean;
-  linkTo?: string;
-}
-
-const AdminCard = ({ title, description, icon, buttonText, buttonAction, isLink, linkTo }: AdminCardProps) => {
-  return (
-    <Card className="h-full">
-      <CardHeader>
-        <div className="flex items-center gap-4">
-          <div className="rounded-full bg-primary/10 p-3 text-primary">
-            {icon}
-          </div>
-          <CardTitle>{title}</CardTitle>
-        </div>
-        <CardDescription>{description}</CardDescription>
-      </CardHeader>
-      <CardFooter>
-        {isLink && linkTo ? (
-          <Button asChild className="w-full">
-            <Link to={linkTo}>{buttonText}</Link>
-          </Button>
-        ) : (
-          <Button className="w-full" onClick={buttonAction}>
-            {buttonText}
-          </Button>
-        )}
-      </CardFooter>
-    </Card>
   );
 };
 
