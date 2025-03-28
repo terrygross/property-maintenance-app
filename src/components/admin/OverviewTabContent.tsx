@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Users, Building, Wrench, BarChart, CreditCard, AlertTriangle, Clipboard, Calendar } from "lucide-react";
+import { Users, Building, Wrench, BarChart, CreditCard, AlertTriangle, Clipboard, Calendar, Layout } from "lucide-react";
 import AdminCard from "./AdminCard";
 
 interface OverviewTabContentProps {
@@ -57,6 +57,15 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
         icon={<Calendar className="h-6 w-6" />}
         buttonText="Access Job Cards"
         buttonAction={() => setActiveTab("maintenance-jobcards")}
+      />
+      
+      <AdminCard 
+        title="Maintenance Technician UI" 
+        description="Preview the interface used by maintenance technicians"
+        icon={<Layout className="h-6 w-6" />}
+        buttonText="View Tech Interface"
+        isLink={true}
+        linkTo="/maintenance"
       />
       
       <AdminCard 
