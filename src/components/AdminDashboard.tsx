@@ -8,6 +8,7 @@ import AdminTab from "./AdminTab";
 import UserManagement from "./UserManagement";
 import PropertyManagement from "./PropertyManagement";
 import MaintenanceConfig from "./maintenance/MaintenanceConfig";
+import Reports from "./maintenance/Reports";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -116,19 +117,8 @@ const AdminDashboard = () => {
         </TabsContent>
 
         <TabsContent value="reports">
-          <AdminTab title="Reports" description="Access reporting functionality">
-            <Card>
-              <CardHeader>
-                <CardTitle>Reports</CardTitle>
-                <CardDescription>Generate and view maintenance performance reports</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p>Reporting functionality can be accessed here.</p>
-                <Button asChild className="mt-4">
-                  <Link to="/reporter">Open Reporter</Link>
-                </Button>
-              </CardContent>
-            </Card>
+          <AdminTab title="Reports" description="Access detailed maintenance performance reports">
+            <Reports />
           </AdminTab>
         </TabsContent>
 
@@ -193,10 +183,10 @@ const AdminDashboard = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Reporter Management</CardTitle>
-                <CardDescription>View and manage reporter stations</CardDescription>
+                <CardDescription>Access custom reporting tools for specific business reports</CardDescription>
               </CardHeader>
               <CardContent>
-                <p>Reporter management functionality will be implemented here.</p>
+                <p>The Reporter feature provides customized business reporting tools for data export and analysis.</p>
                 <Button asChild className="mt-4">
                   <Link to="/reporter">Go to Reporter Page</Link>
                 </Button>
