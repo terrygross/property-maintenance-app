@@ -5,10 +5,11 @@ import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle, CalendarClock, ClipboardList } from "lucide-react";
+import { AlertCircle, CalendarClock, ClipboardList, PhoneCall } from "lucide-react";
 import LeaveRequestForm from "@/components/maintenance/jobcards/leave/LeaveRequestForm";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import CallOutSchedule from "@/components/maintenance/jobcards/CallOutSchedule";
 
 const MaintenanceTech = () => {
   const [activeTab, setActiveTab] = useState("calendar");
@@ -28,6 +29,13 @@ const MaintenanceTech = () => {
     { id: "j1", title: "Fix heating system", location: "Building A", priority: "high", dueDate: new Date(2023, 11, 30) },
     { id: "j2", title: "Replace light fixtures", location: "Building C", priority: "medium", dueDate: new Date(2023, 12, 5) },
     { id: "j3", title: "Inspect water damage", location: "Building B", priority: "low", dueDate: new Date(2023, 12, 10) },
+  ]);
+
+  // Example call-out schedule
+  const [callOutDates, setCallOutDates] = useState([
+    new Date(2023, 11, 15),
+    new Date(2023, 11, 28),
+    new Date(2024, 0, 10),
   ]);
 
   useEffect(() => {
@@ -88,6 +96,10 @@ const MaintenanceTech = () => {
             <TabsTrigger value="jobs">
               <ClipboardList className="h-4 w-4 mr-2" />
               My Jobs
+            </TabsTrigger>
+            <TabsTrigger value="callout">
+              <PhoneCall className="h-4 w-4 mr-2" />
+              Call-Out Schedule
             </TabsTrigger>
           </TabsList>
 
@@ -192,6 +204,17 @@ const MaintenanceTech = () => {
                     ))}
                   </div>
                 )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="callout" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>My Call-Out Schedule</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CallOutSchedule isReadOnly={true} />
               </CardContent>
             </Card>
           </TabsContent>
