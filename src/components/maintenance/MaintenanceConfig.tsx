@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MaintenanceCategories from "./MaintenanceCategories";
 import ServiceProviders from "./ServiceProviders";
-import WorkflowRules from "./WorkflowRules";
+import WorkflowRules from "./workflow-rules";
 import SLASettings from "./SLASettings";
 
 const MaintenanceConfig = () => {
