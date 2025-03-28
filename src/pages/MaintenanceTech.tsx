@@ -7,6 +7,7 @@ import TechHeader from "@/components/maintenance/tech/TechHeader";
 import TechLeaveTab from "@/components/maintenance/tech/TechLeaveTab";
 import TechJobsTab from "@/components/maintenance/tech/TechJobsTab";
 import TechCallOutTab from "@/components/maintenance/tech/TechCallOutTab";
+import ChatDrawer from "@/components/chat/ChatDrawer";
 
 const MaintenanceTech = () => {
   const [activeTab, setActiveTab] = useState("calendar");
@@ -52,6 +53,9 @@ const MaintenanceTech = () => {
     );
   }
 
+  // For demo purposes, we'll use a hardcoded current user ID
+  const currentUserId = "1";
+
   return (
     <div className="min-h-screen bg-gray-50">
       <TechHeader />
@@ -86,6 +90,9 @@ const MaintenanceTech = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Add the chat drawer */}
+      <ChatDrawer currentUserId={currentUserId} />
     </div>
   );
 };

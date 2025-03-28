@@ -14,9 +14,13 @@ import AdminTabsList from "./admin/AdminTabsList";
 import OverviewTabContent from "./admin/OverviewTabContent";
 import GenericTabContent from "./admin/GenericTabContent";
 import MaintenanceJobCards from "./maintenance/jobcards/MaintenanceJobCards";
+import ChatInterface from "./chat/ChatInterface";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
+
+  // For demo purposes, we'll use a hardcoded admin user ID
+  const currentUserId = "4"; // Admin user ID
 
   return (
     <div className="container mx-auto p-4 md:p-6">
@@ -65,6 +69,14 @@ const AdminDashboard = () => {
         <TabsContent value="maintenance-jobcards">
           <AdminTab title="Maintenance Job Cards" description="View job cards, manage leave calendar, and schedule call-out rota">
             <MaintenanceJobCards />
+          </AdminTab>
+        </TabsContent>
+
+        <TabsContent value="chat">
+          <AdminTab title="Team Chat" description="Communicate with all staff members in real-time">
+            <div className="h-[600px]">
+              <ChatInterface currentUserId={currentUserId} />
+            </div>
           </AdminTab>
         </TabsContent>
 
