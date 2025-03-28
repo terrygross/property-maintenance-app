@@ -1,4 +1,3 @@
-
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -75,8 +74,6 @@ const UserForm = ({ user, onSave, onCancel }: UserFormProps) => {
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // In a real implementation, we would upload this to Supabase storage
-      // For now, create a temporary URL
       const tempUrl = URL.createObjectURL(file);
       setPhotoUrl(tempUrl);
       form.setValue("photo_url", tempUrl);
@@ -84,12 +81,18 @@ const UserForm = ({ user, onSave, onCancel }: UserFormProps) => {
   };
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
-    onSave({
+    const userData: User = {
       id: user?.id || "",
-      ...data,
+      first_name: data.first_name,
+      last_name: data.last_name,
+      title: data.title,
+      email: data.email,
+      phone: data.phone || "",
       role: data.role as UserRole,
-      photo_url: photoUrl,
-    });
+      photo_url: photoUrl || ""
+    };
+    
+    onSave(userData);
   };
 
   return (

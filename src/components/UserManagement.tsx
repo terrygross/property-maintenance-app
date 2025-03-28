@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { Search, UserPlus, Pencil, Trash2, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useMediaQuery } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import UserForm from "./UserForm";
 import { UserRole } from "@/types/user";
@@ -83,7 +82,7 @@ const UserManagement = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const { toast } = useToast();
-  const isDesktop = useMediaQuery("(min-width: 768px)");
+  const isDesktop = !useIsMobile();
 
   const filteredUsers = users.filter(
     (user) =>
@@ -117,14 +116,12 @@ const UserManagement = () => {
 
   const handleSaveUser = (user: User) => {
     if (selectedUser) {
-      // Edit existing user
       setUsers(users.map((u) => (u.id === user.id ? user : u)));
       toast({
         title: "User updated",
         description: "The user has been updated successfully.",
       });
     } else {
-      // Add new user
       const newUser = {
         ...user,
         id: String(Date.now()), // Temporary ID for mock data
