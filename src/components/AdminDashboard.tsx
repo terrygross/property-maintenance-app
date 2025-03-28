@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { BarChart, Building, CreditCard, Users, Settings, AlertTriangle, PlusCircle } from "lucide-react";
 import AdminTab from "./AdminTab";
+import UserManagement from "./UserManagement";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -94,18 +95,9 @@ const AdminDashboard = () => {
           </div>
         </TabsContent>
 
-        {/* Other tabs */}
         <TabsContent value="users">
           <AdminTab title="User Management" description="Add, edit, and manage system users and their permissions">
-            <Card>
-              <CardHeader>
-                <CardTitle>User Management</CardTitle>
-                <CardDescription>Create and manage user accounts, set permissions and access levels</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p>User management functionality will be implemented here.</p>
-              </CardContent>
-            </Card>
+            <UserManagement />
           </AdminTab>
         </TabsContent>
 
