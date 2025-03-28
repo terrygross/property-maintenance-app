@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Users, Building, Wrench, BarChart, CreditCard, AlertTriangle } from "lucide-react";
+import { Users, Building, Wrench, BarChart, CreditCard, AlertTriangle, Clipboard } from "lucide-react";
 import AdminCard from "./AdminCard";
 
 interface OverviewTabContentProps {
@@ -40,6 +40,13 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
         icon={<BarChart className="h-6 w-6" />}
         buttonText="View Reports"
         buttonAction={() => setActiveTab("reports")}
+      />
+      
+      <AdminCard 
+        title="Reporter Station" 
+        description="Access the reporter station interface for maintenance issue reporting"
+        icon={<Clipboard className="h-6 w-6" />}
+        buttonText="Access Reporter Station"
         isLink={true}
         linkTo="/reporter"
       />
