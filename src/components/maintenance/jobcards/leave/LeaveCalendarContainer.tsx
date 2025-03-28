@@ -4,6 +4,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { useToast } from "@/hooks/use-toast";
 import { FileBarChart } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LeaveRequestsList from "./LeaveRequestsList";
 import LeaveRequestForm from "./LeaveRequestForm";
 import RescheduleDialog from "./RescheduleDialog";
@@ -30,6 +31,7 @@ const LeaveCalendarContainer = ({
   isAdmin = false 
 }: LeaveCalendarProps) => {
   const [date, setDate] = useState<Date | undefined>(new Date());
+  const [calendarView, setCalendarView] = useState<"month" | "year">("month");
   const [openRequest, setOpenRequest] = useState(false);
   const [openReschedule, setOpenReschedule] = useState(false);
   const [openReport, setOpenReport] = useState(false);
@@ -72,11 +74,23 @@ const LeaveCalendarContainer = ({
     }
   };
 
+  // Create an array of months for the year view
+  const getYearMonths = () => {
+    const currentYear = date ? date.getFullYear() : new Date().getFullYear();
+    return Array.from({ length: 12 }, (_, i) => new Date(currentYear, i, 1));
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-medium">Maintenance Leave Calendar</h3>
         <div className="flex gap-2">
+          <Tabs value={calendarView} onValueChange={(value) => setCalendarView(value as "month" | "year")}>
+            <TabsList className="grid w-36 grid-cols-2">
+              <TabsTrigger value="month">Month</TabsTrigger>
+              <TabsTrigger value="year">Year</TabsTrigger>
+            </TabsList>
+          </Tabs>
           {isAdmin && (
             <Button 
               variant="outline" 
@@ -95,16 +109,54 @@ const LeaveCalendarContainer = ({
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-4">
-        <div className="flex-1">
-          <Calendar
-            mode="single"
-            selected={date}
-            onSelect={setDate}
-            className="rounded-md border p-3"
-          />
-        </div>
-        <div className="flex-1">
+      <div className={`flex ${calendarView === "year" ? "flex-col" : "flex-col lg:flex-row"} gap-4`}>
+        {calendarView === "month" ? (
+          <>
+            <div className="flex-1">
+              <Calendar
+                mode="single"
+                selected={date}
+                onSelect={setDate}
+                className="rounded-md border p-3"
+              />
+            </div>
+            <div className="flex-1">
+              <LeaveRequestsList 
+                leaveRequests={leaveRequests}
+                isAdmin={isAdmin}
+                onApprove={handleApprove}
+                onDeny={handleDeny}
+                onReschedule={openRescheduleDialog}
+              />
+            </div>
+          </>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {getYearMonths().map((month, index) => (
+              <div key={index} className="flex flex-col">
+                <h3 className="text-sm font-medium mb-2">
+                  {month.toLocaleString('default', { month: 'long' })} {month.getFullYear()}
+                </h3>
+                <Calendar
+                  mode="single"
+                  month={month}
+                  selected={date}
+                  onSelect={setDate}
+                  className="rounded-md border p-1 scale-90 origin-top-left"
+                  disabled={(date) => 
+                    date.getMonth() !== month.getMonth() || 
+                    date.getFullYear() !== month.getFullYear()
+                  }
+                />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+      
+      {calendarView === "year" && (
+        <div className="mt-6">
+          <h3 className="text-sm font-medium mb-2">Leave Requests</h3>
           <LeaveRequestsList 
             leaveRequests={leaveRequests}
             isAdmin={isAdmin}
@@ -113,7 +165,7 @@ const LeaveCalendarContainer = ({
             onReschedule={openRescheduleDialog}
           />
         </div>
-      </div>
+      )}
 
       <RescheduleDialog 
         open={openReschedule}
