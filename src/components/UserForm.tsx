@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { User } from "@/types/user";
+import { User, UserRole } from "@/types/user";
 import { userFormSchema, UserFormValues, roleOptions } from "@/components/users/userFormConfig";
 import UserPhotoUpload from "@/components/users/UserPhotoUpload";
 import UserFormFields from "@/components/users/UserFormFields";
@@ -15,9 +15,10 @@ interface UserFormProps {
   user: User | null;
   onSave: (user: User) => void;
   onCancel: () => void;
+  defaultRole?: UserRole;
 }
 
-const UserForm = ({ user, onSave, onCancel }: UserFormProps) => {
+const UserForm = ({ user, onSave, onCancel, defaultRole }: UserFormProps) => {
   const [photoUrl, setPhotoUrl] = useState(user?.photo_url || "");
   
   const form = useForm<UserFormValues>({
@@ -28,7 +29,7 @@ const UserForm = ({ user, onSave, onCancel }: UserFormProps) => {
       title: user?.title || "",
       email: user?.email || "",
       phone: user?.phone || "",
-      role: user?.role || "maintenance_tech",
+      role: user?.role || defaultRole || "maintenance_tech",
       photo_url: user?.photo_url || "",
     },
   });
