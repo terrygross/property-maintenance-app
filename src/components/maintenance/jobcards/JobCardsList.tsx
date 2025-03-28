@@ -9,11 +9,23 @@ const JobCardsList = () => {
     user.role === "maintenance_tech" || user.role === "contractor"
   );
 
+  // Handle view jobs button click
+  const handleViewJobs = (techId: string) => {
+    console.log("View jobs for technician:", techId);
+    // Implement view jobs functionality
+  };
+
+  // Handle assign new job button click
+  const handleAssignJob = () => {
+    console.log("Assign new job clicked");
+    // Implement assign job functionality
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-medium">Maintenance Job Cards</h3>
-        <Button variant="outline" size="sm">Assign New Job</Button>
+        <Button variant="outline" size="sm" onClick={handleAssignJob}>Assign New Job</Button>
       </div>
 
       <div className="space-y-4">
@@ -25,7 +37,7 @@ const JobCardsList = () => {
                   <p className="font-medium">{tech.first_name} {tech.last_name}</p>
                   <p className="text-sm text-muted-foreground">{tech.title}</p>
                 </div>
-                <Button size="sm">View Jobs</Button>
+                <Button size="sm" onClick={() => handleViewJobs(tech.id)}>View Jobs</Button>
               </div>
             </div>
           ))
