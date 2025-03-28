@@ -79,15 +79,16 @@ const JobsList = () => {
   }, []);
 
   const handleResendEmail = (jobId: string, technicianId: string) => {
-    // In a real app, this would make an API call to resend the email
-    
     // Find the technician
     const technician = MOCK_USERS.find(user => user.id === technicianId);
+    const isContractor = technician?.role === "contractor";
     
-    if (technician) {
+    if (!technician) return;
+    
+    if (isContractor) {
       console.log(`Resending email to ${technician.first_name} ${technician.last_name} for job ${jobId}`);
       
-      // Simulate sending email
+      // Simulate sending email for contractors only
       setTimeout(() => {
         // Update job to mark email as sent
         setJobs(prevJobs => 
@@ -102,6 +103,12 @@ const JobsList = () => {
           description: `Job details have been emailed to ${technician.first_name} ${technician.last_name}.`,
         });
       }, 1500);
+    } else {
+      // For maintenance techs, just show a notification that they'll see it in their app
+      toast({
+        title: "Notification Reminder Sent",
+        description: `${technician.first_name} ${technician.last_name} will be reminded about this job in their app.`,
+      });
     }
   };
 

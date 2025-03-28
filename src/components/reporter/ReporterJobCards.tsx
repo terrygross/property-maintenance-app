@@ -93,9 +93,10 @@ const ReporterJobCards = () => {
   const [jobCards, setJobCards] = useState<JobCardProps[]>(MOCK_JOB_CARDS);
 
   const handleAssignJob = (jobId: string, technicianId: string) => {
-    // Find the technician to check if they're a contractor
+    // Find the technician to check their role
     const technician = MOCK_USERS.find(user => user.id === technicianId);
     const isContractor = technician?.role === "contractor";
+    const isMaintenanceTech = technician?.role === "maintenance_tech";
     
     // Update the job status to "assigned" and set the assignedTo field
     setJobCards(prevCards => 
@@ -105,15 +106,15 @@ const ReporterJobCards = () => {
               ...card, 
               status: "assigned" as const,
               assignedTo: technicianId,
-              // Set emailSent to true for maintenance techs, false for contractors initially
-              // In a real app, emails would be sent immediately for contractors
+              // Set emailSent to false for contractors initially
+              // In a real app, emails would be sent immediately to contractors
               emailSent: !isContractor
             } 
           : card
       )
     );
 
-    // In a real app, this would make an API call to update the database and send email
+    // In a real app, this would make an API call to update the database
     setTimeout(() => {
       // If it's a contractor, simulate sending an email
       if (isContractor && technician) {
@@ -128,6 +129,14 @@ const ReporterJobCards = () => {
             card.id === jobId ? { ...card, emailSent: true } : card
           )
         );
+      }
+      
+      // If it's a maintenance technician, simulate sending an in-app notification
+      if (isMaintenanceTech && technician) {
+        toast({
+          title: "App Notification Sent",
+          description: `Job details have been sent to ${technician.first_name} ${technician.last_name}'s app.`,
+        });
       }
       
       toast({

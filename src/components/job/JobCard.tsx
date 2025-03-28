@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Clock, User, Calendar, MapPin, MoreHorizontal, Mail, RefreshCw } from "lucide-react";
+import { Clock, User, Calendar, MapPin, RefreshCw, Mail, Bell } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MOCK_USERS } from "@/data/mockUsers";
@@ -110,6 +110,7 @@ const JobCard = ({
   // Check if assigned to a contractor
   const assignedTech = assignedTo ? TECHNICIANS.find(t => t.id === assignedTo) : null;
   const isContractor = assignedTech?.role === "contractor";
+  const isMaintenanceTech = assignedTech?.role === "maintenance_tech";
 
   return (
     <Card className="h-full">
@@ -135,19 +136,26 @@ const JobCard = ({
           </div>
         </div>
         
-        {status !== "unassigned" && isContractor && (
+        {status !== "unassigned" && assignedTech && (
           <div className="mt-3 text-xs flex items-center">
-            <Badge variant={emailSent ? "outline" : "secondary"} className="mr-2 flex items-center gap-1">
-              <Mail className="h-3 w-3" />
-              {emailSent ? "Email Sent" : "Email Pending"}
-            </Badge>
-            
-            {assignedTech && (
-              <div className="flex items-center gap-1 text-gray-500">
-                <User className="h-3 w-3" />
-                {assignedTech.first_name} {assignedTech.last_name}
-              </div>
+            {isContractor && (
+              <Badge variant={emailSent ? "outline" : "secondary"} className="mr-2 flex items-center gap-1">
+                <Mail className="h-3 w-3" />
+                {emailSent ? "Email Sent" : "Email Pending"}
+              </Badge>
             )}
+            
+            {isMaintenanceTech && (
+              <Badge variant="outline" className="mr-2 flex items-center gap-1">
+                <Bell className="h-3 w-3" />
+                App Notification Sent
+              </Badge>
+            )}
+            
+            <div className="flex items-center gap-1 text-gray-500">
+              <User className="h-3 w-3" />
+              {assignedTech.first_name} {assignedTech.last_name}
+            </div>
           </div>
         )}
       </CardContent>
@@ -164,6 +172,8 @@ const JobCard = ({
                     <div className="flex items-center gap-2">
                       <User className="h-4 w-4" />
                       {tech.first_name} {tech.last_name} ({tech.title})
+                      {tech.role === "contractor" && " - Contractor"}
+                      {tech.role === "maintenance_tech" && " - In-house"}
                     </div>
                   </SelectItem>
                 ))}
