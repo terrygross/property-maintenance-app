@@ -1,20 +1,15 @@
 
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar } from "@/components/ui/calendar";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { AlertCircle, CalendarClock, ClipboardList, PhoneCall } from "lucide-react";
-import LeaveRequestForm from "@/components/maintenance/jobcards/leave/LeaveRequestForm";
-import { supabase } from "@/integrations/supabase/client";
+import { CalendarClock, ClipboardList, PhoneCall } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import CallOutSchedule from "@/components/maintenance/jobcards/CallOutSchedule";
+import TechHeader from "@/components/maintenance/tech/TechHeader";
+import TechLeaveTab from "@/components/maintenance/tech/TechLeaveTab";
+import TechJobsTab from "@/components/maintenance/tech/TechJobsTab";
+import TechCallOutTab from "@/components/maintenance/tech/TechCallOutTab";
 
 const MaintenanceTech = () => {
   const [activeTab, setActiveTab] = useState("calendar");
-  const [date, setDate] = useState<Date | undefined>(new Date());
-  const [openRequest, setOpenRequest] = useState(false);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
@@ -57,34 +52,9 @@ const MaintenanceTech = () => {
     );
   }
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "high":
-        return "bg-red-500";
-      case "medium":
-        return "bg-orange-500";
-      case "low":
-        return "bg-blue-500";
-      default:
-        return "bg-gray-500";
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold">Maintenance Dashboard</h1>
-              <p className="text-muted-foreground">Welcome, John Doe</p>
-            </div>
-            <Button variant="outline" onClick={() => console.log("logout")}>
-              Sign Out
-            </Button>
-          </div>
-        </div>
-      </header>
+      <TechHeader />
 
       <div className="container mx-auto p-4 md:p-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -104,119 +74,15 @@ const MaintenanceTech = () => {
           </TabsList>
 
           <TabsContent value="calendar" className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold">My Leave Schedule</h2>
-              <Button onClick={() => setOpenRequest(true)}>Request Leave</Button>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Calendar</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Calendar
-                    mode="single"
-                    selected={date}
-                    onSelect={setDate}
-                    className="rounded-md border p-3"
-                  />
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>My Leave Requests</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {leaveRequests.length === 0 ? (
-                    <div className="text-center p-6">
-                      <p className="text-muted-foreground">No leave requests found</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {leaveRequests.map((leave) => (
-                        <div key={leave.id} className="border rounded-lg p-4">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <p className="font-medium">
-                                {leave.startDate.toLocaleDateString()} - {leave.endDate.toLocaleDateString()}
-                              </p>
-                              <p className="text-sm text-muted-foreground">{leave.reason}</p>
-                            </div>
-                            <Badge
-                              className={`${
-                                leave.status === "approved"
-                                  ? "bg-green-500"
-                                  : leave.status === "denied"
-                                  ? "bg-red-500"
-                                  : "bg-yellow-500"
-                              }`}
-                            >
-                              {leave.status.charAt(0).toUpperCase() + leave.status.slice(1)}
-                            </Badge>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-            <LeaveRequestForm
-              openRequest={openRequest}
-              setOpenRequest={setOpenRequest}
-            />
+            <TechLeaveTab leaveRequests={leaveRequests} />
           </TabsContent>
 
           <TabsContent value="jobs" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Assigned Jobs</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {assignedJobs.length === 0 ? (
-                  <div className="text-center p-6">
-                    <p className="text-muted-foreground">No jobs currently assigned</p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {assignedJobs.map((job) => (
-                      <div key={job.id} className="border rounded-lg p-4">
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h3 className="font-medium">{job.title}</h3>
-                              <Badge className={getPriorityColor(job.priority)}>
-                                {job.priority.charAt(0).toUpperCase() + job.priority.slice(1)}
-                              </Badge>
-                            </div>
-                            <p className="text-sm text-muted-foreground">{job.location}</p>
-                            <p className="text-xs mt-2">
-                              Due: {job.dueDate.toLocaleDateString()}
-                            </p>
-                          </div>
-                          <Button size="sm" variant="outline">
-                            View Details
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            <TechJobsTab assignedJobs={assignedJobs} />
           </TabsContent>
 
           <TabsContent value="callout" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>My Call-Out Schedule</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CallOutSchedule isReadOnly={true} />
-              </CardContent>
-            </Card>
+            <TechCallOutTab />
           </TabsContent>
         </Tabs>
       </div>
