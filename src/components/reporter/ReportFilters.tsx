@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +7,7 @@ import { Calendar as CalendarIcon, ChartBar, ChartPie, FileText } from "lucide-r
 import { format } from "date-fns";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { mockProperties } from "@/data/mockProperties";
 
 interface ReportFiltersProps {
   reportType: string;
@@ -113,9 +113,11 @@ const ReportFilters = ({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Properties</SelectItem>
-                <SelectItem value="prop1">Property A</SelectItem>
-                <SelectItem value="prop2">Property B</SelectItem>
-                <SelectItem value="prop3">Property C</SelectItem>
+                {mockProperties.map((property) => (
+                  <SelectItem key={property.id} value={property.id}>
+                    {property.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

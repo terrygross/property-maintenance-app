@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { Table, TableHeader, TableHead, TableRow, TableBody, TableCell } from "@/components/ui/table";
+import { mockProperties } from "@/data/mockProperties";
 
 const categoryData = [
   { name: "Plumbing", value: 32, fill: "#0ea5e9" },
@@ -151,13 +152,10 @@ const Reports = () => {
   };
 
   const getPropertyName = (propId: string) => {
-    const properties: Record<string, string> = {
-      "all": "All Properties",
-      "prop1": "Property A",
-      "prop2": "Property B",
-      "prop3": "Property C"
-    };
-    return properties[propId] || propId;
+    if (propId === "all") return "All Properties";
+    
+    const property = mockProperties.find(p => p.id === propId);
+    return property ? property.name : propId;
   };
 
   const getReportTypeName = (type: string) => {
@@ -428,9 +426,11 @@ const Reports = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Properties</SelectItem>
-                <SelectItem value="prop1">Property A</SelectItem>
-                <SelectItem value="prop2">Property B</SelectItem>
-                <SelectItem value="prop3">Property C</SelectItem>
+                {mockProperties.map((property) => (
+                  <SelectItem key={property.id} value={property.id}>
+                    {property.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
