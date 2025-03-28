@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Clock, User, Calendar, MapPin, MoreHorizontal } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MOCK_USERS } from "@/data/mockUsers";
 
 export interface JobCardProps {
   id: string;
@@ -18,13 +18,10 @@ export interface JobCardProps {
   onAssign?: (id: string, technicianId: string) => void;
 }
 
-// Mock data for technicians
-const TECHNICIANS = [
-  { id: "tech1", name: "John Smith" },
-  { id: "tech2", name: "Sarah Johnson" },
-  { id: "tech3", name: "Miguel Rodriguez" },
-  { id: "tech4", name: "Lisa Chen" },
-];
+// Filter technicians from MOCK_USERS
+const TECHNICIANS = MOCK_USERS.filter(user => 
+  user.role === "maintenance_tech" || user.role === "contractor"
+);
 
 const JobCard = ({ 
   id, 
@@ -66,9 +63,12 @@ const JobCard = ({
         onAssign(id, selectedTechnician);
       }
       
+      const selectedTech = TECHNICIANS.find(t => t.id === selectedTechnician);
+      const techName = selectedTech ? `${selectedTech.first_name} ${selectedTech.last_name}` : "the technician";
+      
       toast({
         title: "Job Assigned",
-        description: `Job has been assigned to ${TECHNICIANS.find(t => t.id === selectedTechnician)?.name}.`,
+        description: `Job has been assigned to ${techName}.`,
       });
       
       setAssigning(false);
@@ -112,7 +112,7 @@ const JobCard = ({
                   <SelectItem key={tech.id} value={tech.id}>
                     <div className="flex items-center gap-2">
                       <User className="h-4 w-4" />
-                      {tech.name}
+                      {tech.first_name} {tech.last_name} ({tech.title})
                     </div>
                   </SelectItem>
                 ))}
