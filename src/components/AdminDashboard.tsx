@@ -3,10 +3,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { BarChart, Building, CreditCard, Users, Settings, AlertTriangle, PlusCircle } from "lucide-react";
+import { BarChart, Building, CreditCard, Users, Settings, AlertTriangle, PlusCircle, Wrench } from "lucide-react";
 import AdminTab from "./AdminTab";
 import UserManagement from "./UserManagement";
 import PropertyManagement from "./PropertyManagement";
+import MaintenanceConfig from "./maintenance/MaintenanceConfig";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -63,7 +64,7 @@ const AdminDashboard = () => {
             <AdminCard 
               title="Maintenance Settings" 
               description="Configure maintenance categories and service providers"
-              icon={<Settings className="h-6 w-6" />}
+              icon={<Wrench className="h-6 w-6" />}
               buttonText="Configure Settings"
               buttonAction={() => setActiveTab("maintenance")}
             />
@@ -110,15 +111,7 @@ const AdminDashboard = () => {
 
         <TabsContent value="maintenance">
           <AdminTab title="Maintenance Settings" description="Configure maintenance system parameters">
-            <Card>
-              <CardHeader>
-                <CardTitle>Maintenance Settings</CardTitle>
-                <CardDescription>Configure maintenance categories, providers, and workflow rules</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p>Maintenance configuration functionality will be implemented here.</p>
-              </CardContent>
-            </Card>
+            <MaintenanceConfig />
           </AdminTab>
         </TabsContent>
 
