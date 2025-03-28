@@ -2,9 +2,12 @@
 import React, { useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { useToast } from "@/hooks/use-toast";
+import { FileBarChart } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import LeaveRequestsList from "./LeaveRequestsList";
 import LeaveRequestForm from "./LeaveRequestForm";
 import RescheduleDialog from "./RescheduleDialog";
+import LeaveReport from "./LeaveReport";
 
 interface LeaveRequest {
   id: string;
@@ -29,6 +32,7 @@ const LeaveCalendarContainer = ({
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [openRequest, setOpenRequest] = useState(false);
   const [openReschedule, setOpenReschedule] = useState(false);
+  const [openReport, setOpenReport] = useState(false);
   const [selectedLeave, setSelectedLeave] = useState<LeaveRequest | null>(null);
   const [newStartDate, setNewStartDate] = useState<Date | undefined>(undefined);
   const [newEndDate, setNewEndDate] = useState<Date | undefined>(undefined);
@@ -72,10 +76,23 @@ const LeaveCalendarContainer = ({
     <div>
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-medium">Maintenance Leave Calendar</h3>
-        <LeaveRequestForm 
-          openRequest={openRequest} 
-          setOpenRequest={setOpenRequest} 
-        />
+        <div className="flex gap-2">
+          {isAdmin && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex items-center gap-2"
+              onClick={() => setOpenReport(true)}
+            >
+              <FileBarChart size={16} />
+              Leave Report
+            </Button>
+          )}
+          <LeaveRequestForm 
+            openRequest={openRequest} 
+            setOpenRequest={setOpenRequest} 
+          />
+        </div>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-4">
@@ -107,6 +124,14 @@ const LeaveCalendarContainer = ({
         setNewEndDate={setNewEndDate}
         onReschedule={handleReschedule}
       />
+
+      {isAdmin && (
+        <LeaveReport
+          open={openReport}
+          setOpen={setOpenReport}
+          leaveRequests={leaveRequests}
+        />
+      )}
     </div>
   );
 };
