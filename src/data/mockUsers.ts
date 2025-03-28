@@ -1,0 +1,55 @@
+
+import { User } from "@/types/user";
+
+export const MOCK_USERS: User[] = [
+  {
+    id: "1",
+    first_name: "John",
+    last_name: "Doe",
+    title: "Senior Maintenance Technician",
+    email: "john.doe@example.com",
+    phone: "555-123-4567",
+    photo_url: "https://i.pravatar.cc/150?u=john",
+    role: "maintenance_tech",
+  },
+  {
+    id: "2",
+    first_name: "Jane",
+    last_name: "Smith",
+    title: "Maintenance Manager",
+    email: "jane.smith@example.com",
+    phone: "555-987-6543",
+    photo_url: "https://i.pravatar.cc/150?u=jane",
+    role: "maintenance_manager",
+  },
+  {
+    id: "3",
+    first_name: "Robert",
+    last_name: "Johnson",
+    title: "HVAC Contractor",
+    email: "robert.johnson@example.com",
+    phone: "555-567-8901",
+    photo_url: "https://i.pravatar.cc/150?u=robert",
+    role: "contractor",
+  },
+  {
+    id: "4",
+    first_name: "Sarah",
+    last_name: "Williams",
+    title: "Admin",
+    email: "sarah.williams@example.com",
+    phone: "555-234-5678",
+    photo_url: "https://i.pravatar.cc/150?u=sarah",
+    role: "admin",
+  },
+  {
+    id: "5",
+    first_name: "Michael",
+    last_name: "Brown",
+    title: "Plumbing Contractor",
+    email: "michael.brown@example.com",
+    phone: "555-345-6789",
+    photo_url: "https://i.pravatar.cc/150?u=michael",
+    role: "contractor",
+  },
+];
