@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { BarChart, Building, CreditCard, Users, Settings, AlertTriangle, PlusCircle } from "lucide-react";
 import AdminTab from "./AdminTab";
 import UserManagement from "./UserManagement";
+import PropertyManagement from "./PropertyManagement";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -103,15 +104,7 @@ const AdminDashboard = () => {
 
         <TabsContent value="properties">
           <AdminTab title="Property Management" description="Manage your property database">
-            <Card>
-              <CardHeader>
-                <CardTitle>Property Management</CardTitle>
-                <CardDescription>Add, edit, and manage properties in your system</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p>Property management functionality will be implemented here.</p>
-              </CardContent>
-            </Card>
+            <PropertyManagement />
           </AdminTab>
         </TabsContent>
 
