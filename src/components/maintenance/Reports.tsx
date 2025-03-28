@@ -1,18 +1,17 @@
-
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from "recharts";
-import { DownloadIcon, PieChartIcon, BarChartIcon, CalendarIcon } from "lucide-react";
+import { DownloadIcon, PieChartIcon, BarChartIcon, CalendarIcon, UploadIcon, FileSpreadsheetIcon } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
+import { Table, TableHeader, TableHead, TableRow, TableBody, TableCell } from "@/components/ui/table";
 
-// Mock data for the reports
 const categoryData = [
   { name: "Plumbing", value: 32, fill: "#0ea5e9" },
   { name: "Electrical", value: 25, fill: "#f59e0b" },
@@ -24,7 +23,7 @@ const categoryData = [
 const responseTimeData = [
   { category: "Plumbing", avgTime: 4.2 },
   { category: "Electrical", avgTime: 3.8 },
-  { category: "HVAC", avgTime: 6.5 },
+  { name: "HVAC", avgTime: 6.5 },
   { category: "Appliances", avgTime: 5.1 },
   { category: "Structural", avgTime: 8.2 }
 ];
@@ -80,13 +79,15 @@ const Reports = () => {
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [showDataTable, setShowDataTable] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleGenerateReport = () => {
     setIsGenerating(true);
     
-    // Simulate report generation
     setTimeout(() => {
       setIsGenerating(false);
+      setShowDataTable(true);
       toast({
         title: "Report Generated",
         description: `${getReportTypeName(reportType)} report has been generated.`,
@@ -94,11 +95,55 @@ const Reports = () => {
     }, 1200);
   };
 
-  const handleDownloadReport = () => {
+  const handleDownloadExcel = () => {
     toast({
-      title: "Download Started",
-      description: `Downloading ${getReportTypeName(reportType)} report as PDF.`,
+      title: "Excel Download Started",
+      description: `Downloading ${getReportTypeName(reportType)} report for ${property === "all" ? "All Properties" : getPropertyName(property)} as Excel.`,
     });
+    
+    setTimeout(() => {
+      toast({
+        title: "Excel Download Complete",
+        description: "Your report has been downloaded successfully.",
+      });
+    }, 1500);
+  };
+
+  const handleUploadClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      toast({
+        title: "Uploading Excel File",
+        description: `${file.name} is being processed...`,
+      });
+
+      setTimeout(() => {
+        toast({
+          title: "Excel File Uploaded",
+          description: `${file.name} has been successfully processed and data has been updated.`,
+        });
+        
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+      }, 2000);
+    }
+  };
+
+  const getPropertyName = (propId: string) => {
+    const properties: Record<string, string> = {
+      "all": "All Properties",
+      "prop1": "Property A",
+      "prop2": "Property B",
+      "prop3": "Property C"
+    };
+    return properties[propId] || propId;
   };
 
   const getReportTypeName = (type: string) => {
@@ -194,6 +239,104 @@ const Reports = () => {
       default:
         return null;
     }
+  };
+
+  const renderDataTable = () => {
+    if (!showDataTable) return null;
+
+    let tableData: any[] = [];
+    let columns: string[] = [];
+
+    switch (reportType) {
+      case "maintenance":
+        tableData = categoryData;
+        columns = ["Category", "Number of Issues"];
+        break;
+      case "response":
+        tableData = responseTimeData;
+        columns = ["Category", "Average Response Time (hrs)"];
+        break;
+      case "cost":
+        tableData = costData;
+        columns = ["Month", "Cost ($)"];
+        break;
+      case "satisfaction":
+        tableData = satisfactionData;
+        columns = ["Rating", "Percentage (%)"];
+        break;
+    }
+
+    return (
+      <div className="mt-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-medium">Report Data</h3>
+          <div className="flex space-x-2">
+            <Button 
+              variant="outline" 
+              onClick={handleDownloadExcel}
+              className="flex items-center gap-2"
+            >
+              <FileSpreadsheetIcon className="h-4 w-4" />
+              <span>Download Excel</span>
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={handleUploadClick}
+              className="flex items-center gap-2"
+            >
+              <UploadIcon className="h-4 w-4" />
+              <span>Upload Excel</span>
+            </Button>
+            <input
+              type="file"
+              ref={fileInputRef}
+              accept=".xlsx,.xls,.csv"
+              className="hidden"
+              onChange={handleFileUpload}
+            />
+          </div>
+        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              {columns.map((column, index) => (
+                <TableHead key={index}>{column}</TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {tableData.map((row, index) => (
+              <TableRow key={index}>
+                {reportType === "maintenance" && (
+                  <>
+                    <TableCell>{row.name}</TableCell>
+                    <TableCell>{row.value}</TableCell>
+                  </>
+                )}
+                {reportType === "response" && (
+                  <>
+                    <TableCell>{row.category}</TableCell>
+                    <TableCell>{row.avgTime}</TableCell>
+                  </>
+                )}
+                {reportType === "cost" && (
+                  <>
+                    <TableCell>{row.month}</TableCell>
+                    <TableCell>${row.cost}</TableCell>
+                  </>
+                )}
+                {reportType === "satisfaction" && (
+                  <>
+                    <TableCell>{row.name}</TableCell>
+                    <TableCell>{row.value}%</TableCell>
+                  </>
+                )}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    );
   };
 
   return (
@@ -363,6 +506,7 @@ const Reports = () => {
           </CardHeader>
           <CardContent>
             {renderChart()}
+            {renderDataTable()}
           </CardContent>
         </Card>
       </CardContent>
