@@ -6,11 +6,14 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Camera, Upload } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "@/hooks/use-toast";
 import { mockProperties } from "@/data/mockProperties";
 import ReporterImageCapture from "./ReporterImageCapture";
+
+interface ReporterStationProps {
+  stationId: string;
+}
 
 interface ReporterFormValues {
   reporterName: string;
@@ -18,14 +21,18 @@ interface ReporterFormValues {
   description: string;
 }
 
-const ReporterStation = () => {
+const ReporterStation = ({ stationId }: ReporterStationProps) => {
   const [imageUrl, setImageUrl] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Find which property this station is for
+  // In a real app, you would fetch this from your backend
+  const stationProperty = stationId === "STATION-001" ? "1" : "2";
 
   const form = useForm<ReporterFormValues>({
     defaultValues: {
       reporterName: "",
-      propertyId: "",
+      propertyId: stationProperty,
       description: ""
     }
   });
@@ -52,6 +59,7 @@ const ReporterStation = () => {
       console.log({
         ...values,
         imageUrl,
+        stationId,
         timestamp: new Date().toISOString()
       });
       
@@ -71,6 +79,7 @@ const ReporterStation = () => {
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
         <CardTitle className="text-2xl">Report Maintenance Issue</CardTitle>
+        <div className="text-sm text-muted-foreground">Station ID: {stationId}</div>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -100,6 +109,7 @@ const ReporterStation = () => {
                   <Select 
                     onValueChange={field.onChange} 
                     defaultValue={field.value}
+                    disabled={true} // Property is predetermined by station
                     required
                   >
                     <FormControl>
