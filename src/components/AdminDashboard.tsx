@@ -9,6 +9,8 @@ import UserManagement from "./UserManagement";
 import PropertyManagement from "./PropertyManagement";
 import MaintenanceConfig from "./maintenance/MaintenanceConfig";
 import Reports from "./maintenance/Reports";
+import ReporterJobCards from "./reporter/ReporterJobCards";
+import JobsList from "./jobs/JobsList";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -179,31 +181,28 @@ const AdminDashboard = () => {
         </TabsContent>
 
         <TabsContent value="reporter">
-          <AdminTab title="Reporter" description="Reporter management page">
+          <AdminTab title="Reporter" description="View and assign reported maintenance issues">
             <Card>
               <CardHeader>
-                <CardTitle>Reporter Management</CardTitle>
-                <CardDescription>Access custom reporting tools for specific business reports</CardDescription>
+                <CardTitle>Maintenance Reports</CardTitle>
+                <CardDescription>Review and assign maintenance requests</CardDescription>
               </CardHeader>
               <CardContent>
-                <p>The Reporter feature provides customized business reporting tools for data export and analysis.</p>
-                <Button asChild className="mt-4">
-                  <Link to="/reporter">Go to Reporter Page</Link>
-                </Button>
+                <ReporterJobCards />
               </CardContent>
             </Card>
           </AdminTab>
         </TabsContent>
 
         <TabsContent value="jobs">
-          <AdminTab title="Jobs" description="Manage maintenance jobs">
+          <AdminTab title="Jobs" description="Manage assigned maintenance jobs">
             <Card>
               <CardHeader>
                 <CardTitle>Jobs Management</CardTitle>
-                <CardDescription>View and manage maintenance jobs</CardDescription>
+                <CardDescription>View and manage maintenance jobs that have been assigned</CardDescription>
               </CardHeader>
               <CardContent>
-                <p>Jobs management functionality will be implemented here.</p>
+                <JobsList />
               </CardContent>
             </Card>
           </AdminTab>
