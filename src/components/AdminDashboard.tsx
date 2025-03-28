@@ -15,6 +15,7 @@ import OverviewTabContent from "./admin/OverviewTabContent";
 import GenericTabContent from "./admin/GenericTabContent";
 import MaintenanceJobCards from "./maintenance/jobcards/MaintenanceJobCards";
 import ChatInterface from "./chat/ChatInterface";
+import ReporterManagement from "./reporter/ReporterManagement";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -102,8 +103,14 @@ const AdminDashboard = () => {
         </TabsContent>
 
         <TabsContent value="reporter">
-          <AdminTab title="Reporter" description="View and assign reported maintenance issues">
+          <AdminTab title="Reporter Jobs" description="View and assign reported maintenance issues">
             <ReporterJobCards />
+          </AdminTab>
+        </TabsContent>
+        
+        <TabsContent value="reporter-management">
+          <AdminTab title="Reporter Management" description="Manage reporter accounts and access based on your subscription">
+            <ReporterManagement />
           </AdminTab>
         </TabsContent>
 

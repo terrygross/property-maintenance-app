@@ -1,82 +1,110 @@
 
-import React from "react";
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
-  BarChart3, 
-  Building, 
-  CreditCard, 
-  Database, 
-  FileClock, 
-  Home, 
-  MessageCircle, 
-  Settings, 
-  Shield, 
-  Ticket, 
-  Users, 
-  Wrench 
+  Users, Building, Wrench, BarChart, CreditCard, 
+  AlertTriangle, ClipboardList, Calendar, Settings, 
+  ArchiveRestore, MessageCircle, Clipboard, UserCog
 } from "lucide-react";
 
 const AdminTabsList = () => {
   return (
-    <TabsList className="grid grid-cols-2 md:grid-cols-6 lg:grid-cols-12 mb-6">
-      <TabsTrigger value="overview" className="flex items-center">
-        <Home className="h-4 w-4 mr-2" />
-        <span className="hidden sm:inline">Overview</span>
+    <TabsList className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 mb-8">
+      <TabsTrigger value="overview" className="data-[state=active]:bg-primary/10">
+        <span className="flex items-center gap-2">
+          <Calendar className="h-4 w-4" />
+          <span className="hidden sm:inline">Overview</span>
+        </span>
       </TabsTrigger>
       
-      <TabsTrigger value="users" className="flex items-center">
-        <Users className="h-4 w-4 mr-2" />
-        <span className="hidden sm:inline">Users</span>
+      <TabsTrigger value="users" className="data-[state=active]:bg-primary/10">
+        <span className="flex items-center gap-2">
+          <Users className="h-4 w-4" />
+          <span className="hidden sm:inline">Users</span>
+        </span>
       </TabsTrigger>
       
-      <TabsTrigger value="properties" className="flex items-center">
-        <Building className="h-4 w-4 mr-2" />
-        <span className="hidden sm:inline">Properties</span>
+      <TabsTrigger value="properties" className="data-[state=active]:bg-primary/10">
+        <span className="flex items-center gap-2">
+          <Building className="h-4 w-4" />
+          <span className="hidden sm:inline">Properties</span>
+        </span>
       </TabsTrigger>
       
-      <TabsTrigger value="maintenance" className="flex items-center">
-        <Wrench className="h-4 w-4 mr-2" />
-        <span className="hidden sm:inline">Settings</span>
+      <TabsTrigger value="maintenance" className="data-[state=active]:bg-primary/10">
+        <span className="flex items-center gap-2">
+          <Wrench className="h-4 w-4" />
+          <span className="hidden sm:inline">Maintenance</span>
+        </span>
       </TabsTrigger>
       
-      <TabsTrigger value="reports" className="flex items-center">
-        <BarChart3 className="h-4 w-4 mr-2" />
-        <span className="hidden sm:inline">Reports</span>
+      <TabsTrigger value="reporter" className="data-[state=active]:bg-primary/10">
+        <span className="flex items-center gap-2">
+          <Clipboard className="h-4 w-4" />
+          <span className="hidden sm:inline">Reporter Jobs</span>
+        </span>
       </TabsTrigger>
       
-      <TabsTrigger value="maintenance-jobcards" className="flex items-center">
-        <FileClock className="h-4 w-4 mr-2" />
-        <span className="hidden sm:inline">Job Cards</span>
+      <TabsTrigger value="reporter-management" className="data-[state=active]:bg-primary/10">
+        <span className="flex items-center gap-2">
+          <UserCog className="h-4 w-4" />
+          <span className="hidden sm:inline">Reporter Mgmt</span>
+        </span>
       </TabsTrigger>
       
-      <TabsTrigger value="chat" className="flex items-center">
-        <MessageCircle className="h-4 w-4 mr-2" />
-        <span className="hidden sm:inline">Chat</span>
+      <TabsTrigger value="maintenance-jobcards" className="data-[state=active]:bg-primary/10">
+        <span className="flex items-center gap-2">
+          <Calendar className="h-4 w-4" />
+          <span className="hidden sm:inline">Job Cards</span>
+        </span>
       </TabsTrigger>
       
-      <TabsTrigger value="billing" className="flex items-center">
-        <CreditCard className="h-4 w-4 mr-2" />
-        <span className="hidden sm:inline">Billing</span>
+      <TabsTrigger value="chat" className="data-[state=active]:bg-primary/10">
+        <span className="flex items-center gap-2">
+          <MessageCircle className="h-4 w-4" />
+          <span className="hidden sm:inline">Team Chat</span>
+        </span>
       </TabsTrigger>
       
-      <TabsTrigger value="settings" className="flex items-center">
-        <Settings className="h-4 w-4 mr-2" />
-        <span className="hidden sm:inline">System</span>
+      <TabsTrigger value="jobs" className="data-[state=active]:bg-primary/10">
+        <span className="flex items-center gap-2">
+          <ClipboardList className="h-4 w-4" />
+          <span className="hidden sm:inline">Jobs</span>
+        </span>
       </TabsTrigger>
       
-      <TabsTrigger value="logs" className="flex items-center">
-        <Shield className="h-4 w-4 mr-2" />
-        <span className="hidden sm:inline">Logs</span>
+      <TabsTrigger value="reports" className="data-[state=active]:bg-primary/10">
+        <span className="flex items-center gap-2">
+          <BarChart className="h-4 w-4" />
+          <span className="hidden sm:inline">Reports</span>
+        </span>
       </TabsTrigger>
       
-      <TabsTrigger value="reporter" className="flex items-center">
-        <Ticket className="h-4 w-4 mr-2" />
-        <span className="hidden sm:inline">Reporter</span>
+      <TabsTrigger value="billing" className="data-[state=active]:bg-primary/10">
+        <span className="flex items-center gap-2">
+          <CreditCard className="h-4 w-4" />
+          <span className="hidden sm:inline">Billing</span>
+        </span>
       </TabsTrigger>
       
-      <TabsTrigger value="backup" className="flex items-center">
-        <Database className="h-4 w-4 mr-2" />
-        <span className="hidden sm:inline">Backup</span>
+      <TabsTrigger value="settings" className="data-[state=active]:bg-primary/10">
+        <span className="flex items-center gap-2">
+          <Settings className="h-4 w-4" />
+          <span className="hidden sm:inline">Settings</span>
+        </span>
+      </TabsTrigger>
+      
+      <TabsTrigger value="logs" className="data-[state=active]:bg-primary/10">
+        <span className="flex items-center gap-2">
+          <AlertTriangle className="h-4 w-4" />
+          <span className="hidden sm:inline">Logs</span>
+        </span>
+      </TabsTrigger>
+      
+      <TabsTrigger value="backup" className="data-[state=active]:bg-primary/10">
+        <span className="flex items-center gap-2">
+          <ArchiveRestore className="h-4 w-4" />
+          <span className="hidden sm:inline">Backup</span>
+        </span>
       </TabsTrigger>
     </TabsList>
   );

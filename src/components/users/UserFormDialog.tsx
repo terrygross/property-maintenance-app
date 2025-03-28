@@ -21,6 +21,7 @@ interface UserFormDialogProps {
   selectedUser: User | null;
   onSave: (user: User) => void;
   onCancel: () => void;
+  defaultRole?: User['role'];
 }
 
 const UserFormDialog = ({ 
@@ -28,7 +29,8 @@ const UserFormDialog = ({
   onOpenChange, 
   selectedUser, 
   onSave, 
-  onCancel 
+  onCancel,
+  defaultRole
 }: UserFormDialogProps) => {
   const isDesktop = !useIsMobile();
 
@@ -43,6 +45,7 @@ const UserFormDialog = ({
             user={selectedUser}
             onSave={onSave}
             onCancel={onCancel}
+            defaultRole={defaultRole}
           />
         </DialogContent>
       </Dialog>
@@ -59,6 +62,7 @@ const UserFormDialog = ({
           user={selectedUser}
           onSave={onSave}
           onCancel={onCancel}
+          defaultRole={defaultRole}
         />
       </DrawerContent>
     </Drawer>

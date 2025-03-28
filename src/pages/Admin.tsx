@@ -5,41 +5,65 @@ import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 const Admin = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
-    // Since this is just a demo, we'll allow access without authentication
-    // In a real-world scenario, we would check for authentication and admin role
+    // For this demo, we'll simulate a check for admin roles
+    // In a real implementation, we would check for authentication and admin role
+    const checkUser = async () => {
+      try {
+        const { data } = await supabase.auth.getUser();
+        setUser(data.user);
+        
+        // In a real implementation, we would check if the user has admin role
+        // For demo purposes, we'll set isAdmin to true
+        setIsAdmin(true);
+      } catch (error) {
+        console.error("Error checking user:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    // Since this is just a demo, we'll set loading to false without authentication
+    // In a real implementation, we would use checkUser()
     setLoading(false);
     
-    // Commented out authentication check for demo purposes
-    // const checkUser = async () => {
-    //   const { data } = await supabase.auth.getUser();
-    //   setUser(data.user);
-    //   setLoading(false);
-    // };
+    // Commented out for demo purposes
     // checkUser();
   }, []);
 
-  // const handleLogin = async () => {
-  //   try {
-  //     const { error } = await supabase.auth.signInWithPassword({
-  //       email: "admin@example.com",
-  //       password: "password",
-  //     });
-  //     if (error) throw error;
-  //   } catch (error: any) {
-  //     toast({
-  //       title: "Login failed",
-  //       description: error.message,
-  //       variant: "destructive",
-  //     });
-  //   }
-  // };
+  const handleLogin = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: "admin@example.com",
+        password: "password",
+      });
+      if (error) throw error;
+      
+      toast({
+        title: "Login successful",
+        description: "You have been logged in as an admin.",
+      });
+      
+      // Set the user and isAdmin state after successful login
+      setUser(await (await supabase.auth.getUser()).data.user);
+      setIsAdmin(true);
+    } catch (error: any) {
+      toast({
+        title: "Login failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
 
   if (loading) {
     return (
@@ -57,11 +81,24 @@ const Admin = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminDashboard />
+      
+      {/* This alert is visible only in demo mode to explain the authentication process */}
+      <div className="fixed bottom-4 right-4 max-w-md">
+        <Alert variant="default" className="bg-yellow-50 border-yellow-200">
+          <AlertCircle className="h-4 w-4 text-yellow-600" />
+          <AlertTitle>Demo Mode</AlertTitle>
+          <AlertDescription className="text-sm">
+            In a production environment, this admin dashboard would require authentication 
+            and proper role verification. The Reporter Station would have its own login page 
+            with role-based access control.
+          </AlertDescription>
+        </Alert>
+      </div>
     </div>
   );
 
-  // Commented out authentication flow for demo purposes
-  // if (!user) {
+  // Commented out authentication flow for production use
+  // if (!user || !isAdmin) {
   //   return (
   //     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
   //       <div className="p-8 rounded-lg bg-white shadow max-w-md w-full">

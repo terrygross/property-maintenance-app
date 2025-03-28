@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Users, Building, Wrench, BarChart, CreditCard, AlertTriangle, Clipboard, Calendar, Layout } from "lucide-react";
+import { Users, Building, Wrench, BarChart, CreditCard, AlertTriangle, Clipboard, Calendar, Layout, UserCog } from "lucide-react";
 import AdminCard from "./AdminCard";
 
 interface OverviewTabContentProps {
@@ -43,12 +43,19 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
       />
       
       <AdminCard 
-        title="Reporter Station" 
-        description="Access the reporter station interface for maintenance issue reporting"
+        title="Reporter Jobs" 
+        description="View and manage reported maintenance issues"
         icon={<Clipboard className="h-6 w-6" />}
-        buttonText="Access Reporter Station"
-        isLink={true}
-        linkTo="/reporter"
+        buttonText="View Reporter Jobs"
+        buttonAction={() => setActiveTab("reporter")}
+      />
+      
+      <AdminCard 
+        title="Reporter Management" 
+        description="Manage reporter accounts and access based on your subscription"
+        icon={<UserCog className="h-6 w-6" />}
+        buttonText="Manage Reporters"
+        buttonAction={() => setActiveTab("reporter-management")}
       />
       
       <AdminCard 
@@ -66,6 +73,15 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
         buttonText="View Tech Interface"
         isLink={true}
         linkTo="/maintenance"
+      />
+      
+      <AdminCard 
+        title="Reporter Station" 
+        description="Access the reporter station interface for maintenance issue reporting"
+        icon={<Clipboard className="h-6 w-6" />}
+        buttonText="Access Reporter Station"
+        isLink={true}
+        linkTo="/reporter"
       />
       
       <AdminCard 
