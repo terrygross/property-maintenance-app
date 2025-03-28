@@ -36,6 +36,9 @@ const NavBar = () => {
             <Button variant="secondary" asChild>
               <Link to="/admin">Admin</Link>
             </Button>
+            <Button variant="outline" asChild>
+              <Link to="/maintenance">Maintenance Staff</Link>
+            </Button>
           </div>
         </div>
       </div>
