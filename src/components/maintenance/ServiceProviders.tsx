@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,22 +20,31 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { MOCK_USERS } from "@/data/mockUsers";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-// Mock data
-const initialProviders = [
-  { id: 1, name: "ABC Plumbing", contact: "John Doe", phone: "555-1234", email: "john@abcplumbing.com", categories: ["Plumbing"] },
-  { id: 2, name: "XYZ Electric", contact: "Jane Smith", phone: "555-5678", email: "jane@xyzelectric.com", categories: ["Electrical"] },
-  { id: 3, name: "Cool Air HVAC", contact: "Bob Johnson", phone: "555-9012", email: "bob@coolair.com", categories: ["HVAC"] },
-];
+// Get only contractors from the mock users
+const contractorUsers = MOCK_USERS.filter(user => user.role === "contractor");
+
+// Convert contractor users to service providers
+const getInitialProviders = () => contractorUsers.map(user => ({
+  id: user.id,
+  name: `${user.first_name} ${user.last_name} - ${user.title}`,
+  contact: user.first_name + " " + user.last_name,
+  phone: user.phone,
+  email: user.email,
+  photo_url: user.photo_url,
+  categories: [user.title.split(" ")[0]] // Use the first word of their title as category (e.g., "Plumbing" from "Plumbing Contractor")
+}));
 
 const ServiceProviders = () => {
-  const [providers, setProviders] = useState(initialProviders);
+  const [providers, setProviders] = useState(getInitialProviders());
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentProvider, setCurrentProvider] = useState<any>(null);
   const { toast } = useToast();
 
   const openAddDialog = () => {
-    setCurrentProvider({ name: "", contact: "", phone: "", email: "", categories: [] });
+    setCurrentProvider({ name: "", contact: "", phone: "", email: "", categories: [], photo_url: "" });
     setIsDialogOpen(true);
   };
 
@@ -69,7 +78,7 @@ const ServiceProviders = () => {
       // Add new provider
       const newProvider = {
         ...currentProvider,
-        id: Math.max(0, ...providers.map((p) => p.id)) + 1,
+        id: String(Date.now()), // Create a new ID
       };
       setProviders([...providers, newProvider]);
       toast({
@@ -80,7 +89,7 @@ const ServiceProviders = () => {
     setIsDialogOpen(false);
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     if (confirm("Are you sure you want to delete this provider?")) {
       setProviders(providers.filter((p) => p.id !== id));
       toast({
@@ -103,20 +112,33 @@ const ServiceProviders = () => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Contact Person</TableHead>
-            <TableHead>Phone</TableHead>
-            <TableHead>Email</TableHead>
+            <TableHead>Provider</TableHead>
+            <TableHead className="hidden md:table-cell">Contact</TableHead>
+            <TableHead className="hidden md:table-cell">Phone</TableHead>
+            <TableHead className="hidden md:table-cell">Email</TableHead>
             <TableHead className="w-[100px]">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {providers.map((provider) => (
             <TableRow key={provider.id}>
-              <TableCell className="font-medium">{provider.name}</TableCell>
-              <TableCell>{provider.contact}</TableCell>
-              <TableCell>{provider.phone}</TableCell>
-              <TableCell>{provider.email}</TableCell>
+              <TableCell>
+                <div className="flex items-center gap-3">
+                  <Avatar>
+                    <AvatarImage src={provider.photo_url} alt={provider.name} />
+                    <AvatarFallback>
+                      {provider.name?.split(' ').map((n: string) => n[0]).join('')}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <div className="font-medium">{provider.name}</div>
+                    <div className="text-xs text-muted-foreground">{provider.categories.join(', ')}</div>
+                  </div>
+                </div>
+              </TableCell>
+              <TableCell className="hidden md:table-cell">{provider.contact}</TableCell>
+              <TableCell className="hidden md:table-cell">{provider.phone}</TableCell>
+              <TableCell className="hidden md:table-cell">{provider.email}</TableCell>
               <TableCell>
                 <div className="flex gap-2">
                   <Button
