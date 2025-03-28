@@ -20,11 +20,32 @@ const MaintenanceTech = () => {
     { id: "2", userId: "1", startDate: new Date(2024, 1, 15), endDate: new Date(2024, 1, 18), status: "pending", reason: "Personal time" },
   ]);
 
-  // Example assigned jobs
+  // Example assigned jobs with photo fields
   const [assignedJobs, setAssignedJobs] = useState([
-    { id: "j1", title: "Fix heating system", location: "Building A", priority: "high", dueDate: new Date(2023, 11, 30) },
-    { id: "j2", title: "Replace light fixtures", location: "Building C", priority: "medium", dueDate: new Date(2023, 12, 5) },
-    { id: "j3", title: "Inspect water damage", location: "Building B", priority: "low", dueDate: new Date(2023, 12, 10) },
+    { 
+      id: "j1", 
+      title: "Fix heating system", 
+      location: "Building A", 
+      priority: "high", 
+      dueDate: new Date(2023, 11, 30),
+      photos: { before: "", after: "" }
+    },
+    { 
+      id: "j2", 
+      title: "Replace light fixtures", 
+      location: "Building C", 
+      priority: "medium", 
+      dueDate: new Date(2023, 12, 5),
+      photos: { before: "", after: "" }
+    },
+    { 
+      id: "j3", 
+      title: "Inspect water damage", 
+      location: "Building B", 
+      priority: "low", 
+      dueDate: new Date(2023, 12, 10),
+      photos: { before: "", after: "" }
+    },
   ]);
 
   // Example call-out schedule
