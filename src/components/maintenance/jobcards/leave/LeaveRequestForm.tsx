@@ -21,9 +21,9 @@ const LeaveRequestForm = ({
   const form = useForm();
   const { toast } = useToast();
 
-  // Filter maintenance technicians
-  const maintenanceTechs = MOCK_USERS.filter(user => 
-    user.role === "maintenance_tech" || user.role === "contractor"
+  // Filter only maintenance technicians (not contractors)
+  const staffMembers = MOCK_USERS.filter(user => 
+    user.role === "maintenance_tech" || user.role === "maintenance_manager"
   );
 
   const handleSubmit = (data: any) => {
@@ -51,17 +51,17 @@ const LeaveRequestForm = ({
               name="technician"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Technician</FormLabel>
+                  <FormLabel>Staff Member</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select technician" />
+                        <SelectValue placeholder="Select staff member" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {maintenanceTechs.map(tech => (
-                        <SelectItem key={tech.id} value={tech.id}>
-                          {tech.first_name} {tech.last_name}
+                      {staffMembers.map(staff => (
+                        <SelectItem key={staff.id} value={staff.id}>
+                          {staff.first_name} {staff.last_name}
                         </SelectItem>
                       ))}
                     </SelectContent>
