@@ -13,6 +13,7 @@ import JobsList from "./jobs/JobsList";
 import AdminTabsList from "./admin/AdminTabsList";
 import OverviewTabContent from "./admin/OverviewTabContent";
 import GenericTabContent from "./admin/GenericTabContent";
+import MaintenanceJobCards from "./maintenance/jobcards/MaintenanceJobCards";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -58,6 +59,12 @@ const AdminDashboard = () => {
         <TabsContent value="reports">
           <AdminTab title="Reports" description="Access detailed maintenance performance reports">
             <Reports />
+          </AdminTab>
+        </TabsContent>
+
+        <TabsContent value="maintenance-jobcards">
+          <AdminTab title="Maintenance Job Cards" description="View job cards, manage leave calendar, and schedule call-out rota">
+            <MaintenanceJobCards />
           </AdminTab>
         </TabsContent>
 
