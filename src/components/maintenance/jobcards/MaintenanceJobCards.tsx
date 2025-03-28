@@ -7,7 +7,7 @@ import LeaveCalendar from "./LeaveCalendar";
 import CallOutSchedule from "./CallOutSchedule";
 
 const MaintenanceJobCards = () => {
-  const [activeTab, setActiveTab] = useState("jobcards");
+  const [activeTab, setActiveTab] = useState("leave");
   const [leaveRequests, setLeaveRequests] = useState([
     { id: "1", userId: "1", startDate: new Date(2023, 11, 20), endDate: new Date(2023, 11, 24), status: "pending", reason: "Family vacation" },
     { id: "2", userId: "2", startDate: new Date(2023, 11, 27), endDate: new Date(2023, 11, 31), status: "pending", reason: "Personal time" },
@@ -37,7 +37,7 @@ const MaintenanceJobCards = () => {
 
   return (
     <div className="space-y-4">
-      <Tabs defaultValue="jobcards" className="w-full" value={activeTab} onValueChange={setActiveTab}>
+      <Tabs defaultValue="leave" className="w-full" value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid grid-cols-3 mb-4">
           <TabsTrigger value="jobcards">Job Cards</TabsTrigger>
           <TabsTrigger value="leave">Leave Calendar</TabsTrigger>

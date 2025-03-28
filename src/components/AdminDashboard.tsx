@@ -31,7 +31,7 @@ const AdminDashboard = () => {
         </Button>
       </div>
 
-      <Tabs defaultValue="overview" className="w-full" onValueChange={setActiveTab}>
+      <Tabs defaultValue="overview" className="w-full" value={activeTab} onValueChange={setActiveTab}>
         <AdminTabsList />
 
         <TabsContent value="overview" className="space-y-4">
