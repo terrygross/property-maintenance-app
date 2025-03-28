@@ -1,6 +1,8 @@
 
 import { useState, useEffect } from "react";
 import JobCard, { JobCardProps } from "../job/JobCard";
+import { toast } from "@/hooks/use-toast";
+import { MOCK_USERS } from "@/data/mockUsers";
 
 // This would typically fetch from an API
 const getAssignedJobs = (): Promise<JobCardProps[]> => {
@@ -15,7 +17,9 @@ const getAssignedJobs = (): Promise<JobCardProps[]> => {
           property: "Property B",
           reportDate: "2023-10-05",
           priority: "medium",
-          status: "assigned"
+          status: "assigned",
+          assignedTo: "3", // Robert Johnson (HVAC Contractor)
+          emailSent: true
         },
         {
           id: "job6",
@@ -24,7 +28,9 @@ const getAssignedJobs = (): Promise<JobCardProps[]> => {
           property: "Property A",
           reportDate: "2023-10-07",
           priority: "high",
-          status: "in_progress"
+          status: "in_progress",
+          assignedTo: "5", // Michael Brown (Plumbing Contractor)
+          emailSent: true
         },
         {
           id: "job10",
@@ -33,7 +39,9 @@ const getAssignedJobs = (): Promise<JobCardProps[]> => {
           property: "Property C",
           reportDate: "2023-10-08",
           priority: "medium",
-          status: "assigned"
+          status: "assigned",
+          assignedTo: "6", // Jason Bleakly (Plumbing Contractor)
+          emailSent: false
         },
         {
           id: "job11",
@@ -42,7 +50,9 @@ const getAssignedJobs = (): Promise<JobCardProps[]> => {
           property: "Property B",
           reportDate: "2023-10-06",
           priority: "high",
-          status: "in_progress"
+          status: "in_progress",
+          assignedTo: "7", // Mark Wilde (Electrical Contractor)
+          emailSent: true
         }
       ]);
     }, 500);
@@ -68,6 +78,33 @@ const JobsList = () => {
     fetchJobs();
   }, []);
 
+  const handleResendEmail = (jobId: string, technicianId: string) => {
+    // In a real app, this would make an API call to resend the email
+    
+    // Find the technician
+    const technician = MOCK_USERS.find(user => user.id === technicianId);
+    
+    if (technician) {
+      console.log(`Resending email to ${technician.first_name} ${technician.last_name} for job ${jobId}`);
+      
+      // Simulate sending email
+      setTimeout(() => {
+        // Update job to mark email as sent
+        setJobs(prevJobs => 
+          prevJobs.map(job => 
+            job.id === jobId ? { ...job, emailSent: true } : job
+          )
+        );
+        
+        // In a real app, this would be handled by the backend
+        toast({
+          title: "Email Sent Successfully",
+          description: `Job details have been emailed to ${technician.first_name} ${technician.last_name}.`,
+        });
+      }, 1500);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -83,7 +120,11 @@ const JobsList = () => {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {jobs.length > 0 ? (
         jobs.map(job => (
-          <JobCard key={job.id} {...job} />
+          <JobCard 
+            key={job.id} 
+            {...job} 
+            onResendEmail={handleResendEmail}
+          />
         ))
       ) : (
         <div className="col-span-full text-center py-10 bg-gray-50 rounded-lg">

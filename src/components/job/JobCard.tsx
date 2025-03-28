@@ -1,8 +1,9 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Clock, User, Calendar, MapPin, MoreHorizontal } from "lucide-react";
+import { Clock, User, Calendar, MapPin, MoreHorizontal, Mail, RefreshCw } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MOCK_USERS } from "@/data/mockUsers";
@@ -15,7 +16,10 @@ export interface JobCardProps {
   reportDate: string;
   priority: "low" | "medium" | "high";
   status: "unassigned" | "assigned" | "in_progress" | "completed";
+  assignedTo?: string;
+  emailSent?: boolean;
   onAssign?: (id: string, technicianId: string) => void;
+  onResendEmail?: (id: string, technicianId: string) => void;
 }
 
 // Filter technicians from MOCK_USERS
@@ -31,10 +35,14 @@ const JobCard = ({
   reportDate, 
   priority, 
   status,
-  onAssign 
+  assignedTo,
+  emailSent = false,
+  onAssign,
+  onResendEmail
 }: JobCardProps) => {
   const [assigning, setAssigning] = useState(false);
   const [selectedTechnician, setSelectedTechnician] = useState("");
+  const [sendingEmail, setSendingEmail] = useState(false);
   
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -76,6 +84,33 @@ const JobCard = ({
     }, 1000);
   };
 
+  const handleResendEmail = () => {
+    if (!assignedTo) return;
+    
+    setSendingEmail(true);
+    
+    // Simulate API call for resending email
+    setTimeout(() => {
+      if (onResendEmail) {
+        onResendEmail(id, assignedTo);
+      }
+      
+      const assignedTech = TECHNICIANS.find(t => t.id === assignedTo);
+      const techName = assignedTech ? `${assignedTech.first_name} ${assignedTech.last_name}` : "the contractor";
+      
+      toast({
+        title: "Email Resent",
+        description: `Job details have been resent to ${techName}.`,
+      });
+      
+      setSendingEmail(false);
+    }, 1500);
+  };
+
+  // Check if assigned to a contractor
+  const assignedTech = assignedTo ? TECHNICIANS.find(t => t.id === assignedTo) : null;
+  const isContractor = assignedTech?.role === "contractor";
+
   return (
     <Card className="h-full">
       <CardHeader className="pb-2">
@@ -99,6 +134,22 @@ const JobCard = ({
             <Clock className="h-3 w-3" /> Status: {status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
           </div>
         </div>
+        
+        {status !== "unassigned" && isContractor && (
+          <div className="mt-3 text-xs flex items-center">
+            <Badge variant={emailSent ? "outline" : "secondary"} className="mr-2 flex items-center gap-1">
+              <Mail className="h-3 w-3" />
+              {emailSent ? "Email Sent" : "Email Pending"}
+            </Badge>
+            
+            {assignedTech && (
+              <div className="flex items-center gap-1 text-gray-500">
+                <User className="h-3 w-3" />
+                {assignedTech.first_name} {assignedTech.last_name}
+              </div>
+            )}
+          </div>
+        )}
       </CardContent>
       <CardFooter>
         {status === "unassigned" ? (
@@ -126,6 +177,16 @@ const JobCard = ({
               {assigning ? "Assigning..." : "Assign Job"}
             </Button>
           </div>
+        ) : isContractor ? (
+          <Button 
+            variant="outline" 
+            className="w-full flex items-center gap-2" 
+            onClick={handleResendEmail}
+            disabled={sendingEmail}
+          >
+            <RefreshCw className={`h-4 w-4 ${sendingEmail ? 'animate-spin' : ''}`} />
+            {sendingEmail ? "Sending..." : "Resend Job Email"}
+          </Button>
         ) : (
           <Button variant="outline" className="w-full" disabled>
             Already Assigned

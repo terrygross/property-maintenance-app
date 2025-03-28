@@ -2,6 +2,7 @@
 import { useState } from "react";
 import JobCard, { JobCardProps } from "../job/JobCard";
 import { toast } from "@/hooks/use-toast";
+import { MOCK_USERS } from "@/data/mockUsers";
 
 // Mock data for job cards
 const MOCK_JOB_CARDS: JobCardProps[] = [
@@ -92,16 +93,43 @@ const ReporterJobCards = () => {
   const [jobCards, setJobCards] = useState<JobCardProps[]>(MOCK_JOB_CARDS);
 
   const handleAssignJob = (jobId: string, technicianId: string) => {
-    // Update the job status to "assigned"
+    // Find the technician to check if they're a contractor
+    const technician = MOCK_USERS.find(user => user.id === technicianId);
+    const isContractor = technician?.role === "contractor";
+    
+    // Update the job status to "assigned" and set the assignedTo field
     setJobCards(prevCards => 
       prevCards.map(card => 
-        card.id === jobId ? { ...card, status: "assigned" as const } : card
+        card.id === jobId 
+          ? { 
+              ...card, 
+              status: "assigned" as const,
+              assignedTo: technicianId,
+              // Set emailSent to true for maintenance techs, false for contractors initially
+              // In a real app, emails would be sent immediately for contractors
+              emailSent: !isContractor
+            } 
+          : card
       )
     );
 
-    // In a real app, this would make an API call to update the database
-    // For now, we'll just show a toast notification after a timeout
+    // In a real app, this would make an API call to update the database and send email
     setTimeout(() => {
+      // If it's a contractor, simulate sending an email
+      if (isContractor && technician) {
+        toast({
+          title: "Email Sent to Contractor",
+          description: `Job details have been emailed to ${technician.first_name} ${technician.last_name}.`,
+        });
+        
+        // Update the job to mark the email as sent
+        setJobCards(prevCards => 
+          prevCards.map(card => 
+            card.id === jobId ? { ...card, emailSent: true } : card
+          )
+        );
+      }
+      
       toast({
         title: "Job Moved to Jobs Tab",
         description: "The assigned job has been moved to the Jobs tab.",
