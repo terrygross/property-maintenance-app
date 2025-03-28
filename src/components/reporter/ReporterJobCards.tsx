@@ -1,6 +1,7 @@
 
 import { useState } from "react";
-import JobCard, { JobCardProps } from "../job/JobCard";
+import JobCard from "../job/JobCard";
+import { JobCardProps } from "../job/jobCardTypes";
 import { toast } from "@/hooks/use-toast";
 import { MOCK_USERS } from "@/data/mockUsers";
 
