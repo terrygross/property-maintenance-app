@@ -285,7 +285,7 @@ const WorkflowRules = () => {
                 }
               />
               <p className="text-xs text-muted-foreground">
-                Simple conditions like "priority == 'High'" or "days_overdue > 2"
+                Simple conditions like &quot;priority == &apos;High&apos;&quot; or &quot;days_overdue &gt; 2&quot;
               </p>
             </div>
             
