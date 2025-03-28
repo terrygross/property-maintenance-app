@@ -109,6 +109,20 @@ const Reports = () => {
     }, 1500);
   };
 
+  const handleDownloadReport = () => {
+    toast({
+      title: "PDF Download Started",
+      description: `Downloading ${getReportTypeName(reportType)} report for ${property === "all" ? "All Properties" : getPropertyName(property)} as PDF.`,
+    });
+    
+    setTimeout(() => {
+      toast({
+        title: "PDF Download Complete",
+        description: "Your report has been downloaded successfully.",
+      });
+    }, 1500);
+  };
+
   const handleUploadClick = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();

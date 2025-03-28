@@ -9,7 +9,7 @@ interface AdminCardProps {
   description: string;
   icon: React.ReactNode;
   buttonText: string;
-  buttonAction: () => void;
+  buttonAction?: () => void; // Make buttonAction optional
   isLink?: boolean;
   linkTo?: string;
 }
