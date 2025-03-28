@@ -55,6 +55,32 @@ const MaintenanceTech = () => {
     new Date(2024, 0, 10),
   ]);
 
+  // Function to handle photo updates for jobs
+  const handleJobPhotoUpdate = (jobId: string, type: "before" | "after", imageUrl: string) => {
+    setAssignedJobs(prev => 
+      prev.map(job => {
+        if (job.id === jobId) {
+          return {
+            ...job,
+            photos: {
+              ...job.photos,
+              [type]: imageUrl
+            }
+          };
+        }
+        return job;
+      })
+    );
+    
+    toast({
+      title: "Photo updated",
+      description: `${type.charAt(0).toUpperCase() + type.slice(1)} photo has been saved.`,
+    });
+    
+    // In a real application, this would sync with the backend
+    console.log(`Updated ${type} photo for job ${jobId}`);
+  };
+
   useEffect(() => {
     // For demo purposes, we'll simulate loading data
     // In a real implementation, we would fetch data from the backend
@@ -103,7 +129,10 @@ const MaintenanceTech = () => {
           </TabsContent>
 
           <TabsContent value="jobs" className="space-y-4">
-            <TechJobsTab assignedJobs={assignedJobs} />
+            <TechJobsTab 
+              assignedJobs={assignedJobs} 
+              onPhotoCapture={handleJobPhotoUpdate}
+            />
           </TabsContent>
 
           <TabsContent value="callout" className="space-y-4">

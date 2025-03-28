@@ -21,10 +21,10 @@ interface Job {
 
 interface TechJobsTabProps {
   assignedJobs: Job[];
+  onPhotoCapture: (jobId: string, type: "before" | "after", imageUrl: string) => void;
 }
 
-const TechJobsTab = ({ assignedJobs: initialJobs }: TechJobsTabProps) => {
-  const [assignedJobs, setAssignedJobs] = useState<Job[]>(initialJobs);
+const TechJobsTab = ({ assignedJobs, onPhotoCapture }: TechJobsTabProps) => {
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [showJobDetails, setShowJobDetails] = useState(false);
   const { toast } = useToast();
@@ -48,22 +48,9 @@ const TechJobsTab = ({ assignedJobs: initialJobs }: TechJobsTabProps) => {
   };
 
   const handlePhotoCapture = (jobId: string, type: "before" | "after", imageUrl: string) => {
-    setAssignedJobs(prev => 
-      prev.map(job => {
-        if (job.id === jobId) {
-          return {
-            ...job,
-            photos: {
-              ...job.photos,
-              [type]: imageUrl
-            }
-          };
-        }
-        return job;
-      })
-    );
+    onPhotoCapture(jobId, type, imageUrl);
     
-    // Update selected job if it's the one being modified
+    // Update selected job UI if it's the one being modified
     if (selectedJob && selectedJob.id === jobId) {
       setSelectedJob({
         ...selectedJob,
@@ -73,11 +60,6 @@ const TechJobsTab = ({ assignedJobs: initialJobs }: TechJobsTabProps) => {
         }
       });
     }
-    
-    toast({
-      title: "Photo updated",
-      description: `${type.charAt(0).toUpperCase() + type.slice(1)} photo has been updated.`,
-    });
   };
 
   return (
