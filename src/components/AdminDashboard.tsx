@@ -39,7 +39,6 @@ const AdminDashboard = () => {
             <TabsTrigger value="billing">Billing</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
             <TabsTrigger value="logs">Logs</TabsTrigger>
-            <TabsTrigger value="jobcards">Job Cards</TabsTrigger>
             <TabsTrigger value="reporter">Reporter</TabsTrigger>
             <TabsTrigger value="jobs">Jobs</TabsTrigger>
             <TabsTrigger value="backup">Backup & Restore</TabsTrigger>
@@ -161,20 +160,6 @@ const AdminDashboard = () => {
               </CardHeader>
               <CardContent>
                 <p>System logs functionality will be implemented here.</p>
-              </CardContent>
-            </Card>
-          </AdminTab>
-        </TabsContent>
-
-        <TabsContent value="jobcards">
-          <AdminTab title="Job Cards" description="Manage maintenance job cards">
-            <Card>
-              <CardHeader>
-                <CardTitle>Job Cards Management</CardTitle>
-                <CardDescription>Assign and manage maintenance job cards</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p>Job card management functionality will be implemented here.</p>
               </CardContent>
             </Card>
           </AdminTab>
