@@ -41,6 +41,7 @@ const ComplianceLists = () => {
     handlePropertyChange
   } = useComplianceLists(currentProperties);
 
+  // State for preview functionality
   const [previewList, setPreviewList] = useState<ComplianceList | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
