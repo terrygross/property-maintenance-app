@@ -8,7 +8,7 @@ import {
 
 const AdminTabsList = () => {
   return (
-    <TabsList className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 mb-8">
+    <TabsList className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-8 overflow-x-auto">
       <TabsTrigger value="overview" className="data-[state=active]:bg-primary/10">
         <span className="flex items-center gap-2">
           <Calendar className="h-4 w-4" />
@@ -47,7 +47,7 @@ const AdminTabsList = () => {
       <TabsTrigger value="reporter-management" className="data-[state=active]:bg-primary/10">
         <span className="flex items-center gap-2">
           <UserCog className="h-4 w-4" />
-          <span className="hidden sm:inline">Reporter Mgmt</span>
+          <span className="hidden sm:inline">Reporter</span>
         </span>
       </TabsTrigger>
       
@@ -61,7 +61,7 @@ const AdminTabsList = () => {
       <TabsTrigger value="chat" className="data-[state=active]:bg-primary/10">
         <span className="flex items-center gap-2">
           <MessageCircle className="h-4 w-4" />
-          <span className="hidden sm:inline">Team Chat</span>
+          <span className="hidden sm:inline">Chat</span>
         </span>
       </TabsTrigger>
       

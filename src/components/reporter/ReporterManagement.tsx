@@ -8,7 +8,7 @@ const ReporterManagement = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-start">
-        <div className="grid gap-4 flex-1">
+        <div className="grid gap-4 w-full">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -43,7 +43,7 @@ const ReporterManagement = () => {
       </div>
 
       <Tabs defaultValue="stations" className="space-y-4">
-        <TabsList>
+        <TabsList className="w-full md:w-auto">
           <TabsTrigger value="stations">Reporter Stations</TabsTrigger>
           <TabsTrigger value="subscription">Subscription</TabsTrigger>
         </TabsList>
