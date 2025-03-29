@@ -4,6 +4,7 @@ import JobCard from "../job/JobCard";
 import { JobCardProps } from "../job/jobCardTypes";
 import { useToast } from "@/hooks/use-toast";
 import { MOCK_USERS } from "@/data/mockUsers";
+import JobPhotosViewer from "../jobs/JobPhotosViewer";
 
 const ReporterJobCards = () => {
   // State to hold job cards from localStorage and mock data
@@ -20,8 +21,15 @@ const ReporterJobCards = () => {
           const parsedJobs = JSON.parse(savedJobs);
           // Filter out any jobs that have already been assigned
           const unassignedJobs = parsedJobs.filter((job: any) => job.status === "unassigned");
-          setJobCards(unassignedJobs);
-          console.log("Loaded reporter jobs:", unassignedJobs);
+          
+          // Map the jobs to include the reporter photo
+          const jobsWithPhotos = unassignedJobs.map((job: any) => ({
+            ...job,
+            reporterPhoto: job.imageUrl // Include the imageUrl as reporterPhoto
+          }));
+          
+          setJobCards(jobsWithPhotos);
+          console.log("Loaded reporter jobs:", jobsWithPhotos);
         }
       } catch (error) {
         console.error("Error loading reporter jobs:", error);
@@ -120,11 +128,13 @@ const ReporterJobCards = () => {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {jobCards.length > 0 ? (
         jobCards.map(job => (
-          <JobCard
-            key={job.id}
-            {...job}
-            onAssign={handleAssignJob}
-          />
+          <div key={job.id} className="flex flex-col space-y-4">
+            <JobCard
+              {...job}
+              onAssign={handleAssignJob}
+            />
+            <JobPhotosViewer reporterPhoto={job.reporterPhoto} />
+          </div>
         ))
       ) : (
         <div className="col-span-full text-center py-10 bg-gray-50 rounded-lg">

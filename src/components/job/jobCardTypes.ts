@@ -9,6 +9,7 @@ export interface JobCardProps {
   status: "unassigned" | "assigned" | "in_progress" | "completed";
   assignedTo?: string;
   emailSent?: boolean;
+  reporterPhoto?: string;
   onAssign?: (id: string, technicianId: string) => void;
   onResendEmail?: (id: string, technicianId: string) => void;
 }
