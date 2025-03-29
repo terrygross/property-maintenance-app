@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useAppState } from "@/context/AppStateContext";
 
@@ -34,7 +34,7 @@ export const useServiceProviders = () => {
   const { toast } = useToast();
 
   // Update providers when users change
-  useState(() => {
+  useEffect(() => {
     setProviders(getInitialProviders(users));
   }, [users]);
 
