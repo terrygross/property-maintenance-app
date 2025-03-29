@@ -5,26 +5,6 @@ import { StationFormValues } from "./StationForm";
 import { useAppState } from "@/context/AppStateContext";
 import { useToast } from "@/hooks/use-toast";
 
-// Initial mock data for reporter stations
-const initialMockStations: ReporterStation[] = [
-  {
-    id: "1",
-    stationId: "STATION-001",
-    companyName: "Building Management Co",
-    propertyId: "1",
-    password: "******",
-    createdAt: "2023-06-15",
-  },
-  {
-    id: "2",
-    stationId: "STATION-002",
-    companyName: "Property Services Ltd",
-    propertyId: "2",
-    password: "******",
-    createdAt: "2023-07-22",
-  },
-];
-
 // LocalStorage key
 const STORAGE_KEY = 'reporterStations';
 
@@ -32,7 +12,7 @@ export const useStationManagement = () => {
   const { properties } = useAppState();
   const { toast } = useToast();
   
-  // Load stations from localStorage or use initial mock data
+  // Load stations from localStorage
   const [stations, setStations] = useState<ReporterStation[]>(() => {
     const savedStations = localStorage.getItem(STORAGE_KEY);
     if (savedStations) {
@@ -55,10 +35,10 @@ export const useStationManagement = () => {
         return validStations;
       } catch (error) {
         console.error("Error parsing saved stations:", error);
-        return initialMockStations;
+        return [];
       }
     }
-    return initialMockStations;
+    return [];
   });
   
   const [isDialogOpen, setIsDialogOpen] = useState(false);

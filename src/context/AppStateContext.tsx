@@ -2,8 +2,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Property } from '@/types/property';
 import { User } from '@/types/user';
-import { mockProperties } from '@/data/mockProperties';
-import { MOCK_USERS } from '@/data/mockUsers';
 import { useToast } from '@/hooks/use-toast';
 
 // Define the shape of our application state
@@ -16,7 +14,6 @@ interface AppState {
   updateUser: (user: User) => void;
   addUser: (user: User) => void;
   deleteUser: (id: string) => void;
-  resetToDefaultData: () => void;
 }
 
 // Create the context
@@ -24,15 +21,15 @@ const AppStateContext = createContext<AppState | undefined>(undefined);
 
 // Provider component
 export const AppStateProvider = ({ children }: { children: ReactNode }) => {
-  // Initialize state from localStorage if available, otherwise use mock data
+  // Initialize state from localStorage if available, otherwise use empty arrays
   const [properties, setProperties] = useState<Property[]>(() => {
     const savedProperties = localStorage.getItem('properties');
-    return savedProperties ? JSON.parse(savedProperties) : mockProperties;
+    return savedProperties ? JSON.parse(savedProperties) : [];
   });
   
   const [users, setUsers] = useState<User[]>(() => {
     const savedUsers = localStorage.getItem('users');
-    return savedUsers ? JSON.parse(savedUsers) : MOCK_USERS;
+    return savedUsers ? JSON.parse(savedUsers) : [];
   });
   
   const { toast } = useToast();
@@ -108,16 +105,6 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  // Reset to default mock data
-  const resetToDefaultData = () => {
-    setProperties(mockProperties);
-    setUsers(MOCK_USERS);
-    toast({
-      title: "Data reset",
-      description: "All data has been reset to default mock data.",
-    });
-  };
-
   const value = {
     properties,
     users,
@@ -126,8 +113,7 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
     deleteProperty,
     updateUser,
     addUser,
-    deleteUser,
-    resetToDefaultData
+    deleteUser
   };
 
   return (

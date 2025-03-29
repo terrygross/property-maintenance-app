@@ -4,7 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAppState } from "@/context/AppStateContext";
 
 // Get only contractors from the users
-const getInitialProviders = (users: any[]) => users
+const getProvidersFromUsers = (users: any[]) => users
   .filter(user => user.role === "contractor")
   .map(user => ({
     id: user.id,
@@ -28,14 +28,14 @@ export interface ServiceProvider {
 
 export const useServiceProviders = () => {
   const { users } = useAppState();
-  const [providers, setProviders] = useState<ServiceProvider[]>(getInitialProviders(users));
+  const [providers, setProviders] = useState<ServiceProvider[]>(getProvidersFromUsers(users));
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentProvider, setCurrentProvider] = useState<ServiceProvider | null>(null);
   const { toast } = useToast();
 
   // Update providers when users change
   useEffect(() => {
-    setProviders(getInitialProviders(users));
+    setProviders(getProvidersFromUsers(users));
   }, [users]);
 
   const openAddDialog = () => {

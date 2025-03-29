@@ -34,7 +34,7 @@ const StationDialog = ({
     password: "",
   });
 
-  // Reset form when the selected station changes
+  // Reset form when the selected station changes or when properties change
   useEffect(() => {
     if (selectedStation) {
       setFormValues({
@@ -61,6 +61,29 @@ const StationDialog = ({
     onSubmit(formValues);
   };
 
+  // Handle the case when there are no properties
+  if (properties.length === 0 && isOpen) {
+    return (
+      <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>No Properties Available</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-muted-foreground">
+              You need to create at least one property before you can add a reporter station.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button onClick={onClose}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
@@ -79,7 +102,7 @@ const StationDialog = ({
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit}>
+          <Button onClick={handleSubmit} disabled={properties.length === 0}>
             {selectedStation ? "Update" : "Create"}
           </Button>
         </DialogFooter>
