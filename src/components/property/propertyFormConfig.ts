@@ -1,13 +1,14 @@
 
 import * as z from "zod";
-import { PropertyType } from "@/types/property";
+import { PropertyType, LocationType } from "@/types/property";
 
 export const propertyFormSchema = z.object({
   name: z.string().min(1, "Property name is required"),
   address: z.string().min(1, "Address is required"),
   city: z.string().min(1, "City is required"),
-  state: z.string().min(1, "State is required"),
-  zipCode: z.string().min(1, "ZIP Code is required"),
+  state: z.string().min(1, "State/County is required"),
+  zipCode: z.string().min(1, "ZIP/Postcode is required"),
+  country: z.enum(["usa", "uk"] as const).default("usa"),
   type: z.enum(["residential", "commercial", "industrial", "mixed_use"] as const),
   units: z.coerce.number().min(1, "Number of units is required"),
   status: z.enum(["active", "inactive", "maintenance"] as const),
@@ -29,4 +30,9 @@ export const statusOptions = [
   { value: "active", label: "Active" },
   { value: "inactive", label: "Inactive" },
   { value: "maintenance", label: "Maintenance" },
+];
+
+export const countryOptions = [
+  { value: "usa", label: "United States" },
+  { value: "uk", label: "United Kingdom" },
 ];

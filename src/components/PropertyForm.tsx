@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
-import { Property, PropertyType } from "@/types/property";
+import { Property, PropertyType, LocationType } from "@/types/property";
 import PropertyImageUpload from "./property/PropertyImageUpload";
 import PropertyBasicInfo from "./property/PropertyBasicInfo";
 import PropertyLocationInfo from "./property/PropertyLocationInfo";
@@ -28,6 +28,7 @@ const PropertyForm = ({ property, onSave, onCancel }: PropertyFormProps) => {
       city: property?.city || "",
       state: property?.state || "",
       zipCode: property?.zipCode || "",
+      country: property?.country || "usa",
       type: property?.type || "residential",
       units: property?.units || 1,
       status: property?.status || "active",
@@ -50,6 +51,7 @@ const PropertyForm = ({ property, onSave, onCancel }: PropertyFormProps) => {
       city: data.city,
       state: data.state,
       zipCode: data.zipCode,
+      country: data.country,
       type: data.type as PropertyType,
       units: data.units,
       status: data.status,
