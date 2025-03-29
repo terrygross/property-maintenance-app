@@ -6,7 +6,7 @@ import ReporterStation from "@/components/reporter/ReporterStation";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Building, Key } from "lucide-react";
+import { Building, Key, Info } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const Reporter = () => {
@@ -16,6 +16,12 @@ const Reporter = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
+  // Basic plan allows only 2 stations
+  const validStations = [
+    { id: "STATION-001", password: "station123", name: "Main Building" },
+    { id: "STATION-002", password: "property456", name: "Property Office" }
+  ];
+
   // Mock station login - in a real app, this would validate against the database
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,9 +29,10 @@ const Reporter = () => {
     
     // Simulate API call with timeout
     setTimeout(() => {
-      // Mock validation - in a real app you would check against your database
-      if ((stationId === "STATION-001" && password === "station123") || 
-          (stationId === "STATION-002" && password === "property456")) {
+      // Validate against our available stations (Basic plan has 2)
+      const station = validStations.find(s => s.id === stationId && s.password === password);
+      
+      if (station) {
         setIsAuthenticated(true);
         toast({
           title: "Login successful",
@@ -68,6 +75,17 @@ const Reporter = () => {
             </CardHeader>
             <form onSubmit={handleLogin}>
               <CardContent className="space-y-4">
+                <div className="p-3 bg-blue-50 rounded-md flex items-start gap-2">
+                  <Info className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
+                  <div className="text-sm text-blue-700">
+                    <p className="font-medium">Basic Plan Information</p>
+                    <p>Your plan includes 2 reporter stations:</p>
+                    <ul className="list-disc pl-5 mt-1">
+                      <li>STATION-001 (Main Building)</li>
+                      <li>STATION-002 (Property Office)</li>
+                    </ul>
+                  </div>
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="stationId">Station ID</Label>
                   <Input

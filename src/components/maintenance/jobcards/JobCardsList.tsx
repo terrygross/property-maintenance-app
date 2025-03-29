@@ -5,9 +5,12 @@ import { MOCK_USERS } from "@/data/mockUsers";
 
 const JobCardsList = () => {
   // Filter maintenance technicians
-  const maintenanceTechs = MOCK_USERS.filter(user => 
+  const allMaintenanceTechs = MOCK_USERS.filter(user => 
     user.role === "maintenance_tech" || user.role === "contractor"
   );
+  
+  // For Basic plan, we should only show 4 technicians
+  const maintenanceTechs = allMaintenanceTechs.slice(0, 4);
 
   // Handle view jobs button click
   const handleViewJobs = (techId: string) => {
@@ -25,7 +28,12 @@ const JobCardsList = () => {
     <div>
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-medium">Maintenance Job Cards</h3>
-        <Button variant="outline" size="sm" onClick={handleAssignJob}>Assign New Job</Button>
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">
+            {maintenanceTechs.length}/4 technicians (Basic plan)
+          </span>
+          <Button variant="outline" size="sm" onClick={handleAssignJob}>Assign New Job</Button>
+        </div>
       </div>
 
       <div className="space-y-4">
