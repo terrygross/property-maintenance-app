@@ -23,25 +23,53 @@ const AppStateContext = createContext<AppState | undefined>(undefined);
 export const AppStateProvider = ({ children }: { children: ReactNode }) => {
   // Initialize state from localStorage if available, otherwise use empty arrays
   const [properties, setProperties] = useState<Property[]>(() => {
-    const savedProperties = localStorage.getItem('properties');
-    return savedProperties ? JSON.parse(savedProperties) : [];
+    try {
+      const savedProperties = localStorage.getItem('properties');
+      return savedProperties ? JSON.parse(savedProperties) : [];
+    } catch (error) {
+      console.error("Error loading properties from localStorage:", error);
+      return [];
+    }
   });
   
   const [users, setUsers] = useState<User[]>(() => {
-    const savedUsers = localStorage.getItem('users');
-    return savedUsers ? JSON.parse(savedUsers) : [];
+    try {
+      const savedUsers = localStorage.getItem('users');
+      return savedUsers ? JSON.parse(savedUsers) : [];
+    } catch (error) {
+      console.error("Error loading users from localStorage:", error);
+      return [];
+    }
   });
   
   const { toast } = useToast();
 
-  // Persist to localStorage whenever state changes
+  // Persist to localStorage whenever state changes with error handling
   useEffect(() => {
-    localStorage.setItem('properties', JSON.stringify(properties));
-  }, [properties]);
+    try {
+      localStorage.setItem('properties', JSON.stringify(properties));
+    } catch (error) {
+      console.error("Error saving properties to localStorage:", error);
+      toast({
+        title: "Error saving properties",
+        description: "There was an error saving your properties. Please try again.",
+        variant: "destructive"
+      });
+    }
+  }, [properties, toast]);
 
   useEffect(() => {
-    localStorage.setItem('users', JSON.stringify(users));
-  }, [users]);
+    try {
+      localStorage.setItem('users', JSON.stringify(users));
+    } catch (error) {
+      console.error("Error saving users to localStorage:", error);
+      toast({
+        title: "Error saving users",
+        description: "There was an error saving your users. Please try again.",
+        variant: "destructive"
+      });
+    }
+  }, [users, toast]);
 
   // Property operations
   const updateProperty = (property: Property) => {
@@ -55,15 +83,24 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const addProperty = (property: Property) => {
-    const newProperty = {
-      ...property,
-      id: property.id || crypto.randomUUID(),
-    };
-    setProperties(prev => [...prev, newProperty]);
-    toast({
-      title: "Property added",
-      description: "The property has been added successfully.",
-    });
+    try {
+      const newProperty = {
+        ...property,
+        id: property.id || crypto.randomUUID(),
+      };
+      setProperties(prev => [...prev, newProperty]);
+      toast({
+        title: "Property added",
+        description: "The property has been added successfully.",
+      });
+    } catch (error) {
+      console.error("Error adding property:", error);
+      toast({
+        title: "Error adding property",
+        description: "There was an error adding your property. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const deleteProperty = (id: string) => {
@@ -86,15 +123,24 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const addUser = (user: User) => {
-    const newUser = {
-      ...user,
-      id: user.id || String(Date.now()),
-    };
-    setUsers(prev => [...prev, newUser]);
-    toast({
-      title: "User created",
-      description: "The user has been created successfully.",
-    });
+    try {
+      const newUser = {
+        ...user,
+        id: user.id || crypto.randomUUID(),
+      };
+      setUsers(prev => [...prev, newUser]);
+      toast({
+        title: "User created",
+        description: "The user has been created successfully.",
+      });
+    } catch (error) {
+      console.error("Error adding user:", error);
+      toast({
+        title: "Error adding user",
+        description: "There was an error adding the user. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const deleteUser = (id: string) => {
