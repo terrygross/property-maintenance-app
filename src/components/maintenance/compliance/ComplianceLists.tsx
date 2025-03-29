@@ -1,7 +1,7 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ClipboardList, FileText } from "lucide-react";
+import { ClipboardList, FileText, CheckCircle } from "lucide-react";
 import ComplianceListTable from "./ComplianceListTable";
 import ComplianceForm from "./ComplianceForm";
 import PropertySelector from "./PropertySelector";
@@ -9,13 +9,14 @@ import PropertyDisplay from "./PropertyDisplay";
 import ComplianceListActions from "./ComplianceListActions";
 import { useComplianceLists } from "./useComplianceLists";
 import CompliancePreview from "./CompliancePreview";
+import ComplianceAssignDialog from "./ComplianceAssignDialog";
 import { useState } from "react";
 import { ComplianceList } from "./types";
 import { useAppState } from "@/context/AppStateContext";
 
 const ComplianceLists = () => {
-  // Get properties directly from AppState
-  const { properties } = useAppState();
+  // Get properties and users directly from AppState
+  const { properties, users } = useAppState();
   
   const {
     activeTab,
@@ -27,6 +28,8 @@ const ComplianceLists = () => {
     complianceLists,
     fileInputRef,
     selectedProperty,
+    isAssignDialogOpen,
+    setIsAssignDialogOpen,
     handleFileUpload,
     handleFileChange,
     handleCreateNew,
@@ -37,8 +40,10 @@ const ComplianceLists = () => {
     handleDelete,
     handleFormSubmit,
     handleFormCancel,
-    handlePropertyChange
-  } = useComplianceLists(properties);
+    handlePropertyChange,
+    handleAssign,
+    handleAssignSubmit
+  } = useComplianceLists(properties, users);
 
   // State for preview functionality
   const [previewList, setPreviewList] = useState<ComplianceList | null>(null);
@@ -77,14 +82,18 @@ const ComplianceLists = () => {
         <PropertyDisplay property={selectedProperty} />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="active" className="flex items-center gap-2">
               <ClipboardList className="h-4 w-4" />
               <span>Active Lists</span>
             </TabsTrigger>
+            <TabsTrigger value="completed" className="flex items-center gap-2">
+              <CheckCircle className="h-4 w-4" />
+              <span>Completed</span>
+            </TabsTrigger>
             <TabsTrigger value="archived" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
-              <span>Archived Lists</span>
+              <span>Archived</span>
             </TabsTrigger>
           </TabsList>
           
@@ -92,6 +101,18 @@ const ComplianceLists = () => {
             <ComplianceListTable 
               lists={complianceLists}
               onEdit={handleEdit}
+              onView={handleViewPreview}
+              onArchive={handleArchive}
+              onAssign={handleAssign}
+              showArchiveAction={true}
+              showRestoreAction={false}
+              showAssignAction={true}
+            />
+          </TabsContent>
+          
+          <TabsContent value="completed">
+            <ComplianceListTable 
+              lists={complianceLists}
               onView={handleViewPreview}
               onArchive={handleArchive}
               showArchiveAction={true}
@@ -129,6 +150,14 @@ const ComplianceLists = () => {
             onOpenChange={setIsPreviewOpen}
           />
         )}
+
+        <ComplianceAssignDialog
+          isOpen={isAssignDialogOpen}
+          onOpenChange={setIsAssignDialogOpen}
+          list={selectedList}
+          onAssign={handleAssignSubmit}
+          technicians={users}
+        />
       </CardContent>
     </Card>
   );

@@ -2,7 +2,7 @@
 import { ComplianceList } from "./types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Eye, PencilIcon, ArchiveIcon, RotateCcw, Trash2 } from "lucide-react";
+import { Eye, PencilIcon, ArchiveIcon, RotateCcw, Trash2, UserCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 
@@ -13,8 +13,10 @@ interface ComplianceListTableProps {
   onArchive?: (id: string) => void;
   onRestore?: (id: string) => void;
   onDelete?: (id: string) => void;
+  onAssign?: (list: ComplianceList) => void;
   showArchiveAction: boolean;
   showRestoreAction: boolean;
+  showAssignAction?: boolean;
 }
 
 const ComplianceListTable = ({
@@ -24,8 +26,10 @@ const ComplianceListTable = ({
   onArchive,
   onRestore,
   onDelete,
+  onAssign,
   showArchiveAction,
   showRestoreAction,
+  showAssignAction = false,
 }: ComplianceListTableProps) => {
   return (
     <div className="border rounded-md">
@@ -35,7 +39,7 @@ const ComplianceListTable = ({
             <TableHead>Title</TableHead>
             <TableHead className="hidden md:table-cell">Description</TableHead>
             <TableHead className="hidden md:table-cell">Last Updated</TableHead>
-            <TableHead className="hidden md:table-cell">Version</TableHead>
+            <TableHead className="hidden md:table-cell">Status</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -63,6 +67,11 @@ const ComplianceListTable = ({
                         v{list.version}
                       </Badge>
                     )}
+                    {list.assignedToName && (
+                      <div className="text-xs text-muted-foreground mt-1">
+                        Assigned to: {list.assignedToName}
+                      </div>
+                    )}
                   </div>
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
@@ -72,11 +81,7 @@ const ComplianceListTable = ({
                   {format(new Date(list.updatedAt), "MMM d, yyyy")}
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
-                  {list.version > 1 ? (
-                    <Badge variant="outline">v{list.version}</Badge>
-                  ) : (
-                    "v1"
-                  )}
+                  <StatusBadge status={list.status} />
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end space-x-2">
@@ -90,7 +95,7 @@ const ComplianceListTable = ({
                       <span className="sr-only">View</span>
                     </Button>
                     
-                    {onEdit && showArchiveAction && (
+                    {onEdit && showArchiveAction && list.status !== "assigned" && list.status !== "completed" && (
                       <Button
                         variant="ghost"
                         size="icon"
@@ -102,7 +107,19 @@ const ComplianceListTable = ({
                       </Button>
                     )}
                     
-                    {onArchive && showArchiveAction && (
+                    {onAssign && showAssignAction && list.status !== "assigned" && list.status !== "completed" && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onAssign(list)}
+                        title="Assign list"
+                      >
+                        <UserCheck className="h-4 w-4" />
+                        <span className="sr-only">Assign</span>
+                      </Button>
+                    )}
+                    
+                    {onArchive && showArchiveAction && list.status !== "assigned" && list.status !== "completed" && (
                       <Button
                         variant="ghost"
                         size="icon"
@@ -147,6 +164,22 @@ const ComplianceListTable = ({
       </Table>
     </div>
   );
+};
+
+// Helper component to display status badge
+const StatusBadge = ({ status }: { status: ComplianceStatus }) => {
+  switch (status) {
+    case "active":
+      return <Badge variant="outline" className="bg-blue-50 text-blue-600 border-blue-200">Active</Badge>;
+    case "archived":
+      return <Badge variant="outline" className="bg-gray-50 text-gray-600 border-gray-200">Archived</Badge>;
+    case "assigned":
+      return <Badge variant="outline" className="bg-yellow-50 text-yellow-600 border-yellow-200">Assigned</Badge>;
+    case "completed":
+      return <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200">Completed</Badge>;
+    default:
+      return <Badge variant="outline">{status}</Badge>;
+  }
 };
 
 export default ComplianceListTable;

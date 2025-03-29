@@ -2,17 +2,22 @@
 import { useState, useEffect, useRef } from 'react';
 import { ComplianceList, ComplianceFormMode } from './types';
 import { Property } from '@/types/property';
+import { User } from '@/types/user';
 import { mockComplianceLists } from './mockComplianceLists';
 import { updatePropertyNamesInLists, filterComplianceLists } from './complianceUtils';
 import { useComplianceFormHandlers } from './useComplianceFormHandlers';
+import { useToast } from '@/hooks/use-toast';
 
-export const useComplianceLists = (properties: Property[]) => {
+export const useComplianceLists = (properties: Property[], users: User[]) => {
   const [activeTab, setActiveTab] = useState("active");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formMode, setFormMode] = useState<ComplianceFormMode>("create");
   const [selectedList, setSelectedList] = useState<ComplianceList | null>(null);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>("");
   const [complianceLists, setComplianceLists] = useState<ComplianceList[]>(mockComplianceLists);
+  const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
+  const [isCompleteDialogOpen, setIsCompleteDialogOpen] = useState(false);
+  const { toast } = useToast();
   
   // Using a ref to track if this is the first render
   const isFirstRender = useRef(true);
@@ -56,12 +61,74 @@ export const useComplianceLists = (properties: Property[]) => {
     setSelectedList
   );
 
+  // New handlers for assignment and completion
+  const handleAssign = (list: ComplianceList) => {
+    setSelectedList(list);
+    setIsAssignDialogOpen(true);
+  };
+
+  const handleAssignSubmit = (listId: string, techId: string, techName: string) => {
+    setComplianceLists(prevLists => 
+      prevLists.map(list => 
+        list.id === listId 
+          ? { 
+              ...list, 
+              status: "assigned", 
+              assignedTo: techId, 
+              assignedToName: techName,
+              updatedAt: new Date()
+            } 
+          : list
+      )
+    );
+    
+    toast({
+      title: "List Assigned",
+      description: `Compliance list has been assigned to ${techName}.`,
+    });
+  };
+
+  const handleComplete = (list: ComplianceList) => {
+    setSelectedList(list);
+    setIsCompleteDialogOpen(true);
+  };
+
+  const handleCompleteSubmit = (listId: string, notes: string) => {
+    setComplianceLists(prevLists => 
+      prevLists.map(list => 
+        list.id === listId 
+          ? { 
+              ...list, 
+              status: "completed", 
+              completedAt: new Date(),
+              notes: notes,
+              updatedAt: new Date()
+            } 
+          : list
+      )
+    );
+    
+    toast({
+      title: "List Completed",
+      description: "Compliance list has been marked as completed.",
+    });
+  };
+
   // Filter lists by property and status
   const filteredLists = filterComplianceLists(
     complianceLists,
     selectedPropertyId,
-    activeTab === "active" ? "active" : "archived"
+    activeTab === "active" ? ["active", "assigned"] : 
+    activeTab === "completed" ? ["completed"] : ["archived"]
   );
+
+  // Filter for technician assigned lists
+  const getAssignedListsForTech = (techId: string) => {
+    return complianceLists.filter(list => 
+      list.assignedTo === techId && 
+      (list.status === "assigned" || list.status === "completed")
+    );
+  };
 
   const selectedProperty = properties.find(p => p.id === selectedPropertyId);
 
@@ -76,6 +143,11 @@ export const useComplianceLists = (properties: Property[]) => {
     complianceLists: filteredLists,
     fileInputRef,
     selectedProperty,
+    users,
+    isAssignDialogOpen,
+    setIsAssignDialogOpen,
+    isCompleteDialogOpen,
+    setIsCompleteDialogOpen,
     handleFileUpload,
     handleFileChange,
     handleCreateNew,
@@ -86,6 +158,11 @@ export const useComplianceLists = (properties: Property[]) => {
     handleDelete,
     handleFormSubmit,
     handleFormCancel,
-    handlePropertyChange
+    handlePropertyChange,
+    handleAssign,
+    handleAssignSubmit,
+    handleComplete,
+    handleCompleteSubmit,
+    getAssignedListsForTech
   };
 };

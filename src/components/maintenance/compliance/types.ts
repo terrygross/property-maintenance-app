@@ -1,5 +1,5 @@
 
-export type ComplianceStatus = "active" | "archived";
+export type ComplianceStatus = "active" | "archived" | "assigned" | "completed";
 
 export type ComplianceFormMode = "create" | "edit";
 
@@ -12,6 +12,10 @@ export interface ComplianceList {
   status: ComplianceStatus;
   fileUrl: string;
   version: number;
-  propertyId: string;   // Added property reference
+  propertyId: string;   // Property reference
   propertyName?: string; // For display purposes
+  assignedTo?: string;  // User ID of assigned technician
+  assignedToName?: string; // Name of assigned technician
+  completedAt?: Date;  // When the list was marked as completed
+  notes?: string;      // Additional notes from the technician
 }

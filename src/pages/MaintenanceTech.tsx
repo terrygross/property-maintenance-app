@@ -1,12 +1,13 @@
 
 import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarClock, ClipboardList, PhoneCall } from "lucide-react";
+import { CalendarClock, ClipboardList, PhoneCall, CheckSquare } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import TechHeader from "@/components/maintenance/tech/TechHeader";
 import TechLeaveTab from "@/components/maintenance/tech/TechLeaveTab";
 import TechJobsTab from "@/components/maintenance/tech/TechJobsTab";
 import TechCallOutTab from "@/components/maintenance/tech/TechCallOutTab";
+import TechComplianceLists from "@/components/maintenance/tech/TechComplianceLists";
 import ChatDrawer from "@/components/chat/ChatDrawer";
 
 const MaintenanceTech = () => {
@@ -115,6 +116,10 @@ const MaintenanceTech = () => {
               <PhoneCall className="h-4 w-4 mr-2" />
               Call-Out Schedule
             </TabsTrigger>
+            <TabsTrigger value="compliance">
+              <CheckSquare className="h-4 w-4 mr-2" />
+              Compliance Lists
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="jobs" className="space-y-4">
@@ -130,6 +135,10 @@ const MaintenanceTech = () => {
 
           <TabsContent value="callout" className="space-y-4">
             <TechCallOutTab />
+          </TabsContent>
+          
+          <TabsContent value="compliance" className="space-y-4">
+            <TechComplianceLists userId={currentUserId} />
           </TabsContent>
         </Tabs>
       </div>
