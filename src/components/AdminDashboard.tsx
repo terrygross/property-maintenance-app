@@ -16,6 +16,7 @@ import GenericTabContent from "./admin/GenericTabContent";
 import MaintenanceJobCards from "./maintenance/jobcards/MaintenanceJobCards";
 import ChatInterface from "./chat/ChatInterface";
 import ReporterManagement from "./reporter/ReporterManagement";
+import BillingManagement from "./billing/BillingManagement";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -82,10 +83,9 @@ const AdminDashboard = () => {
         </TabsContent>
 
         <TabsContent value="billing">
-          <GenericTabContent 
-            title="Billing Management" 
-            description="View and manage subscription plans and payment methods" 
-          />
+          <AdminTab title="Billing Management" description="Manage subscription plans, payments, and additional capacity">
+            <BillingManagement />
+          </AdminTab>
         </TabsContent>
 
         <TabsContent value="settings">
