@@ -8,12 +8,15 @@ import PropertySelector from "./PropertySelector";
 import PropertyDisplay from "./PropertyDisplay";
 import ComplianceListActions from "./ComplianceListActions";
 import { useComplianceLists } from "./useComplianceLists";
-import { mockProperties } from "@/data/mockProperties";
 import CompliancePreview from "./CompliancePreview";
 import { useState } from "react";
 import { ComplianceList } from "./types";
+import { usePropertyManagement } from "@/hooks/usePropertyManagement";
 
 const ComplianceLists = () => {
+  // Get up-to-date properties from usePropertyManagement hook
+  const { properties: currentProperties } = usePropertyManagement();
+  
   const {
     activeTab,
     setActiveTab,
@@ -36,7 +39,7 @@ const ComplianceLists = () => {
     handleFormSubmit,
     handleFormCancel,
     handlePropertyChange
-  } = useComplianceLists(mockProperties);
+  } = useComplianceLists(currentProperties);
 
   const [previewList, setPreviewList] = useState<ComplianceList | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);

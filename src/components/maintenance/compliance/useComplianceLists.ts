@@ -14,6 +14,21 @@ export const useComplianceLists = (initialProperties: Property[]) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
+  // Update properties when initialProperties changes
+  useEffect(() => {
+    setProperties(initialProperties);
+    
+    // Update property names in compliance lists when properties change
+    setComplianceLists(prevLists => 
+      prevLists.map(list => {
+        const property = initialProperties.find(p => p.id === list.propertyId);
+        return property 
+          ? { ...list, propertyName: property.name } 
+          : list;
+      })
+    );
+  }, [initialProperties]);
+
   // Mock data for demonstration
   const [complianceLists, setComplianceLists] = useState<ComplianceList[]>([
     {
