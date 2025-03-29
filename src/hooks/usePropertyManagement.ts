@@ -5,10 +5,7 @@ import { Property } from "@/types/property";
 import { mockProperties } from "@/data/mockProperties";
 
 export function usePropertyManagement() {
-  const [properties, setProperties] = useState<Property[]>(mockProperties.map(p => ({
-    ...p,
-    country: 'usa' // Add default country for existing properties
-  })));
+  const [properties, setProperties] = useState<Property[]>(mockProperties);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
