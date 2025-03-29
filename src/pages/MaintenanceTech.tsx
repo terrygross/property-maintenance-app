@@ -10,7 +10,7 @@ import TechCallOutTab from "@/components/maintenance/tech/TechCallOutTab";
 import ChatDrawer from "@/components/chat/ChatDrawer";
 
 const MaintenanceTech = () => {
-  const [activeTab, setActiveTab] = useState("calendar");
+  const [activeTab, setActiveTab] = useState("jobs");
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
@@ -28,7 +28,7 @@ const MaintenanceTech = () => {
       location: "Building A", 
       priority: "high", 
       dueDate: new Date(2023, 11, 30),
-      photos: { before: "", after: "" }
+      photos: { before: "", after: "", reporter: "/images/broken-heater.jpg" }
     },
     { 
       id: "j2", 
@@ -36,7 +36,7 @@ const MaintenanceTech = () => {
       location: "Building C", 
       priority: "medium", 
       dueDate: new Date(2023, 12, 5),
-      photos: { before: "", after: "" }
+      photos: { before: "", after: "", reporter: "/images/broken-light.jpg" }
     },
     { 
       id: "j3", 
@@ -44,15 +44,8 @@ const MaintenanceTech = () => {
       location: "Building B", 
       priority: "low", 
       dueDate: new Date(2023, 12, 10),
-      photos: { before: "", after: "" }
+      photos: { before: "", after: "", reporter: "/images/water-damage.jpg" }
     },
-  ]);
-
-  // Example call-out schedule
-  const [callOutDates, setCallOutDates] = useState([
-    new Date(2023, 11, 15),
-    new Date(2023, 11, 28),
-    new Date(2024, 0, 10),
   ]);
 
   // Function to handle photo updates for jobs
@@ -105,18 +98,18 @@ const MaintenanceTech = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <TechHeader />
+      <TechHeader userId={currentUserId} />
 
       <div className="container mx-auto p-4 md:p-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="mb-6">
-            <TabsTrigger value="calendar">
-              <CalendarClock className="h-4 w-4 mr-2" />
-              Leave Calendar
-            </TabsTrigger>
             <TabsTrigger value="jobs">
               <ClipboardList className="h-4 w-4 mr-2" />
               My Jobs
+            </TabsTrigger>
+            <TabsTrigger value="calendar">
+              <CalendarClock className="h-4 w-4 mr-2" />
+              Leave Calendar
             </TabsTrigger>
             <TabsTrigger value="callout">
               <PhoneCall className="h-4 w-4 mr-2" />
@@ -124,15 +117,15 @@ const MaintenanceTech = () => {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="calendar" className="space-y-4">
-            <TechLeaveTab leaveRequests={leaveRequests} />
-          </TabsContent>
-
           <TabsContent value="jobs" className="space-y-4">
             <TechJobsTab 
               assignedJobs={assignedJobs} 
               onPhotoCapture={handleJobPhotoUpdate}
             />
+          </TabsContent>
+
+          <TabsContent value="calendar" className="space-y-4">
+            <TechLeaveTab leaveRequests={leaveRequests} />
           </TabsContent>
 
           <TabsContent value="callout" className="space-y-4">

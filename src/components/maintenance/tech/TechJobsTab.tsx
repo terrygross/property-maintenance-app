@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import JobPhotoUpload from "./JobPhotoUpload";
 import { useToast } from "@/hooks/use-toast";
+import { Camera, Image as ImageIcon } from "lucide-react";
 
 interface Job {
   id: string;
@@ -16,6 +17,7 @@ interface Job {
   photos?: {
     before?: string;
     after?: string;
+    reporter?: string;
   };
 }
 
@@ -27,6 +29,7 @@ interface TechJobsTabProps {
 const TechJobsTab = ({ assignedJobs, onPhotoCapture }: TechJobsTabProps) => {
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [showJobDetails, setShowJobDetails] = useState(false);
+  const [showReporterImage, setShowReporterImage] = useState(false);
   const { toast } = useToast();
 
   const getPriorityColor = (priority: string) => {
@@ -62,6 +65,11 @@ const TechJobsTab = ({ assignedJobs, onPhotoCapture }: TechJobsTabProps) => {
     }
   };
 
+  const handleViewReporterImage = (job: Job) => {
+    setSelectedJob(job);
+    setShowReporterImage(true);
+  };
+
   return (
     <>
       <Card>
@@ -90,6 +98,16 @@ const TechJobsTab = ({ assignedJobs, onPhotoCapture }: TechJobsTabProps) => {
                         Due: {job.dueDate.toLocaleDateString()}
                       </p>
                       <div className="mt-3 flex flex-wrap gap-2">
+                        {job.photos?.reporter && (
+                          <Badge 
+                            variant="outline" 
+                            className="bg-purple-50 cursor-pointer"
+                            onClick={() => handleViewReporterImage(job)}
+                          >
+                            <ImageIcon className="h-3 w-3 mr-1" />
+                            Reporter Photo
+                          </Badge>
+                        )}
                         {job.photos?.before && (
                           <Badge variant="outline" className="bg-blue-50">
                             Before Photo ✓
@@ -139,8 +157,22 @@ const TechJobsTab = ({ assignedJobs, onPhotoCapture }: TechJobsTabProps) => {
                 </div>
               </div>
               
+              {selectedJob.photos?.reporter && (
+                <div className="border-t pt-4">
+                  <h4 className="font-medium mb-2">Reporter Photo</h4>
+                  <div className="rounded-md overflow-hidden border max-h-60 flex items-center justify-center bg-gray-50">
+                    <img 
+                      src={selectedJob.photos.reporter} 
+                      alt="Reported issue" 
+                      className="max-w-full max-h-60 object-contain"
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">Photo uploaded by reporter</p>
+                </div>
+              )}
+              
               <div className="border-t pt-4">
-                <h4 className="font-medium mb-2">Photos</h4>
+                <h4 className="font-medium mb-2">Your Photos</h4>
                 <div className="space-y-3">
                   <div>
                     <p className="text-sm font-medium">Before Job</p>
@@ -171,6 +203,27 @@ const TechJobsTab = ({ assignedJobs, onPhotoCapture }: TechJobsTabProps) => {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Reporter image dialog */}
+      <Dialog open={showReporterImage} onOpenChange={setShowReporterImage}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Reporter Photo</DialogTitle>
+          </DialogHeader>
+          {selectedJob && selectedJob.photos?.reporter && (
+            <div className="w-full rounded-md overflow-hidden flex justify-center">
+              <img 
+                src={selectedJob.photos.reporter} 
+                alt="Reporter photo"
+                className="max-h-[70vh] object-contain"
+              />
+            </div>
+          )}
+          <div className="mt-2 text-sm text-gray-500">
+            Photo uploaded by the reporter to help identify the issue location
+          </div>
         </DialogContent>
       </Dialog>
     </>
