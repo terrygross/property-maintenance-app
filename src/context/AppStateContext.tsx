@@ -1,208 +1,24 @@
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Property } from '@/types/property';
-import { User } from '@/types/user';
-import { useToast } from '@/hooks/use-toast';
-
-// Define the shape of our application state
-interface AppState {
-  properties: Property[];
-  users: User[];
-  reporterStations: number;
-  additionalStations: number;
-  updateProperty: (property: Property) => void;
-  addProperty: (property: Property) => void;
-  deleteProperty: (id: string) => void;
-  updateUser: (user: User) => void;
-  addUser: (user: User) => void;
-  deleteUser: (id: string) => void;
-  updateAdditionalStations: (count: number) => void;
-}
+import React, { createContext, useContext, ReactNode } from 'react';
+import { AppState } from './types';
+import { usePropertyState } from './usePropertyState';
+import { useUserState } from './useUserState';
+import { useStationState } from './useStationState';
 
 // Create the context
 const AppStateContext = createContext<AppState | undefined>(undefined);
 
 // Provider component
 export const AppStateProvider = ({ children }: { children: ReactNode }) => {
-  // Initialize state from localStorage if available, otherwise use empty arrays
-  const [properties, setProperties] = useState<Property[]>(() => {
-    try {
-      const savedProperties = localStorage.getItem('properties');
-      return savedProperties ? JSON.parse(savedProperties) : [];
-    } catch (error) {
-      console.error("Error loading properties from localStorage:", error);
-      return [];
-    }
-  });
+  const propertyState = usePropertyState();
+  const userState = useUserState();
+  const stationState = useStationState();
   
-  const [users, setUsers] = useState<User[]>(() => {
-    try {
-      const savedUsers = localStorage.getItem('users');
-      return savedUsers ? JSON.parse(savedUsers) : [];
-    } catch (error) {
-      console.error("Error loading users from localStorage:", error);
-      return [];
-    }
-  });
-
-  // Add state for tracking additional reporter stations
-  const [additionalStations, setAdditionalStations] = useState<number>(() => {
-    try {
-      const savedAdditionalStations = localStorage.getItem('additionalStations');
-      return savedAdditionalStations ? parseInt(savedAdditionalStations, 10) : 0;
-    } catch (error) {
-      console.error("Error loading additional stations from localStorage:", error);
-      return 0;
-    }
-  });
-  
-  const { toast } = useToast();
-
-  // Persist to localStorage whenever state changes with error handling
-  useEffect(() => {
-    try {
-      localStorage.setItem('properties', JSON.stringify(properties));
-    } catch (error) {
-      console.error("Error saving properties to localStorage:", error);
-      toast({
-        title: "Error saving properties",
-        description: "There was an error saving your properties. Please try again.",
-        variant: "destructive"
-      });
-    }
-  }, [properties, toast]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('users', JSON.stringify(users));
-    } catch (error) {
-      console.error("Error saving users to localStorage:", error);
-      toast({
-        title: "Error saving users",
-        description: "There was an error saving your users. Please try again.",
-        variant: "destructive"
-      });
-    }
-  }, [users, toast]);
-
-  // Save additional stations to localStorage
-  useEffect(() => {
-    try {
-      localStorage.setItem('additionalStations', additionalStations.toString());
-    } catch (error) {
-      console.error("Error saving additional stations to localStorage:", error);
-      toast({
-        title: "Error saving subscription data",
-        description: "There was an error saving your subscription data. Please try again.",
-        variant: "destructive"
-      });
-    }
-  }, [additionalStations, toast]);
-
-  // Property operations
-  const updateProperty = (property: Property) => {
-    setProperties(prev => 
-      prev.map(p => p.id === property.id ? property : p)
-    );
-    toast({
-      title: "Property updated",
-      description: "The property has been updated successfully.",
-    });
-  };
-
-  const addProperty = (property: Property) => {
-    try {
-      const newProperty = {
-        ...property,
-        id: property.id || crypto.randomUUID(),
-      };
-      setProperties(prev => [...prev, newProperty]);
-      toast({
-        title: "Property added",
-        description: "The property has been added successfully.",
-      });
-    } catch (error) {
-      console.error("Error adding property:", error);
-      toast({
-        title: "Error adding property",
-        description: "There was an error adding your property. Please try again.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const deleteProperty = (id: string) => {
-    setProperties(prev => prev.filter(p => p.id !== id));
-    toast({
-      title: "Property deleted",
-      description: "The property has been removed successfully.",
-    });
-  };
-
-  // User operations
-  const updateUser = (user: User) => {
-    setUsers(prev => 
-      prev.map(u => u.id === user.id ? user : u)
-    );
-    toast({
-      title: "User updated",
-      description: "The user has been updated successfully.",
-    });
-  };
-
-  const addUser = (user: User) => {
-    try {
-      const newUser = {
-        ...user,
-        id: user.id || crypto.randomUUID(),
-      };
-      setUsers(prev => [...prev, newUser]);
-      toast({
-        title: "User created",
-        description: "The user has been created successfully.",
-      });
-    } catch (error) {
-      console.error("Error adding user:", error);
-      toast({
-        title: "Error adding user",
-        description: "There was an error adding the user. Please try again.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const deleteUser = (id: string) => {
-    setUsers(prev => prev.filter(u => u.id !== id));
-    toast({
-      title: "User deleted",
-      description: "The user has been deleted successfully.",
-    });
-  };
-
-  // Function to update additional stations
-  const updateAdditionalStations = (count: number) => {
-    setAdditionalStations(count);
-    toast({
-      title: "Subscription updated",
-      description: `Your additional stations have been updated to ${count}.`,
-    });
-  };
-
-  // Calculate total reporter stations - base 2 for Basic plan + additional purchased
-  const reporterStations = 2 + additionalStations;
-
-  const value = {
-    properties,
-    users,
-    reporterStations,
-    additionalStations,
-    updateProperty,
-    addProperty,
-    deleteProperty,
-    updateUser,
-    addUser,
-    deleteUser,
-    updateAdditionalStations
+  // Combine all state pieces into a single value object
+  const value: AppState = {
+    ...propertyState,
+    ...userState,
+    ...stationState
   };
 
   return (
