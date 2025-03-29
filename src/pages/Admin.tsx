@@ -82,15 +82,13 @@ const Admin = () => {
     <div className="min-h-screen bg-gray-50">
       <AdminDashboard />
       
-      {/* This alert is visible only in demo mode to explain the authentication process */}
-      <div className="fixed bottom-4 right-4 max-w-md">
-        <Alert variant="default" className="bg-yellow-50 border-yellow-200">
-          <AlertCircle className="h-4 w-4 text-yellow-600" />
-          <AlertTitle>Demo Mode</AlertTitle>
-          <AlertDescription className="text-sm">
-            In a production environment, this admin dashboard would require authentication 
-            and proper role verification. The Reporter Station would have its own login page 
-            with role-based access control.
+      {/* This alert is visible only in demo mode to explain the authentication process - made smaller */}
+      <div className="fixed bottom-4 right-4 max-w-[280px]">
+        <Alert variant="default" className="bg-yellow-50 border-yellow-200 p-3 text-xs shadow-md">
+          <AlertCircle className="h-3 w-3 text-yellow-600" />
+          <AlertTitle className="text-xs font-medium">Demo Mode</AlertTitle>
+          <AlertDescription className="text-xs">
+            In production, this admin dashboard would require authentication and proper role verification.
           </AlertDescription>
         </Alert>
       </div>
