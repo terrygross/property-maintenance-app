@@ -10,6 +10,9 @@ import { Building, Key, Info } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAppState } from "@/context/AppStateContext";
 
+// Storage key for reporter stations - must match the one in useStationManagement
+const STORAGE_KEY = 'reporterStations';
+
 const Reporter = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [stationId, setStationId] = useState("");
@@ -22,25 +25,39 @@ const Reporter = () => {
   const [stations, setStations] = useState<Array<{id: string, password: string, name: string}>>([]);
   
   useEffect(() => {
-    const savedStations = localStorage.getItem('reporterStations');
-    if (savedStations) {
-      const parsedStations = JSON.parse(savedStations);
-      // Map stations to the format we need for validation
-      setStations(parsedStations.map((station: any) => {
-        const property = properties.find(p => p.id === station.propertyId);
-        return {
-          id: station.stationId,
-          password: station.password,
-          name: property ? property.name : "Unknown Property"
-        };
-      }));
-    } else {
-      // Fallback to basic plan stations if none in localStorage
-      setStations([
-        { id: "STATION-001", password: "station123", name: "Main Building" },
-        { id: "STATION-002", password: "property456", name: "Property Office" }
-      ]);
-    }
+    const loadStations = () => {
+      const savedStations = localStorage.getItem(STORAGE_KEY);
+      if (savedStations) {
+        try {
+          const parsedStations = JSON.parse(savedStations);
+          // Map stations to the format we need for validation
+          const formattedStations = parsedStations.map((station: any) => {
+            const property = properties.find(p => p.id === station.propertyId);
+            return {
+              id: station.stationId,
+              password: station.password,
+              name: property ? property.name : "Unknown Property"
+            };
+          });
+          setStations(formattedStations);
+        } catch (error) {
+          console.error("Error parsing saved stations:", error);
+          // Fallback to basic default stations
+          setStations([
+            { id: "STATION-001", password: "station123", name: "Main Building" },
+            { id: "STATION-002", password: "property456", name: "Property Office" }
+          ]);
+        }
+      } else {
+        // Fallback to basic default stations if none in localStorage
+        setStations([
+          { id: "STATION-001", password: "station123", name: "Main Building" },
+          { id: "STATION-002", password: "property456", name: "Property Office" }
+        ]);
+      }
+    };
+    
+    loadStations();
   }, [properties]);
 
   // Mock station login - in a real app, this would validate against the database

@@ -5,8 +5,8 @@ import { StationFormValues } from "./StationForm";
 import { useAppState } from "@/context/AppStateContext";
 import { useToast } from "@/hooks/use-toast";
 
-// Mock data for reporter stations
-const mockStations: ReporterStation[] = [
+// Initial mock data for reporter stations
+const initialMockStations: ReporterStation[] = [
   {
     id: "1",
     stationId: "STATION-001",
@@ -25,21 +25,69 @@ const mockStations: ReporterStation[] = [
   },
 ];
 
+// LocalStorage key
+const STORAGE_KEY = 'reporterStations';
+
 export const useStationManagement = () => {
+  const { properties } = useAppState();
+  const { toast } = useToast();
+  
+  // Load stations from localStorage or use initial mock data
   const [stations, setStations] = useState<ReporterStation[]>(() => {
-    const savedStations = localStorage.getItem('reporterStations');
-    return savedStations ? JSON.parse(savedStations) : mockStations;
+    const savedStations = localStorage.getItem(STORAGE_KEY);
+    if (savedStations) {
+      try {
+        // Parse saved stations
+        const parsed = JSON.parse(savedStations);
+        
+        // Validate that property IDs still exist in the current properties
+        // Filter out stations with invalid property IDs
+        const validStations = parsed.filter((station: ReporterStation) => 
+          properties.some(p => p.id === station.propertyId)
+        );
+        
+        // If we filtered out any stations, update localStorage
+        if (validStations.length !== parsed.length) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(validStations));
+          console.log("Removed stations with invalid property IDs");
+        }
+        
+        return validStations;
+      } catch (error) {
+        console.error("Error parsing saved stations:", error);
+        return initialMockStations;
+      }
+    }
+    return initialMockStations;
   });
   
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedStation, setSelectedStation] = useState<ReporterStation | null>(null);
-  const { properties } = useAppState();
-  const { toast } = useToast();
 
   // Save stations to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem('reporterStations', JSON.stringify(stations));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(stations));
   }, [stations]);
+
+  // Watch for property changes to ensure stations reference valid properties
+  useEffect(() => {
+    if (properties.length > 0) {
+      // Check if any stations reference non-existent properties
+      const validStations = stations.filter(station => 
+        properties.some(p => p.id === station.propertyId)
+      );
+      
+      // If we filtered out any stations, update state
+      if (validStations.length !== stations.length) {
+        setStations(validStations);
+        toast({
+          title: "Station Data Updated",
+          description: "Some stations were removed because they referenced deleted properties.",
+          variant: "destructive"
+        });
+      }
+    }
+  }, [properties, toast]);
 
   const handleOpenDialog = (station?: ReporterStation) => {
     if (station) {
