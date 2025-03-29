@@ -18,9 +18,9 @@ const ReporterManagement = () => {
                 <Clipboard className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">12</div>
+                <div className="text-2xl font-bold">2</div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Subscription limit: 20 stations
+                  Basic plan limit: 2 stations
                 </p>
               </CardContent>
             </Card>
@@ -32,7 +32,7 @@ const ReporterManagement = () => {
                 <UserCog className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">8</div>
+                <div className="text-2xl font-bold">2</div>
                 <p className="text-xs text-muted-foreground mt-1">
                   Active reporter user accounts
                 </p>
@@ -60,9 +60,9 @@ const ReporterManagement = () => {
             </CardHeader>
             <CardContent className="space-y-2">
               <div className="space-y-1">
-                <p className="text-sm font-medium">Current Plan: Professional</p>
+                <p className="text-sm font-medium">Current Plan: Basic</p>
                 <p className="text-sm text-muted-foreground">
-                  Your plan allows for up to 20 reporter stations.
+                  Your plan allows for up to 2 reporter stations.
                 </p>
               </div>
               <div className="space-y-1">
