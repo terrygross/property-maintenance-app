@@ -12,4 +12,6 @@ export interface ComplianceList {
   status: ComplianceStatus;
   fileUrl: string;
   version: number;
+  propertyId: string;   // Added property reference
+  propertyName?: string; // For display purposes
 }
