@@ -5,6 +5,7 @@ import MaintenanceCategories from "./MaintenanceCategories";
 import ServiceProviders from "./ServiceProviders";
 import WorkflowRules from "./workflow-rules";
 import SLASettings from "./SLASettings";
+import ComplianceLists from "./compliance/ComplianceLists";
 
 const MaintenanceConfig = () => {
   const [activeTab, setActiveTab] = useState("categories");
@@ -17,11 +18,12 @@ const MaintenanceConfig = () => {
         onValueChange={setActiveTab}
         className="w-full"
       >
-        <TabsList className="grid grid-cols-2 md:grid-cols-4 mb-4">
+        <TabsList className="grid grid-cols-2 md:grid-cols-5 mb-4">
           <TabsTrigger value="categories">Categories</TabsTrigger>
           <TabsTrigger value="providers">Service Providers</TabsTrigger>
           <TabsTrigger value="sla">SLA Settings</TabsTrigger>
           <TabsTrigger value="workflow">Workflow Rules</TabsTrigger>
+          <TabsTrigger value="compliance">Compliance Lists</TabsTrigger>
         </TabsList>
         <TabsContent value="categories">
           <MaintenanceCategories />
@@ -34,6 +36,9 @@ const MaintenanceConfig = () => {
         </TabsContent>
         <TabsContent value="workflow">
           <WorkflowRules />
+        </TabsContent>
+        <TabsContent value="compliance">
+          <ComplianceLists />
         </TabsContent>
       </Tabs>
     </div>
