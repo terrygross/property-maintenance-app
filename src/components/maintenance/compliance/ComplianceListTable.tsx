@@ -1,5 +1,5 @@
 
-import { ComplianceList } from "./types";
+import { ComplianceList, ComplianceStatus } from "./types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Eye, PencilIcon, ArchiveIcon, RotateCcw, Trash2, UserCheck } from "lucide-react";
