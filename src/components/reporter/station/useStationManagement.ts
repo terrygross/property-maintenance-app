@@ -51,7 +51,7 @@ export const useStationManagement = () => {
 
   // Watch for property changes to ensure stations reference valid properties
   useEffect(() => {
-    if (properties.length > 0) {
+    if (properties.length > 0 && stations.length > 0) {
       // Check if any stations reference non-existent properties
       const validStations = stations.filter(station => 
         properties.some(p => p.id === station.propertyId)
@@ -67,7 +67,7 @@ export const useStationManagement = () => {
         });
       }
     }
-  }, [properties, toast]);
+  }, [properties, stations, toast]);
 
   const handleOpenDialog = (station?: ReporterStation) => {
     if (station) {

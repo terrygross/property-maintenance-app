@@ -22,7 +22,7 @@ const Reporter = () => {
   const { properties } = useAppState();
   
   // Get stations from localStorage
-  const [stations, setStations] = useState<Array<{id: string, password: string, name: string}>>([]);
+  const [stations, setStations] = useState<Array<{id: string, stationId: string, password: string, name: string, propertyId: string}>>([]);
   
   useEffect(() => {
     const loadStations = () => {
@@ -34,33 +34,27 @@ const Reporter = () => {
           const formattedStations = parsedStations.map((station: any) => {
             const property = properties.find(p => p.id === station.propertyId);
             return {
-              id: station.stationId,
+              id: station.id,
+              stationId: station.stationId,
               password: station.password,
+              propertyId: station.propertyId,
               name: property ? property.name : "Unknown Property"
             };
           });
           setStations(formattedStations);
         } catch (error) {
           console.error("Error parsing saved stations:", error);
-          // Fallback to basic default stations
-          setStations([
-            { id: "STATION-001", password: "station123", name: "Main Building" },
-            { id: "STATION-002", password: "property456", name: "Property Office" }
-          ]);
+          setStations([]);
         }
       } else {
-        // Fallback to basic default stations if none in localStorage
-        setStations([
-          { id: "STATION-001", password: "station123", name: "Main Building" },
-          { id: "STATION-002", password: "property456", name: "Property Office" }
-        ]);
+        setStations([]);
       }
     };
     
     loadStations();
   }, [properties]);
 
-  // Mock station login - in a real app, this would validate against the database
+  // Station login validation
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -68,7 +62,7 @@ const Reporter = () => {
     // Simulate API call with timeout
     setTimeout(() => {
       // Validate against our available stations
-      const station = stations.find(s => s.id === stationId && s.password === password);
+      const station = stations.find(s => s.stationId === stationId && s.password === password);
       
       if (station) {
         setIsAuthenticated(true);
@@ -113,18 +107,20 @@ const Reporter = () => {
             </CardHeader>
             <form onSubmit={handleLogin}>
               <CardContent className="space-y-4">
-                <div className="p-3 bg-blue-50 rounded-md flex items-start gap-2">
-                  <Info className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
-                  <div className="text-sm text-blue-700">
-                    <p className="font-medium">Available Stations</p>
-                    <p>Your system includes these reporter stations:</p>
-                    <ul className="list-disc pl-5 mt-1">
-                      {stations.map(station => (
-                        <li key={station.id}>{station.id} ({station.name})</li>
-                      ))}
-                    </ul>
+                {stations.length > 0 && (
+                  <div className="p-3 bg-blue-50 rounded-md flex items-start gap-2">
+                    <Info className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
+                    <div className="text-sm text-blue-700">
+                      <p className="font-medium">Available Stations</p>
+                      <p>Your system includes these reporter stations:</p>
+                      <ul className="list-disc pl-5 mt-1">
+                        {stations.map(station => (
+                          <li key={station.id}>{station.stationId} ({station.name})</li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
-                </div>
+                )}
                 <div className="space-y-2">
                   <Label htmlFor="stationId">Station ID</Label>
                   <Input
@@ -151,10 +147,15 @@ const Reporter = () => {
                 <Button 
                   type="submit" 
                   className="w-full" 
-                  disabled={isLoading}
+                  disabled={isLoading || stations.length === 0}
                 >
                   {isLoading ? "Authenticating..." : "Login to Station"}
                 </Button>
+                {stations.length === 0 && (
+                  <p className="text-sm text-red-500 mt-2 text-center w-full">
+                    No reporter stations configured. Please set up stations in the admin panel.
+                  </p>
+                )}
               </CardFooter>
             </form>
           </Card>
