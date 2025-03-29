@@ -73,7 +73,7 @@ const StationDialog = ({
           </DialogTitle>
         </DialogHeader>
         <StationForm
-          values={formValues}
+          defaultValues={formValues}
           onChange={handleFormChange}
           properties={properties}
           isEditing={!!selectedStation}

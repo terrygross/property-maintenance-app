@@ -1,5 +1,4 @@
 
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
@@ -11,119 +10,80 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DialogFooter } from "@/components/ui/dialog";
-import { mockProperties } from "@/data/mockProperties";
-import { ReporterStation } from "./types";
+import { Property } from "@/types/property";
+import { useForm } from "react-hook-form";
 
 // Form schema
 export const stationFormSchema = z.object({
   stationId: z.string().min(1, "Station ID is required"),
   companyName: z.string().min(1, "Company name is required"),
   propertyId: z.string().min(1, "Property is required"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  password: z.string().min(6, "Password must be at least 6 characters").or(z.string().length(0)), // Allow empty for editing
 });
 
 export type StationFormValues = z.infer<typeof stationFormSchema>;
 
 interface StationFormProps {
-  onSubmit: (data: StationFormValues) => void;
-  onCancel: () => void;
   defaultValues: StationFormValues;
+  onChange: (name: string, value: string) => void;
+  properties: Property[];
   isEditing: boolean;
 }
 
-const StationForm = ({ onSubmit, onCancel, defaultValues, isEditing }: StationFormProps) => {
-  const form = useForm<StationFormValues>({
-    resolver: zodResolver(stationFormSchema),
-    defaultValues,
-  });
-
+const StationForm = ({ defaultValues, onChange, properties, isEditing }: StationFormProps) => {
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="stationId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Station ID</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter station ID" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+    <div className="space-y-4 py-2">
+      <div className="space-y-2">
+        <FormLabel htmlFor="stationId">Station ID</FormLabel>
+        <Input 
+          id="stationId"
+          placeholder="Enter station ID"
+          value={defaultValues.stationId}
+          onChange={(e) => onChange("stationId", e.target.value)}
         />
-        
-        <FormField
-          control={form.control}
-          name="companyName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Company Name</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter company name" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+      </div>
+      
+      <div className="space-y-2">
+        <FormLabel htmlFor="companyName">Company Name</FormLabel>
+        <Input 
+          id="companyName"
+          placeholder="Enter company name"
+          value={defaultValues.companyName}
+          onChange={(e) => onChange("companyName", e.target.value)}
         />
-        
-        <FormField
-          control={form.control}
-          name="propertyId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Property</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select property" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {mockProperties.map(property => (
-                    <SelectItem key={property.id} value={property.id}>
-                      {property.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
+      </div>
+      
+      <div className="space-y-2">
+        <FormLabel htmlFor="propertyId">Property</FormLabel>
+        <Select 
+          value={defaultValues.propertyId}
+          onValueChange={(value) => onChange("propertyId", value)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select property" />
+          </SelectTrigger>
+          <SelectContent>
+            {properties.map(property => (
+              <SelectItem key={property.id} value={property.id}>
+                {property.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      
+      <div className="space-y-2">
+        <FormLabel htmlFor="password">Password</FormLabel>
+        <Input 
+          id="password"
+          type="password" 
+          placeholder={isEditing ? "Leave blank to keep current password" : "Enter password"} 
+          value={defaultValues.password}
+          onChange={(e) => onChange("password", e.target.value)}
         />
-        
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input 
-                  type="password" 
-                  placeholder={isEditing ? "Leave blank to keep current password" : "Enter password"} 
-                  {...field} 
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <DialogFooter className="pt-4">
-          <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
-          <Button type="submit">
-            {isEditing ? "Update Station" : "Create Station"}
-          </Button>
-        </DialogFooter>
-      </form>
-    </Form>
+      </div>
+    </div>
   );
 };
 
