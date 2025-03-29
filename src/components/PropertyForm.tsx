@@ -44,7 +44,7 @@ const PropertyForm = ({ property, onSave, onCancel }: PropertyFormProps) => {
 
   const onSubmit = (data: PropertyFormValues) => {
     const propertyData: Property = {
-      id: property?.id || "",
+      id: property?.id || "", // This will be replaced in handleSaveProperty for new properties
       name: data.name,
       address: data.address,
       city: data.city,

@@ -43,15 +43,17 @@ export function usePropertyManagement() {
 
   const handleSaveProperty = (property: Property) => {
     if (selectedProperty) {
+      // Updating existing property
       setProperties(properties.map((p) => (p.id === property.id ? property : p)));
       toast({
         title: "Property updated",
         description: "The property has been updated successfully.",
       });
     } else {
+      // Adding new property with a properly formatted ID
       const newProperty = {
         ...property,
-        id: String(Date.now()), // Temporary ID for mock data
+        id: crypto.randomUUID(), // Using a more reliable ID generation method
       };
       setProperties([...properties, newProperty]);
       toast({
