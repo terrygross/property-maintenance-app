@@ -42,7 +42,7 @@ const PropertyBasicInfo = ({ form }: PropertyBasicInfoProps) => {
                     <SelectValue placeholder="Select a property type" />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent>
+                <SelectContent className="max-h-[300px]">
                   {propertyTypeOptions.map((option) => (
                     <SelectItem key={option.value} value={option.value}>
                       {option.label}

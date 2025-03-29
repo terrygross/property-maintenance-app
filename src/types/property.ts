@@ -1,5 +1,5 @@
 
-export type PropertyType = "residential" | "commercial" | "industrial" | "mixed_use";
+export type PropertyType = "residential" | "commercial" | "industrial" | "mixed_use" | "hmo" | "airbnb" | "care_home" | "hotel" | "house" | "apartment" | "retail" | "office" | "warehouse" | "land";
 export type LocationType = "usa" | "uk";
 
 export type Property = {
