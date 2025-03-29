@@ -6,6 +6,7 @@ import CurrentPlanOverview from "./CurrentPlanOverview";
 import AdditionalCapacityForm from "./AdditionalCapacityForm";
 import AdditionalServices from "./AdditionalServices";
 import BillingUsageChart from "./BillingUsageChart";
+import SubscriptionPlanComparison from "./SubscriptionPlanComparison";
 
 interface SubscriptionTabProps {
   currentPlan: string;
@@ -47,6 +48,8 @@ const SubscriptionTab = ({
       </Card>
 
       <BillingUsageChart />
+      
+      <SubscriptionPlanComparison />
 
       <AdditionalServices />
     </div>
