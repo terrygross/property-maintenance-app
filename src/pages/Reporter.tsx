@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import ReporterStation from "@/components/reporter/ReporterStation";
@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Building, Key, Info } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAppState } from "@/context/AppStateContext";
 
 const Reporter = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -15,12 +16,32 @@ const Reporter = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-
-  // Basic plan allows only 2 stations
-  const validStations = [
-    { id: "STATION-001", password: "station123", name: "Main Building" },
-    { id: "STATION-002", password: "property456", name: "Property Office" }
-  ];
+  const { properties } = useAppState();
+  
+  // Get stations from localStorage
+  const [stations, setStations] = useState<Array<{id: string, password: string, name: string}>>([]);
+  
+  useEffect(() => {
+    const savedStations = localStorage.getItem('reporterStations');
+    if (savedStations) {
+      const parsedStations = JSON.parse(savedStations);
+      // Map stations to the format we need for validation
+      setStations(parsedStations.map((station: any) => {
+        const property = properties.find(p => p.id === station.propertyId);
+        return {
+          id: station.stationId,
+          password: station.password,
+          name: property ? property.name : "Unknown Property"
+        };
+      }));
+    } else {
+      // Fallback to basic plan stations if none in localStorage
+      setStations([
+        { id: "STATION-001", password: "station123", name: "Main Building" },
+        { id: "STATION-002", password: "property456", name: "Property Office" }
+      ]);
+    }
+  }, [properties]);
 
   // Mock station login - in a real app, this would validate against the database
   const handleLogin = (e: React.FormEvent) => {
@@ -29,8 +50,8 @@ const Reporter = () => {
     
     // Simulate API call with timeout
     setTimeout(() => {
-      // Validate against our available stations (Basic plan has 2)
-      const station = validStations.find(s => s.id === stationId && s.password === password);
+      // Validate against our available stations
+      const station = stations.find(s => s.id === stationId && s.password === password);
       
       if (station) {
         setIsAuthenticated(true);
@@ -78,11 +99,12 @@ const Reporter = () => {
                 <div className="p-3 bg-blue-50 rounded-md flex items-start gap-2">
                   <Info className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
                   <div className="text-sm text-blue-700">
-                    <p className="font-medium">Basic Plan Information</p>
-                    <p>Your plan includes 2 reporter stations:</p>
+                    <p className="font-medium">Available Stations</p>
+                    <p>Your system includes these reporter stations:</p>
                     <ul className="list-disc pl-5 mt-1">
-                      <li>STATION-001 (Main Building)</li>
-                      <li>STATION-002 (Property Office)</li>
+                      {stations.map(station => (
+                        <li key={station.id}>{station.id} ({station.name})</li>
+                      ))}
                     </ul>
                   </div>
                 </div>

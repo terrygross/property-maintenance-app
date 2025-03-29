@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ReporterStation } from "./types";
-import { mockProperties } from "@/data/mockProperties";
+import { useAppState } from "@/context/AppStateContext";
 
 interface StationTableProps {
   stations: ReporterStation[];
@@ -19,9 +19,12 @@ interface StationTableProps {
 }
 
 const StationTable = ({ stations, onEdit, onDelete }: StationTableProps) => {
+  // Get properties from AppState context instead of directly using mockProperties
+  const { properties } = useAppState();
+  
   // Find property name by ID
   const getPropertyName = (propertyId: string) => {
-    const property = mockProperties.find(p => p.id === propertyId);
+    const property = properties.find(p => p.id === propertyId);
     return property ? property.name : "Unknown";
   };
 
