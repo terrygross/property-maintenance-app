@@ -4,15 +4,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SubscriptionTab from "./SubscriptionTab";
 import PaymentMethods from "./PaymentMethods";
 import BillingHistory from "./BillingHistory";
+import { useAppState } from "@/context/AppStateContext";
 
 const BillingManagement = () => {
   const [currentPlan, setCurrentPlan] = useState("Basic");
+  const { additionalStations, updateAdditionalStations } = useAppState();
   const [techCount, setTechCount] = useState(0);
-  const [stationCount, setStationCount] = useState(0);
 
   const handleCapacityUpdate = (techs: number, stations: number) => {
     setTechCount(techs);
-    setStationCount(stations);
+    updateAdditionalStations(stations);
   };
 
   return (
@@ -35,7 +36,7 @@ const BillingManagement = () => {
           <SubscriptionTab 
             currentPlan={currentPlan}
             techCount={techCount}
-            stationCount={stationCount}
+            stationCount={additionalStations}
             onCapacityUpdate={handleCapacityUpdate}
           />
         </TabsContent>
