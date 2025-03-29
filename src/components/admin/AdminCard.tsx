@@ -9,30 +9,30 @@ interface AdminCardProps {
   description: string;
   icon: React.ReactNode;
   buttonText: string;
-  buttonAction?: () => void; // Make buttonAction optional
+  buttonAction?: () => void;
   isLink?: boolean;
   linkTo?: string;
 }
 
 const AdminCard = ({ title, description, icon, buttonText, buttonAction, isLink, linkTo }: AdminCardProps) => {
   return (
-    <Card className="h-full">
-      <CardHeader>
-        <div className="flex items-center gap-4">
-          <div className="rounded-full bg-primary/10 p-3 text-primary">
+    <Card className="h-full flex flex-col">
+      <CardHeader className="p-4 pb-2">
+        <div className="flex items-center gap-3">
+          <div className="rounded-full bg-primary/10 p-2 text-primary">
             {icon}
           </div>
-          <CardTitle>{title}</CardTitle>
+          <CardTitle className="text-base font-medium">{title}</CardTitle>
         </div>
-        <CardDescription>{description}</CardDescription>
+        <CardDescription className="text-xs mt-2">{description}</CardDescription>
       </CardHeader>
-      <CardFooter>
+      <CardFooter className="p-4 pt-2 mt-auto">
         {isLink && linkTo ? (
-          <Button asChild className="w-full">
+          <Button asChild size="sm" className="w-full text-xs">
             <Link to={linkTo}>{buttonText}</Link>
           </Button>
         ) : (
-          <Button className="w-full" onClick={buttonAction}>
+          <Button size="sm" className="w-full text-xs" onClick={buttonAction}>
             {buttonText}
           </Button>
         )}
