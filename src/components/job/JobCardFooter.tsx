@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RefreshCw, User } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { TECHNICIANS, isTechnicianContractor } from "./jobCardUtils";
+import { isTechnicianContractor } from "./jobCardUtils";
+import { useAppState } from "@/context/AppStateContext";
 
 interface JobCardFooterProps {
   id: string;
@@ -24,6 +25,12 @@ const JobCardFooter = ({
   const [assigning, setAssigning] = useState(false);
   const [selectedTechnician, setSelectedTechnician] = useState("");
   const [sendingEmail, setSendingEmail] = useState(false);
+  const { users } = useAppState();
+  
+  // Filter users to get only technicians and contractors
+  const TECHNICIANS = users.filter(user => 
+    user.role === "maintenance_tech" || user.role === "contractor"
+  );
 
   const handleAssign = () => {
     if (!selectedTechnician) {

@@ -3,13 +3,14 @@ import { useState, useEffect } from "react";
 import JobCard from "../job/JobCard";
 import { JobCardProps } from "../job/jobCardTypes";
 import { useToast } from "@/hooks/use-toast";
-import { MOCK_USERS } from "@/data/mockUsers";
 import JobPhotosViewer from "../jobs/JobPhotosViewer";
+import { useAppState } from "@/context/AppStateContext";
 
 const ReporterJobCards = () => {
   // State to hold job cards from localStorage and mock data
   const [jobCards, setJobCards] = useState<JobCardProps[]>([]);
   const { toast } = useToast();
+  const { users } = useAppState(); // Get users from AppStateContext
 
   // Load job cards from localStorage
   useEffect(() => {
@@ -44,7 +45,7 @@ const ReporterJobCards = () => {
   // Function to handle assigning jobs to technicians
   const handleAssignJob = (jobId: string, technicianId: string) => {
     // Find the technician to check their role
-    const technician = MOCK_USERS.find(user => user.id === technicianId);
+    const technician = users.find(user => user.id === technicianId);
     const isContractor = technician?.role === "contractor";
     const isMaintenanceTech = technician?.role === "maintenance_tech";
     

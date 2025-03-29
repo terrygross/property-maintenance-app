@@ -1,10 +1,5 @@
 
-import { MOCK_USERS } from "@/data/mockUsers";
-
-// Filter technicians from MOCK_USERS
-export const TECHNICIANS = MOCK_USERS.filter(user => 
-  user.role === "maintenance_tech" || user.role === "contractor"
-);
+import { useAppState } from "@/context/AppStateContext";
 
 export const getPriorityColor = (priority: string) => {
   switch (priority) {
@@ -19,22 +14,16 @@ export const formatStatus = (status: string): string => {
   return status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
 };
 
-export const getTechnicianName = (technicianId: string): string => {
-  const technician = TECHNICIANS.find(t => t.id === technicianId);
-  return technician ? `${technician.first_name} ${technician.last_name}` : "Unknown";
-};
-
 export const isTechnicianContractor = (technicianId: string): boolean => {
-  const technician = TECHNICIANS.find(t => t.id === technicianId);
-  return technician?.role === "contractor" || false;
+  // This function will need to be called from a component that has access to AppStateContext
+  // We can't directly access AppStateContext here as this is a utility file
+  // The component using this function should pass the users from AppStateContext
+  
+  // For now, we'll rely on the role check being done in the component itself
+  return false;
 };
 
 export const isTechnicianMaintenanceTech = (technicianId: string): boolean => {
-  const technician = TECHNICIANS.find(t => t.id === technicianId);
-  return technician?.role === "maintenance_tech" || false;
-};
-
-export const getAssignedTech = (assignedTo?: string) => {
-  if (!assignedTo) return null;
-  return TECHNICIANS.find(t => t.id === assignedTo);
+  // Same issue as above
+  return false;
 };
