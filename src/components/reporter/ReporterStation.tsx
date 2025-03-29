@@ -8,8 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
 import { toast } from "@/hooks/use-toast";
-import { mockProperties } from "@/data/mockProperties";
 import ReporterImageCapture from "./ReporterImageCapture";
+import { useAppState } from "@/context/AppStateContext";
 
 interface ReporterStationProps {
   stationId: string;
@@ -24,15 +24,36 @@ interface ReporterFormValues {
 const ReporterStation = ({ stationId }: ReporterStationProps) => {
   const [imageUrl, setImageUrl] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { properties } = useAppState();
 
-  // Find which property this station is for
-  // In a real app, you would fetch this from your backend
-  const stationProperty = stationId === "STATION-001" ? "1" : "2";
+  // Find which property this station is for by looking in local storage
+  const [stationProperty, setStationProperty] = useState("");
+  
+  // Find the property ID for this station from localStorage
+  useState(() => {
+    try {
+      const savedStations = localStorage.getItem('reporterStations');
+      if (savedStations) {
+        const stations = JSON.parse(savedStations);
+        const station = stations.find((s: any) => s.stationId === stationId);
+        if (station) {
+          setStationProperty(station.propertyId);
+        } else {
+          // Fallback if station not found
+          setStationProperty(properties.length > 0 ? properties[0].id : "");
+        }
+      }
+    } catch (error) {
+      console.error("Error finding station property:", error);
+      // Fallback if error occurs
+      setStationProperty(properties.length > 0 ? properties[0].id : "");
+    }
+  });
 
   const form = useForm<ReporterFormValues>({
     defaultValues: {
       reporterName: "",
-      propertyId: stationProperty,
+      propertyId: stationProperty || (properties.length > 0 ? properties[0].id : ""),
       description: ""
     }
   });
@@ -52,7 +73,7 @@ const ReporterStation = ({ stationId }: ReporterStationProps) => {
     }
 
     // Get property name for the toast message
-    const propertyName = mockProperties.find(p => p.id === values.propertyId)?.name || "selected property";
+    const propertyName = properties.find(p => p.id === values.propertyId)?.name || "selected property";
     
     // Simulate form submission
     setTimeout(() => {
@@ -118,7 +139,7 @@ const ReporterStation = ({ stationId }: ReporterStationProps) => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {mockProperties.map((property) => (
+                      {properties.map((property) => (
                         <SelectItem key={property.id} value={property.id}>
                           {property.name}
                         </SelectItem>

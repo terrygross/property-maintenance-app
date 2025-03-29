@@ -3,7 +3,7 @@ import React from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PieChartIcon, BarChartIcon, CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { mockProperties } from "@/data/mockProperties";
+import { useAppState } from "@/context/AppStateContext";
 
 interface ReportFiltersProps {
   reportType: string;
@@ -30,6 +30,8 @@ const ReportFilters: React.FC<ReportFiltersProps> = ({
   showDateRangePicker,
   dateRangeValid
 }) => {
+  const { properties } = useAppState();
+  
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
       <div className="space-y-2">
@@ -93,7 +95,7 @@ const ReportFilters: React.FC<ReportFiltersProps> = ({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Properties</SelectItem>
-            {mockProperties.map((property) => (
+            {properties.map((property) => (
               <SelectItem key={property.id} value={property.id}>
                 {property.name}
               </SelectItem>
