@@ -1,4 +1,6 @@
 
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
@@ -12,7 +14,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Property } from "@/types/property";
-import { useForm } from "react-hook-form";
 
 // Form schema
 export const stationFormSchema = z.object({
@@ -26,64 +27,110 @@ export type StationFormValues = z.infer<typeof stationFormSchema>;
 
 interface StationFormProps {
   defaultValues: StationFormValues;
-  onChange: (name: string, value: string) => void;
+  onChange: (values: StationFormValues) => void;
   properties: Property[];
   isEditing: boolean;
 }
 
 const StationForm = ({ defaultValues, onChange, properties, isEditing }: StationFormProps) => {
+  const form = useForm<StationFormValues>({
+    resolver: zodResolver(stationFormSchema),
+    defaultValues,
+    mode: "onChange"
+  });
+
+  // Watch form values and call onChange when they change
+  const watchedValues = form.watch();
+  
+  // Update parent component when form values change
+  useState(() => {
+    onChange(watchedValues);
+  }, [watchedValues, onChange]);
+
   return (
-    <div className="space-y-4 py-2">
-      <div className="space-y-2">
-        <FormLabel htmlFor="stationId">Station ID</FormLabel>
-        <Input 
-          id="stationId"
-          placeholder="Enter station ID"
-          value={defaultValues.stationId}
-          onChange={(e) => onChange("stationId", e.target.value)}
+    <Form {...form}>
+      <div className="space-y-4 py-2">
+        <FormField
+          control={form.control}
+          name="stationId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Station ID</FormLabel>
+              <FormControl>
+                <Input 
+                  placeholder="Enter station ID"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="companyName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Company Name</FormLabel>
+              <FormControl>
+                <Input 
+                  placeholder="Enter company name"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="propertyId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Property</FormLabel>
+              <Select 
+                onValueChange={field.onChange}
+                defaultValue={field.value}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select property" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {properties.map(property => (
+                    <SelectItem key={property.id} value={property.id}>
+                      {property.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Password</FormLabel>
+              <FormControl>
+                <Input 
+                  type="password" 
+                  placeholder={isEditing ? "Leave blank to keep current password" : "Enter password"}
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
       </div>
-      
-      <div className="space-y-2">
-        <FormLabel htmlFor="companyName">Company Name</FormLabel>
-        <Input 
-          id="companyName"
-          placeholder="Enter company name"
-          value={defaultValues.companyName}
-          onChange={(e) => onChange("companyName", e.target.value)}
-        />
-      </div>
-      
-      <div className="space-y-2">
-        <FormLabel htmlFor="propertyId">Property</FormLabel>
-        <Select 
-          value={defaultValues.propertyId}
-          onValueChange={(value) => onChange("propertyId", value)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select property" />
-          </SelectTrigger>
-          <SelectContent>
-            {properties.map(property => (
-              <SelectItem key={property.id} value={property.id}>
-                {property.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      
-      <div className="space-y-2">
-        <FormLabel htmlFor="password">Password</FormLabel>
-        <Input 
-          id="password"
-          type="password" 
-          placeholder={isEditing ? "Leave blank to keep current password" : "Enter password"} 
-          value={defaultValues.password}
-          onChange={(e) => onChange("password", e.target.value)}
-        />
-      </div>
-    </div>
+    </Form>
   );
 };
 

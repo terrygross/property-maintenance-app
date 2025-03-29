@@ -53,11 +53,8 @@ const StationDialog = ({
     }
   }, [selectedStation, properties]);
 
-  const handleFormChange = (name: string, value: string) => {
-    setFormValues((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  const handleFormChange = (values: StationFormValues) => {
+    setFormValues(values);
   };
 
   const handleSubmit = () => {
