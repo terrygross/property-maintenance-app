@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import CurrentPlanOverview from "./CurrentPlanOverview";
 import AdditionalCapacityForm from "./AdditionalCapacityForm";
 import AdditionalServices from "./AdditionalServices";
+import BillingUsageChart from "./BillingUsageChart";
 
 interface SubscriptionTabProps {
   currentPlan: string;
@@ -44,6 +45,8 @@ const SubscriptionTab = ({
           <Button variant="outline">Change Plan</Button>
         </CardFooter>
       </Card>
+
+      <BillingUsageChart />
 
       <AdditionalServices />
     </div>
