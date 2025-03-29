@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import CallOutDialog from "./callout/CallOutDialog";
 import CallOutList from "./callout/CallOutList";
@@ -53,9 +53,11 @@ const CallOutSchedule = ({ isReadOnly = false }: CallOutScheduleProps) => {
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-medium">{isReadOnly ? "My Call-Out Schedule" : "Call-Out Schedule"}</h3>
         {!isReadOnly && (
-          <DialogTrigger asChild>
-            <Button onClick={() => setOpen(true)}>Schedule Call-Out</Button>
-          </DialogTrigger>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button>Schedule Call-Out</Button>
+            </DialogTrigger>
+          </Dialog>
         )}
       </div>
 
