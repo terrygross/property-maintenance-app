@@ -5,11 +5,10 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
-import { useToast } from "@/hooks/use-toast";
 import ReporterImageCapture from "./ReporterImageCapture";
 import { useAppState } from "@/context/AppStateContext";
+import { useToast } from "@/hooks/use-toast";
 
 interface ReporterStationProps {
   stationId: string;
@@ -25,6 +24,7 @@ const ReporterStation = ({ stationId }: ReporterStationProps) => {
   const [imageUrl, setImageUrl] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { properties } = useAppState();
+  const { toast } = useToast();
   
   // State to store the station's property ID
   const [stationProperty, setStationProperty] = useState("");
@@ -70,7 +70,7 @@ const ReporterStation = ({ stationId }: ReporterStationProps) => {
     
     // Ensure an image was captured
     if (!imageUrl) {
-      useToast().toast({
+      toast({
         title: "Image Required",
         description: "Please take a photo of the issue before submitting.",
         variant: "destructive"
@@ -82,26 +82,50 @@ const ReporterStation = ({ stationId }: ReporterStationProps) => {
     // Get property name for the toast message
     const propertyName = properties.find(p => p.id === values.propertyId)?.name || "selected property";
     
-    // Simulate form submission
-    setTimeout(() => {
-      console.log({
-        ...values,
-        imageUrl,
-        stationId,
-        timestamp: new Date().toISOString()
-      });
-      
-      // Reset form
-      form.reset();
-      form.setValue("propertyId", stationProperty); // Keep the property ID
-      setImageUrl("");
-      setIsSubmitting(false);
-      
-      useToast().toast({
-        title: "Report Submitted",
-        description: `Your maintenance report for ${propertyName} has been submitted successfully.`
-      });
-    }, 1500);
+    // Create the job report data
+    const reportData = {
+      id: `job${Date.now()}`,
+      title: `Maintenance Request - ${values.reporterName}`,
+      description: values.description,
+      property: propertyName,
+      reportDate: new Date().toISOString().split("T")[0],
+      priority: "medium", // Default priority
+      status: "unassigned",
+      stationId: stationId,
+      imageUrl: imageUrl,
+      timestamp: new Date().toISOString()
+    };
+    
+    // Get existing reports or initialize empty array
+    let existingReports = [];
+    try {
+      const savedReports = localStorage.getItem('reporterJobs');
+      if (savedReports) {
+        existingReports = JSON.parse(savedReports);
+      }
+    } catch (error) {
+      console.error("Error parsing saved reports:", error);
+    }
+    
+    // Add new report to the beginning of the array
+    const updatedReports = [reportData, ...existingReports];
+    
+    // Save to localStorage
+    localStorage.setItem('reporterJobs', JSON.stringify(updatedReports));
+    
+    // Log for debugging
+    console.log("Saved report job:", reportData);
+    
+    // Reset form
+    form.reset();
+    form.setValue("propertyId", stationProperty); // Keep the property ID
+    setImageUrl("");
+    setIsSubmitting(false);
+    
+    toast({
+      title: "Report Submitted",
+      description: `Your maintenance report for ${propertyName} has been submitted successfully.`
+    });
   };
 
   // Get the current property name for display

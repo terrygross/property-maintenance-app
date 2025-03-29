@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -32,6 +32,31 @@ const TechJobsTab = ({ assignedJobs, onPhotoCapture }: TechJobsTabProps) => {
   const [showReporterImage, setShowReporterImage] = useState(false);
   const { toast } = useToast();
 
+  // On mount, check localStorage for reporter jobs that have been assigned to this technician
+  useEffect(() => {
+    try {
+      // For demo purposes, let's assume the current technician has id "3" (Mike Johnson)
+      const currentTechId = "3"; 
+      
+      const savedJobs = localStorage.getItem('reporterJobs');
+      if (savedJobs) {
+        const parsedJobs = JSON.parse(savedJobs);
+        // Filter for jobs assigned to this technician
+        const techJobs = parsedJobs.filter((job: any) => 
+          job.status === "assigned" && job.assignedTo === currentTechId
+        );
+        
+        // Update any existing assignedJobs with reporter photos from localStorage
+        if (techJobs.length > 0) {
+          // This would be handled by your state management in a real app
+          console.log("Found tech jobs in localStorage:", techJobs);
+        }
+      }
+    } catch (error) {
+      console.error("Error loading tech jobs:", error);
+    }
+  }, []);
+
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "high":
@@ -62,6 +87,26 @@ const TechJobsTab = ({ assignedJobs, onPhotoCapture }: TechJobsTabProps) => {
           [type]: imageUrl
         }
       });
+    }
+    
+    // Also update in localStorage if this job exists there
+    try {
+      const savedJobs = localStorage.getItem('reporterJobs');
+      if (savedJobs) {
+        const parsedJobs = JSON.parse(savedJobs);
+        const updatedJobs = parsedJobs.map((job: any) => {
+          if (job.id === jobId) {
+            return {
+              ...job,
+              [type === "before" ? "beforePhoto" : "afterPhoto"]: imageUrl
+            };
+          }
+          return job;
+        });
+        localStorage.setItem('reporterJobs', JSON.stringify(updatedJobs));
+      }
+    } catch (error) {
+      console.error("Error updating job photos in localStorage:", error);
     }
   };
 

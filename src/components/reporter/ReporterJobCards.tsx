@@ -1,119 +1,81 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import JobCard from "../job/JobCard";
 import { JobCardProps } from "../job/jobCardTypes";
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { MOCK_USERS } from "@/data/mockUsers";
 
-// Mock data for job cards
-const MOCK_JOB_CARDS: JobCardProps[] = [
-  {
-    id: "job1",
-    title: "Broken HVAC Unit",
-    description: "Tenant reports that the HVAC unit is not cooling properly in unit 303.",
-    property: "Property A",
-    reportDate: "2023-10-12",
-    priority: "high",
-    status: "unassigned"
-  },
-  {
-    id: "job2",
-    title: "Leaking Faucet",
-    description: "Kitchen sink faucet is leaking in unit 105.",
-    property: "Property B",
-    reportDate: "2023-10-15",
-    priority: "medium",
-    status: "unassigned"
-  },
-  {
-    id: "job3",
-    title: "Light Fixture Replacement",
-    description: "Hallway light fixture needs to be replaced on the 2nd floor.",
-    property: "Property A",
-    reportDate: "2023-10-18",
-    priority: "low",
-    status: "unassigned"
-  },
-  {
-    id: "job4",
-    title: "Clogged Drain",
-    description: "Bathroom sink is not draining properly in unit 212.",
-    property: "Property C",
-    reportDate: "2023-10-10",
-    priority: "medium",
-    status: "unassigned"
-  },
-  {
-    id: "job5",
-    title: "Interior Painting",
-    description: "Unit 115 needs complete interior repainting before new tenant move-in.",
-    property: "Property B",
-    reportDate: "2023-10-20",
-    priority: "medium",
-    status: "unassigned"
-  },
-  {
-    id: "job6",
-    title: "Electrical Short Circuit",
-    description: "Outlets in the kitchen of unit 407 are not working. Potential short circuit in the wiring.",
-    property: "Property A",
-    reportDate: "2023-10-19",
-    priority: "high",
-    status: "unassigned"
-  },
-  {
-    id: "job7",
-    title: "Toilet Replacement",
-    description: "Toilet in master bathroom of unit 202 is cracked and needs complete replacement.",
-    property: "Property C",
-    reportDate: "2023-10-17",
-    priority: "high",
-    status: "unassigned"
-  },
-  {
-    id: "job8",
-    title: "Ceiling Paint Peeling",
-    description: "Bathroom ceiling paint is peeling in unit 305 due to moisture issues.",
-    property: "Property A",
-    reportDate: "2023-10-14",
-    priority: "low",
-    status: "unassigned"
-  },
-  {
-    id: "job9",
-    title: "Electrical Panel Inspection",
-    description: "Tenant reports flickering lights throughout unit 508. Electrical panel inspection required.",
-    property: "Property B",
-    reportDate: "2023-10-16",
-    priority: "medium",
-    status: "unassigned"
-  }
-];
-
 const ReporterJobCards = () => {
-  const [jobCards, setJobCards] = useState<JobCardProps[]>(MOCK_JOB_CARDS);
+  // State to hold job cards from localStorage and mock data
+  const [jobCards, setJobCards] = useState<JobCardProps[]>([]);
+  const { toast } = useToast();
 
+  // Load job cards from localStorage
+  useEffect(() => {
+    // First, try to load jobs from localStorage
+    const loadReporterJobs = () => {
+      try {
+        const savedJobs = localStorage.getItem('reporterJobs');
+        if (savedJobs) {
+          const parsedJobs = JSON.parse(savedJobs);
+          // Filter out any jobs that have already been assigned
+          const unassignedJobs = parsedJobs.filter((job: any) => job.status === "unassigned");
+          setJobCards(unassignedJobs);
+          console.log("Loaded reporter jobs:", unassignedJobs);
+        }
+      } catch (error) {
+        console.error("Error loading reporter jobs:", error);
+        // If there's an error, fall back to empty array
+        setJobCards([]);
+      }
+    };
+
+    loadReporterJobs();
+  }, []);
+
+  // Function to handle assigning jobs to technicians
   const handleAssignJob = (jobId: string, technicianId: string) => {
     // Find the technician to check their role
     const technician = MOCK_USERS.find(user => user.id === technicianId);
     const isContractor = technician?.role === "contractor";
     const isMaintenanceTech = technician?.role === "maintenance_tech";
     
-    // Update the job status to "assigned" and set the assignedTo field
-    setJobCards(prevCards => 
-      prevCards.map(card => 
-        card.id === jobId 
-          ? { 
-              ...card, 
-              status: "assigned" as const,
-              assignedTo: technicianId,
-              // Set emailSent to false for contractors initially
-              // In a real app, emails would be sent immediately to contractors
-              emailSent: !isContractor
-            } 
-          : card
-      )
+    // Update the job status both in state and localStorage
+    const updatedJobCards = jobCards.map(card => 
+      card.id === jobId 
+        ? { 
+            ...card, 
+            status: "assigned" as const,
+            assignedTo: technicianId,
+            emailSent: !isContractor
+          } 
+        : card
     );
+    
+    // Remove the assigned job from the unassigned list
+    const remainingUnassignedJobs = updatedJobCards.filter(job => job.status === "unassigned");
+    setJobCards(remainingUnassignedJobs);
+    
+    // Update the job in localStorage
+    try {
+      const savedJobs = localStorage.getItem('reporterJobs');
+      if (savedJobs) {
+        const allJobs = JSON.parse(savedJobs);
+        const updatedAllJobs = allJobs.map((job: any) => 
+          job.id === jobId 
+            ? { 
+                ...job, 
+                status: "assigned",
+                assignedTo: technicianId,
+                emailSent: !isContractor
+              } 
+            : job
+        );
+        localStorage.setItem('reporterJobs', JSON.stringify(updatedAllJobs));
+      }
+    } catch (error) {
+      console.error("Error updating localStorage jobs:", error);
+    }
 
     // In a real app, this would make an API call to update the database
     setTimeout(() => {
@@ -124,12 +86,19 @@ const ReporterJobCards = () => {
           description: `Job details have been emailed to ${technician.first_name} ${technician.last_name}.`,
         });
         
-        // Update the job to mark the email as sent
-        setJobCards(prevCards => 
-          prevCards.map(card => 
-            card.id === jobId ? { ...card, emailSent: true } : card
-          )
-        );
+        // Update the job to mark the email as sent in localStorage
+        try {
+          const savedJobs = localStorage.getItem('reporterJobs');
+          if (savedJobs) {
+            const allJobs = JSON.parse(savedJobs);
+            const updatedAllJobs = allJobs.map((job: any) => 
+              job.id === jobId ? { ...job, emailSent: true } : job
+            );
+            localStorage.setItem('reporterJobs', JSON.stringify(updatedAllJobs));
+          }
+        } catch (error) {
+          console.error("Error updating email sent status:", error);
+        }
       }
       
       // If it's a maintenance technician, simulate sending an in-app notification
@@ -147,13 +116,10 @@ const ReporterJobCards = () => {
     }, 2000);
   };
 
-  // Filter to show only unassigned jobs
-  const unassignedJobs = jobCards.filter(job => job.status === "unassigned");
-
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {unassignedJobs.length > 0 ? (
-        unassignedJobs.map(job => (
+      {jobCards.length > 0 ? (
+        jobCards.map(job => (
           <JobCard
             key={job.id}
             {...job}
@@ -163,7 +129,7 @@ const ReporterJobCards = () => {
       ) : (
         <div className="col-span-full text-center py-10 bg-gray-50 rounded-lg">
           <h3 className="text-lg font-medium text-gray-900">No unassigned jobs</h3>
-          <p className="mt-1 text-sm text-gray-500">All jobs have been assigned to technicians.</p>
+          <p className="mt-1 text-sm text-gray-500">All jobs have been assigned to technicians or no issues have been reported.</p>
         </div>
       )}
     </div>

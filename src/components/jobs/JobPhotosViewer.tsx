@@ -1,29 +1,42 @@
 
 import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ImageIcon } from "lucide-react";
+import { Camera, Image } from "lucide-react";
 
 interface JobPhotosViewerProps {
+  reporterPhoto?: string;
   beforePhoto?: string;
   afterPhoto?: string;
 }
 
-const JobPhotosViewer = ({ beforePhoto, afterPhoto }: JobPhotosViewerProps) => {
-  const [activeTab, setActiveTab] = useState(beforePhoto ? "before" : "after");
-  
-  // If no photos are available
-  if (!beforePhoto && !afterPhoto) {
+const JobPhotosViewer = ({ reporterPhoto, beforePhoto, afterPhoto }: JobPhotosViewerProps) => {
+  const [activeTab, setActiveTab] = useState<string>(
+    reporterPhoto ? "reporter" : 
+    beforePhoto ? "before" : 
+    afterPhoto ? "after" : "reporter"
+  );
+
+  const hasAnyPhotos = reporterPhoto || beforePhoto || afterPhoto;
+
+  if (!hasAnyPhotos) {
     return (
-      <div className="text-center p-6 bg-gray-50 rounded-md">
-        <ImageIcon className="mx-auto h-10 w-10 text-gray-400" />
-        <p className="mt-2 text-sm text-gray-500">No photos have been uploaded for this job</p>
+      <div className="text-center py-8 bg-gray-50 rounded-lg">
+        <Camera className="mx-auto h-8 w-8 text-gray-400" />
+        <p className="mt-2 text-sm text-gray-500">No photos available</p>
       </div>
     );
   }
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-      <TabsList className="grid grid-cols-2 mb-4">
+      <TabsList className="grid w-full grid-cols-3">
+        <TabsTrigger 
+          value="reporter" 
+          disabled={!reporterPhoto}
+          className={!reporterPhoto ? "opacity-50 cursor-not-allowed" : ""}
+        >
+          Reporter
+        </TabsTrigger>
         <TabsTrigger 
           value="before" 
           disabled={!beforePhoto}
@@ -40,37 +53,44 @@ const JobPhotosViewer = ({ beforePhoto, afterPhoto }: JobPhotosViewerProps) => {
         </TabsTrigger>
       </TabsList>
       
-      <TabsContent value="before" className="h-64 flex items-center justify-center">
-        {beforePhoto ? (
-          <div className="w-full h-full flex items-center justify-center overflow-hidden rounded-md">
+      {reporterPhoto && (
+        <TabsContent value="reporter" className="mt-4">
+          <div className="rounded-md overflow-hidden border flex items-center justify-center bg-gray-50 h-64">
+            <img 
+              src={reporterPhoto} 
+              alt="Issue reported by user" 
+              className="max-w-full max-h-64 object-contain"
+            />
+          </div>
+          <p className="text-xs text-center mt-2 text-gray-500">Photo taken by reporter</p>
+        </TabsContent>
+      )}
+      
+      {beforePhoto && (
+        <TabsContent value="before" className="mt-4">
+          <div className="rounded-md overflow-hidden border flex items-center justify-center bg-gray-50 h-64">
             <img 
               src={beforePhoto} 
-              alt="Before work photo" 
-              className="max-w-full max-h-full object-contain"
+              alt="Before maintenance" 
+              className="max-w-full max-h-64 object-contain"
             />
           </div>
-        ) : (
-          <div className="text-center">
-            <p className="text-sm text-gray-500">No 'before' photo available</p>
-          </div>
-        )}
-      </TabsContent>
+          <p className="text-xs text-center mt-2 text-gray-500">Photo taken before maintenance work</p>
+        </TabsContent>
+      )}
       
-      <TabsContent value="after" className="h-64 flex items-center justify-center">
-        {afterPhoto ? (
-          <div className="w-full h-full flex items-center justify-center overflow-hidden rounded-md">
+      {afterPhoto && (
+        <TabsContent value="after" className="mt-4">
+          <div className="rounded-md overflow-hidden border flex items-center justify-center bg-gray-50 h-64">
             <img 
               src={afterPhoto} 
-              alt="After work photo" 
-              className="max-w-full max-h-full object-contain"
+              alt="After maintenance" 
+              className="max-w-full max-h-64 object-contain"
             />
           </div>
-        ) : (
-          <div className="text-center">
-            <p className="text-sm text-gray-500">No 'after' photo available</p>
-          </div>
-        )}
-      </TabsContent>
+          <p className="text-xs text-center mt-2 text-gray-500">Photo taken after maintenance work</p>
+        </TabsContent>
+      )}
     </Tabs>
   );
 };
