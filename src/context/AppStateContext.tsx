@@ -16,6 +16,7 @@ interface AppState {
   updateUser: (user: User) => void;
   addUser: (user: User) => void;
   deleteUser: (id: string) => void;
+  resetToDefaultData: () => void;
 }
 
 // Create the context
@@ -23,9 +24,27 @@ const AppStateContext = createContext<AppState | undefined>(undefined);
 
 // Provider component
 export const AppStateProvider = ({ children }: { children: ReactNode }) => {
-  const [properties, setProperties] = useState<Property[]>(mockProperties);
-  const [users, setUsers] = useState<User[]>(MOCK_USERS);
+  // Initialize state from localStorage if available, otherwise use mock data
+  const [properties, setProperties] = useState<Property[]>(() => {
+    const savedProperties = localStorage.getItem('properties');
+    return savedProperties ? JSON.parse(savedProperties) : mockProperties;
+  });
+  
+  const [users, setUsers] = useState<User[]>(() => {
+    const savedUsers = localStorage.getItem('users');
+    return savedUsers ? JSON.parse(savedUsers) : MOCK_USERS;
+  });
+  
   const { toast } = useToast();
+
+  // Persist to localStorage whenever state changes
+  useEffect(() => {
+    localStorage.setItem('properties', JSON.stringify(properties));
+  }, [properties]);
+
+  useEffect(() => {
+    localStorage.setItem('users', JSON.stringify(users));
+  }, [users]);
 
   // Property operations
   const updateProperty = (property: Property) => {
@@ -89,6 +108,16 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  // Reset to default mock data
+  const resetToDefaultData = () => {
+    setProperties(mockProperties);
+    setUsers(MOCK_USERS);
+    toast({
+      title: "Data reset",
+      description: "All data has been reset to default mock data.",
+    });
+  };
+
   const value = {
     properties,
     users,
@@ -97,7 +126,8 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
     deleteProperty,
     updateUser,
     addUser,
-    deleteUser
+    deleteUser,
+    resetToDefaultData
   };
 
   return (

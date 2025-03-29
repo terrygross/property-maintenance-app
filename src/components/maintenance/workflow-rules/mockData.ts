@@ -1,7 +1,8 @@
 
 import { WorkflowRule } from "./types";
 
-export const initialRules: WorkflowRule[] = [
+// Default mock rules
+const defaultRules: WorkflowRule[] = [
   { 
     id: 1, 
     name: "Emergency Escalation", 
@@ -33,6 +34,17 @@ export const initialRules: WorkflowRule[] = [
     isActive: false
   },
 ];
+
+// Load from localStorage or use defaults
+export const initialRules: WorkflowRule[] = (() => {
+  const savedRules = localStorage.getItem('workflowRules');
+  return savedRules ? JSON.parse(savedRules) : defaultRules;
+})();
+
+// Function to save rules to localStorage
+export const saveWorkflowRules = (rules: WorkflowRule[]) => {
+  localStorage.setItem('workflowRules', JSON.stringify(rules));
+};
 
 export const triggerOptions = [
   { value: "request_created", label: "Maintenance Request Created" },

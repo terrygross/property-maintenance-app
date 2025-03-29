@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, RefreshCcw } from "lucide-react";
 import AdminTab from "./AdminTab";
 import UserManagement from "./UserManagement";
 import PropertyManagement from "./PropertyManagement";
@@ -17,12 +17,33 @@ import MaintenanceJobCards from "./maintenance/jobcards/MaintenanceJobCards";
 import ChatInterface from "./chat/ChatInterface";
 import ReporterManagement from "./reporter/ReporterManagement";
 import BillingManagement from "./billing/BillingManagement";
+import { useAppState } from "@/context/AppStateContext";
+import { useToast } from "@/hooks/use-toast";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
+  const { resetToDefaultData } = useAppState();
+  const { toast } = useToast();
 
   // For demo purposes, we'll use a hardcoded admin user ID
   const currentUserId = "4"; // Admin user ID
+
+  const handleResetData = () => {
+    // Clear all localStorage data
+    localStorage.clear();
+    
+    // Reset to default mock data
+    resetToDefaultData();
+    
+    // Show toast
+    toast({
+      title: "Data Reset",
+      description: "All mock data has been reset to defaults.",
+    });
+    
+    // Reload the page to ensure all components pick up the reset data
+    window.location.reload();
+  };
 
   return (
     <div className="container mx-auto p-4 md:p-6">
@@ -31,10 +52,16 @@ const AdminDashboard = () => {
           <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
           <p className="text-muted-foreground">Manage your maintenance system</p>
         </div>
-        <Button className="flex items-center gap-2">
-          <PlusCircle className="h-4 w-4" />
-          <span>New Task</span>
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleResetData} className="flex items-center gap-2">
+            <RefreshCcw className="h-4 w-4" />
+            <span>Reset Data</span>
+          </Button>
+          <Button className="flex items-center gap-2">
+            <PlusCircle className="h-4 w-4" />
+            <span>New Task</span>
+          </Button>
+        </div>
       </div>
 
       <Tabs defaultValue="overview" className="w-full" value={activeTab} onValueChange={setActiveTab}>

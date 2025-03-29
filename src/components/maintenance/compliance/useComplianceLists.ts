@@ -4,7 +4,7 @@ import { ComplianceList, ComplianceFormMode } from './types';
 import { Property } from '@/types/property';
 import { User } from '@/types/user';
 import { mockComplianceLists } from './mockComplianceLists';
-import { updatePropertyNamesInLists, filterComplianceLists } from './complianceUtils';
+import { updatePropertyNamesInLists, filterComplianceLists, saveComplianceLists, loadComplianceLists } from './complianceUtils';
 import { useComplianceFormHandlers } from './useComplianceFormHandlers';
 import { useToast } from '@/hooks/use-toast';
 
@@ -14,7 +14,9 @@ export const useComplianceLists = (properties: Property[], users: User[]) => {
   const [formMode, setFormMode] = useState<ComplianceFormMode>("create");
   const [selectedList, setSelectedList] = useState<ComplianceList | null>(null);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>("");
-  const [complianceLists, setComplianceLists] = useState<ComplianceList[]>(mockComplianceLists);
+  const [complianceLists, setComplianceLists] = useState<ComplianceList[]>(() => {
+    return loadComplianceLists(mockComplianceLists);
+  });
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
   const [isCompleteDialogOpen, setIsCompleteDialogOpen] = useState(false);
   const { toast } = useToast();
@@ -35,8 +37,25 @@ export const useComplianceLists = (properties: Property[], users: User[]) => {
     }
   }, [properties, selectedPropertyId]);
 
+  // Save compliance lists to localStorage whenever they change
+  useEffect(() => {
+    if (!isFirstRender.current) {
+      saveComplianceLists(complianceLists);
+    } else {
+      isFirstRender.current = false;
+    }
+  }, [complianceLists]);
+
   const handlePropertyChange = (propertyId: string) => {
     setSelectedPropertyId(propertyId);
+  };
+
+  // Create a wrapped version of setComplianceLists that also saves to localStorage
+  const updateComplianceLists = (listsOrUpdateFn: ComplianceList[] | ((prev: ComplianceList[]) => ComplianceList[])) => {
+    setComplianceLists(prev => {
+      const newLists = typeof listsOrUpdateFn === 'function' ? listsOrUpdateFn(prev) : listsOrUpdateFn;
+      return newLists;
+    });
   };
 
   // Get form handlers
@@ -55,7 +74,7 @@ export const useComplianceLists = (properties: Property[], users: User[]) => {
   } = useComplianceFormHandlers(
     properties,
     complianceLists,
-    setComplianceLists,
+    updateComplianceLists, // Pass our wrapped function instead
     setIsFormOpen,
     setFormMode,
     setSelectedList
@@ -68,7 +87,7 @@ export const useComplianceLists = (properties: Property[], users: User[]) => {
   };
 
   const handleAssignSubmit = (listId: string, techId: string, techName: string) => {
-    setComplianceLists(prevLists => 
+    updateComplianceLists(prevLists => 
       prevLists.map(list => 
         list.id === listId 
           ? { 
@@ -94,7 +113,7 @@ export const useComplianceLists = (properties: Property[], users: User[]) => {
   };
 
   const handleCompleteSubmit = (listId: string, notes: string) => {
-    setComplianceLists(prevLists => 
+    updateComplianceLists(prevLists => 
       prevLists.map(list => 
         list.id === listId 
           ? { 

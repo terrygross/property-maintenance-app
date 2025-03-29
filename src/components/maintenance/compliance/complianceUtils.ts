@@ -79,3 +79,14 @@ export const useComplianceToasts = () => {
     }
   };
 };
+
+// Save compliance lists to localStorage
+export const saveComplianceLists = (lists: ComplianceList[]) => {
+  localStorage.setItem('complianceLists', JSON.stringify(lists));
+};
+
+// Load compliance lists from localStorage or fallback to mock data
+export const loadComplianceLists = (mockLists: ComplianceList[]): ComplianceList[] => {
+  const savedLists = localStorage.getItem('complianceLists');
+  return savedLists ? JSON.parse(savedLists) : mockLists;
+};
