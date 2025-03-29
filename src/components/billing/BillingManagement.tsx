@@ -6,7 +6,7 @@ import PaymentMethods from "./PaymentMethods";
 import BillingHistory from "./BillingHistory";
 
 const BillingManagement = () => {
-  const [currentPlan, setCurrentPlan] = useState("Professional");
+  const [currentPlan, setCurrentPlan] = useState("Basic");
   const [techCount, setTechCount] = useState(0);
   const [stationCount, setStationCount] = useState(0);
 
