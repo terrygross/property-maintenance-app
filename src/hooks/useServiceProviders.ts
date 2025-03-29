@@ -1,21 +1,20 @@
 
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { MOCK_USERS } from "@/data/mockUsers";
+import { useAppState } from "@/context/AppStateContext";
 
-// Get only contractors from the mock users
-const contractorUsers = MOCK_USERS.filter(user => user.role === "contractor");
-
-// Convert contractor users to service providers
-const getInitialProviders = () => contractorUsers.map(user => ({
-  id: user.id,
-  name: `${user.first_name} ${user.last_name} - ${user.title}`,
-  contact: user.first_name + " " + user.last_name,
-  phone: user.phone,
-  email: user.email,
-  photo_url: user.photo_url,
-  categories: [user.title.split(" ")[0]] // Use the first word of their title as category (e.g., "Plumbing" from "Plumbing Contractor")
-}));
+// Get only contractors from the users
+const getInitialProviders = (users: any[]) => users
+  .filter(user => user.role === "contractor")
+  .map(user => ({
+    id: user.id,
+    name: `${user.first_name} ${user.last_name} - ${user.title}`,
+    contact: user.first_name + " " + user.last_name,
+    phone: user.phone,
+    email: user.email,
+    photo_url: user.photo_url,
+    categories: [user.title.split(" ")[0]] // Use the first word of their title as category
+  }));
 
 export interface ServiceProvider {
   id: string;
@@ -28,10 +27,16 @@ export interface ServiceProvider {
 }
 
 export const useServiceProviders = () => {
-  const [providers, setProviders] = useState<ServiceProvider[]>(getInitialProviders());
+  const { users } = useAppState();
+  const [providers, setProviders] = useState<ServiceProvider[]>(getInitialProviders(users));
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentProvider, setCurrentProvider] = useState<ServiceProvider | null>(null);
   const { toast } = useToast();
+
+  // Update providers when users change
+  useState(() => {
+    setProviders(getInitialProviders(users));
+  }, [users]);
 
   const openAddDialog = () => {
     setCurrentProvider({ id: "", name: "", contact: "", phone: "", email: "", categories: [], photo_url: "" });

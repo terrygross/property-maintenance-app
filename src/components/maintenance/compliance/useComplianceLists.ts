@@ -1,32 +1,32 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ComplianceList, ComplianceFormMode } from './types';
 import { Property } from '@/types/property';
 import { mockComplianceLists } from './mockComplianceLists';
 import { updatePropertyNamesInLists, filterComplianceLists } from './complianceUtils';
 import { useComplianceFormHandlers } from './useComplianceFormHandlers';
 
-export const useComplianceLists = (initialProperties: Property[]) => {
+export const useComplianceLists = (properties: Property[]) => {
   const [activeTab, setActiveTab] = useState("active");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formMode, setFormMode] = useState<ComplianceFormMode>("create");
   const [selectedList, setSelectedList] = useState<ComplianceList | null>(null);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>("");
-  const [properties, setProperties] = useState<Property[]>(initialProperties);
   const [complianceLists, setComplianceLists] = useState<ComplianceList[]>(mockComplianceLists);
-
-  // Update properties when initialProperties changes
-  useEffect(() => {
-    setProperties(initialProperties);
-    
-    // Update property names in compliance lists when properties change
-    setComplianceLists(prevLists => updatePropertyNamesInLists(prevLists, initialProperties));
-  }, [initialProperties]);
+  
+  // Using a ref to track if this is the first render
+  const isFirstRender = useRef(true);
 
   // Set default property selection when properties are loaded
   useEffect(() => {
-    if (properties.length > 0 && !selectedPropertyId) {
-      setSelectedPropertyId(properties[0].id);
+    if (properties.length > 0) {
+      // Only set selectedPropertyId if it's not set yet or if the current selection doesn't exist anymore
+      if (!selectedPropertyId || !properties.find(p => p.id === selectedPropertyId)) {
+        setSelectedPropertyId(properties[0].id);
+      }
+      
+      // Update property names in compliance lists when properties change
+      setComplianceLists(prevLists => updatePropertyNamesInLists(prevLists, properties));
     }
   }, [properties, selectedPropertyId]);
 

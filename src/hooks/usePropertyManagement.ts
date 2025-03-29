@@ -1,15 +1,13 @@
 
 import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
 import { Property } from "@/types/property";
-import { mockProperties } from "@/data/mockProperties";
+import { useAppState } from "@/context/AppStateContext";
 
 export function usePropertyManagement() {
-  const [properties, setProperties] = useState<Property[]>(mockProperties);
+  const { properties, addProperty, updateProperty, deleteProperty } = useAppState();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const { toast } = useToast();
 
   const filteredProperties = properties.filter(
     (property) =>
@@ -30,11 +28,7 @@ export function usePropertyManagement() {
   };
 
   const handleDeleteProperty = (id: string) => {
-    setProperties(properties.filter((property) => property.id !== id));
-    toast({
-      title: "Property deleted",
-      description: "The property has been removed successfully.",
-    });
+    deleteProperty(id);
   };
 
   const handleCloseForm = () => {
@@ -44,22 +38,10 @@ export function usePropertyManagement() {
   const handleSaveProperty = (property: Property) => {
     if (selectedProperty) {
       // Updating existing property
-      setProperties(properties.map((p) => (p.id === property.id ? property : p)));
-      toast({
-        title: "Property updated",
-        description: "The property has been updated successfully.",
-      });
+      updateProperty(property);
     } else {
-      // Adding new property with a properly formatted ID
-      const newProperty = {
-        ...property,
-        id: crypto.randomUUID(), // Using a more reliable ID generation method
-      };
-      setProperties([...properties, newProperty]);
-      toast({
-        title: "Property added",
-        description: "The property has been added successfully.",
-      });
+      // Adding new property
+      addProperty(property);
     }
     setIsFormOpen(false);
   };

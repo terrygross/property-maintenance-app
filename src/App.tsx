@@ -9,25 +9,28 @@ import Admin from "./pages/Admin";
 import Reporter from "./pages/Reporter";
 import MaintenanceTech from "./pages/MaintenanceTech";
 import NotFound from "./pages/NotFound";
+import { AppStateProvider } from "./context/AppStateContext";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <BrowserRouter>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/reporter" element={<Reporter />} />
-          <Route path="/maintenance" element={<MaintenanceTech />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </TooltipProvider>
-    </BrowserRouter>
+    <AppStateProvider>
+      <BrowserRouter>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/reporter" element={<Reporter />} />
+            <Route path="/maintenance" element={<MaintenanceTech />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </TooltipProvider>
+      </BrowserRouter>
+    </AppStateProvider>
   </QueryClientProvider>
 );
 

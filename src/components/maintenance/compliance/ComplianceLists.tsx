@@ -11,11 +11,11 @@ import { useComplianceLists } from "./useComplianceLists";
 import CompliancePreview from "./CompliancePreview";
 import { useState } from "react";
 import { ComplianceList } from "./types";
-import { usePropertyManagement } from "@/hooks/usePropertyManagement";
+import { useAppState } from "@/context/AppStateContext";
 
 const ComplianceLists = () => {
-  // Get up-to-date properties from usePropertyManagement hook
-  const { properties: currentProperties } = usePropertyManagement();
+  // Get properties directly from AppState
+  const { properties } = useAppState();
   
   const {
     activeTab,
@@ -24,7 +24,6 @@ const ComplianceLists = () => {
     formMode,
     selectedList,
     selectedPropertyId,
-    properties,
     complianceLists,
     fileInputRef,
     selectedProperty,
@@ -39,7 +38,7 @@ const ComplianceLists = () => {
     handleFormSubmit,
     handleFormCancel,
     handlePropertyChange
-  } = useComplianceLists(currentProperties);
+  } = useComplianceLists(properties);
 
   // State for preview functionality
   const [previewList, setPreviewList] = useState<ComplianceList | null>(null);

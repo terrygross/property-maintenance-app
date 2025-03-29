@@ -1,15 +1,13 @@
 
 import { useState } from "react";
 import { User } from "@/types/user";
-import { MOCK_USERS } from "@/data/mockUsers";
-import { useToast } from "@/hooks/use-toast";
+import { useAppState } from "@/context/AppStateContext";
 
 export function useUserManagement() {
-  const [users, setUsers] = useState<User[]>(MOCK_USERS);
+  const { users, addUser, updateUser, deleteUser } = useAppState();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const { toast } = useToast();
 
   const filteredUsers = users.filter(
     (user) =>
@@ -34,30 +32,14 @@ export function useUserManagement() {
   };
 
   const handleDeleteUser = (id: string) => {
-    setUsers(users.filter((user) => user.id !== id));
-    toast({
-      title: "User deleted",
-      description: "The user has been deleted successfully.",
-    });
+    deleteUser(id);
   };
 
   const handleSaveUser = (user: User) => {
     if (selectedUser) {
-      setUsers(users.map((u) => (u.id === user.id ? user : u)));
-      toast({
-        title: "User updated",
-        description: "The user has been updated successfully.",
-      });
+      updateUser(user);
     } else {
-      const newUser = {
-        ...user,
-        id: String(Date.now()), // Temporary ID for mock data
-      };
-      setUsers([...users, newUser]);
-      toast({
-        title: "User created",
-        description: "The user has been created successfully.",
-      });
+      addUser(user);
     }
     setIsFormOpen(false);
   };
