@@ -1,7 +1,8 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Clock, User, Mail, Bell } from "lucide-react";
-import { getAssignedTech, isTechnicianContractor, isTechnicianMaintenanceTech, formatStatus } from "./jobCardUtils";
+import { isTechnicianContractor, isTechnicianMaintenanceTech, formatStatus } from "./jobCardUtils";
+import { useAppState } from "@/context/AppStateContext";
 
 interface JobCardBodyProps {
   description: string;
@@ -18,10 +19,14 @@ const JobCardBody = ({
   assignedTo, 
   emailSent = false 
 }: JobCardBodyProps) => {
-  // Check if assigned to a contractor
-  const assignedTech = getAssignedTech(assignedTo);
-  const isContractor = assignedTech && isTechnicianContractor(assignedTech.id);
-  const isMaintenanceTech = assignedTech && isTechnicianMaintenanceTech(assignedTech.id);
+  const { users } = useAppState();
+  
+  // Find the assigned technician if there is one
+  const assignedTech = assignedTo ? users.find(user => user.id === assignedTo) : null;
+  
+  // Check technician roles
+  const isContractor = assignedTech?.role === "contractor";
+  const isMaintenanceTech = assignedTech?.role === "maintenance_tech";
 
   return (
     <>
