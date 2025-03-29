@@ -4,6 +4,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { ComplianceList } from "./types";
+import { useToast } from "@/hooks/use-toast";
+import { Check, ClipboardCheck } from "lucide-react";
 
 interface CompliancePreviewProps {
   list: ComplianceList;
@@ -13,6 +15,7 @@ interface CompliancePreviewProps {
 
 const CompliancePreview = ({ list, isOpen, onOpenChange }: CompliancePreviewProps) => {
   const [completedItems, setCompletedItems] = useState<Record<string, boolean>>({});
+  const { toast } = useToast();
   
   // Mock compliance items for demonstration
   const complianceItems = [
@@ -32,9 +35,16 @@ const CompliancePreview = ({ list, isOpen, onOpenChange }: CompliancePreviewProp
 
   const handleSave = () => {
     // In a real implementation, this would save the completion status
-    alert("Saved compliance checklist completion status");
+    toast({
+      title: "Progress saved",
+      description: `Saved completion status for ${list.title}`,
+    });
     onOpenChange(false);
   };
+
+  const completedCount = Object.values(completedItems).filter(Boolean).length;
+  const totalItems = complianceItems.length;
+  const progressPercentage = totalItems > 0 ? Math.round((completedCount / totalItems) * 100) : 0;
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -50,20 +60,25 @@ const CompliancePreview = ({ list, isOpen, onOpenChange }: CompliancePreviewProp
         </DialogHeader>
         
         <div className="py-4">
-          <h3 className="font-medium mb-2">Compliance Checklist</h3>
-          <div className="space-y-2">
+          <div className="flex justify-between items-center mb-2">
+            <h3 className="font-medium">Compliance Checklist</h3>
+            <span className="text-xs text-muted-foreground flex items-center gap-1">
+              <ClipboardCheck className="h-3 w-3" />
+              {progressPercentage}% complete
+            </span>
+          </div>
+          <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
             {complianceItems.map(item => (
               <div 
                 key={item.id} 
                 className="flex items-center p-2 border rounded hover:bg-muted/50 cursor-pointer"
                 onClick={() => toggleItem(item.id)}
               >
-                <input
-                  type="checkbox"
-                  checked={!!completedItems[item.id]}
-                  onChange={() => toggleItem(item.id)}
-                  className="mr-3 h-4 w-4"
-                />
+                <div className="flex items-center justify-center w-5 h-5 mr-3 rounded-sm border">
+                  {completedItems[item.id] && (
+                    <Check className="h-3.5 w-3.5 text-primary" />
+                  )}
+                </div>
                 <span className={completedItems[item.id] ? "line-through text-muted-foreground" : ""}>
                   {item.text}
                 </span>
