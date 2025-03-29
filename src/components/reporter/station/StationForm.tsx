@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -43,7 +43,7 @@ const StationForm = ({ defaultValues, onChange, properties, isEditing }: Station
   const watchedValues = form.watch();
   
   // Update parent component when form values change
-  useState(() => {
+  useEffect(() => {
     onChange(watchedValues);
   }, [watchedValues, onChange]);
 
