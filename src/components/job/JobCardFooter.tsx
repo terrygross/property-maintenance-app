@@ -2,28 +2,30 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RefreshCw, User } from "lucide-react";
+import { RefreshCw, User, ArrowUpCircle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { isTechnicianContractor } from "./jobCardUtils";
 import { useAppState } from "@/context/AppStateContext";
 
 interface JobCardFooterProps {
   id: string;
   status: string;
+  priority: string;
   assignedTo?: string;
-  onAssign?: (id: string, technicianId: string) => void;
+  onAssign?: (id: string, technicianId: string, priority: string) => void;
   onResendEmail?: (id: string, technicianId: string) => void;
 }
 
 const JobCardFooter = ({ 
   id, 
   status, 
+  priority: initialPriority,
   assignedTo,
   onAssign,
   onResendEmail 
 }: JobCardFooterProps) => {
   const [assigning, setAssigning] = useState(false);
   const [selectedTechnician, setSelectedTechnician] = useState("");
+  const [selectedPriority, setSelectedPriority] = useState(initialPriority || "medium");
   const [sendingEmail, setSendingEmail] = useState(false);
   const { users } = useAppState();
   
@@ -47,7 +49,7 @@ const JobCardFooter = ({
     // Simulate API call
     setTimeout(() => {
       if (onAssign) {
-        onAssign(id, selectedTechnician);
+        onAssign(id, selectedTechnician, selectedPriority);
       }
       
       const selectedTech = TECHNICIANS.find(t => t.id === selectedTechnician);
@@ -55,7 +57,7 @@ const JobCardFooter = ({
       
       toast({
         title: "Job Assigned",
-        description: `Job has been assigned to ${techName}.`,
+        description: `Job has been assigned to ${techName} with ${selectedPriority} priority.`,
       });
       
       setAssigning(false);
@@ -87,7 +89,8 @@ const JobCardFooter = ({
   };
 
   // Check if assigned to a contractor
-  const isContractor = assignedTo ? isTechnicianContractor(assignedTo) : false;
+  const assignedTechnician = assignedTo ? TECHNICIANS.find(t => t.id === assignedTo) : null;
+  const isContractor = assignedTechnician?.role === "contractor";
 
   if (status === "unassigned") {
     return (
@@ -109,6 +112,33 @@ const JobCardFooter = ({
             ))}
           </SelectContent>
         </Select>
+
+        <Select value={selectedPriority} onValueChange={setSelectedPriority}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select priority" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="low">
+              <div className="flex items-center gap-2">
+                <ArrowUpCircle className="h-4 w-4 text-blue-500" />
+                Low Priority
+              </div>
+            </SelectItem>
+            <SelectItem value="medium">
+              <div className="flex items-center gap-2">
+                <ArrowUpCircle className="h-4 w-4 text-yellow-500" />
+                Medium Priority
+              </div>
+            </SelectItem>
+            <SelectItem value="high">
+              <div className="flex items-center gap-2">
+                <ArrowUpCircle className="h-4 w-4 text-red-500" />
+                High Priority
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+
         <Button 
           className="w-full" 
           onClick={handleAssign} 

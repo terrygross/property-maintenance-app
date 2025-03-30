@@ -43,7 +43,7 @@ const ReporterJobCards = () => {
   }, []);
 
   // Function to handle assigning jobs to technicians
-  const handleAssignJob = (jobId: string, technicianId: string) => {
+  const handleAssignJob = (jobId: string, technicianId: string, priority: string) => {
     // Find the technician to check their role
     const technician = users.find(user => user.id === technicianId);
     const isContractor = technician?.role === "contractor";
@@ -56,7 +56,8 @@ const ReporterJobCards = () => {
             ...card, 
             status: "assigned" as const,
             assignedTo: technicianId,
-            emailSent: !isContractor
+            priority: priority as "low" | "medium" | "high",
+            emailSent: isContractor ? false : undefined // Only set emailSent for contractors
           } 
         : card
     );
@@ -76,7 +77,8 @@ const ReporterJobCards = () => {
                 ...job, 
                 status: "assigned",
                 assignedTo: technicianId,
-                emailSent: !isContractor
+                priority: priority,
+                emailSent: isContractor ? false : undefined // Only set emailSent for contractors
               } 
             : job
         );
@@ -88,11 +90,11 @@ const ReporterJobCards = () => {
 
     // In a real app, this would make an API call to update the database
     setTimeout(() => {
-      // If it's a contractor, simulate sending an email
+      // If it's a contractor, simulate sending an email automatically
       if (isContractor && technician) {
         toast({
-          title: "Email Sent to Contractor",
-          description: `Job details have been emailed to ${technician.first_name} ${technician.last_name}.`,
+          title: "Email Automatically Sent",
+          description: `Job details have been automatically emailed to contractor ${technician.first_name} ${technician.last_name}.`,
         });
         
         // Update the job to mark the email as sent in localStorage
@@ -120,9 +122,43 @@ const ReporterJobCards = () => {
       
       toast({
         title: "Job Moved to Jobs Tab",
-        description: "The assigned job has been moved to the Jobs tab.",
+        description: `The job has been assigned with ${priority} priority and moved to the Jobs tab.`,
       });
     }, 2000);
+  };
+
+  // Function to handle resending email to contractors
+  const handleResendEmail = (jobId: string, technicianId: string) => {
+    const technician = users.find(user => user.id === technicianId);
+    
+    if (technician?.role === "contractor") {
+      toast({
+        title: "Resending Email",
+        description: `Resending job details to contractor ${technician.first_name} ${technician.last_name}...`,
+      });
+      
+      // Simulate email sending
+      setTimeout(() => {
+        toast({
+          title: "Email Resent Successfully",
+          description: `Job details have been resent to ${technician.first_name} ${technician.last_name}.`,
+        });
+        
+        // Update emailSent status in localStorage
+        try {
+          const savedJobs = localStorage.getItem('reporterJobs');
+          if (savedJobs) {
+            const allJobs = JSON.parse(savedJobs);
+            const updatedAllJobs = allJobs.map((job: any) => 
+              job.id === jobId ? { ...job, emailSent: true } : job
+            );
+            localStorage.setItem('reporterJobs', JSON.stringify(updatedAllJobs));
+          }
+        } catch (error) {
+          console.error("Error updating email sent status:", error);
+        }
+      }, 2000);
+    }
   };
 
   return (
@@ -133,6 +169,7 @@ const ReporterJobCards = () => {
             <JobCard
               {...job}
               onAssign={handleAssignJob}
+              onResendEmail={handleResendEmail}
             />
             <JobPhotosViewer reporterPhoto={job.reporterPhoto} />
           </div>

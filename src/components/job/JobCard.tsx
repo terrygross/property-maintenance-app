@@ -46,6 +46,7 @@ const JobCard = ({
         <JobCardFooter 
           id={id}
           status={status}
+          priority={priority}
           assignedTo={assignedTo}
           onAssign={onAssign}
           onResendEmail={onResendEmail}

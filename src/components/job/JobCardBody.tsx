@@ -1,7 +1,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Clock, User, Mail, Bell } from "lucide-react";
-import { isTechnicianContractor, isTechnicianMaintenanceTech, formatStatus } from "./jobCardUtils";
+import { formatStatus } from "./jobCardUtils";
 import { useAppState } from "@/context/AppStateContext";
 
 interface JobCardBodyProps {
