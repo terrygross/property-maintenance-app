@@ -5,10 +5,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import JobCardsList from "./JobCardsList";
 import LeaveCalendar from "./LeaveCalendar";
 import CallOutSchedule from "./CallOutSchedule";
-import { hasAdminAccess } from "@/types/user";
+import { hasAdminAccess, UserRole } from "@/types/user";
 
 interface MaintenanceJobCardsProps {
-  userRole?: string;
+  userRole?: UserRole;
 }
 
 const MaintenanceJobCards = ({ userRole = "admin" }: MaintenanceJobCardsProps) => {
@@ -63,7 +63,7 @@ const MaintenanceJobCards = ({ userRole = "admin" }: MaintenanceJobCardsProps) =
               <LeaveCalendar 
                 leaveRequests={leaveRequests} 
                 onLeaveAction={handleLeaveAction} 
-                isAdmin={hasAdminAccess(userRole as any)} 
+                isAdmin={hasAdminAccess(userRole)} 
               />
             </CardContent>
           </Card>
