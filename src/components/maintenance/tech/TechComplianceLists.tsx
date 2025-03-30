@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import { Eye, CheckSquare, FileText } from "lucide-react";
+import { Eye, CheckSquare } from "lucide-react";
 import { ComplianceList } from "../compliance/types";
 import CompliancePreview from "../compliance/CompliancePreview";
 import ComplianceComplete from "../compliance/ComplianceComplete";
@@ -107,7 +107,7 @@ const TechComplianceLists = ({ userId }: TechComplianceListsProps) => {
       </div>
       
       <div className="text-xs text-muted-foreground mb-3">
-        Updated: {format(new Date(list.updatedAt), "MMM d, yyyy")}
+        Updated: {list.updatedAt ? format(new Date(list.updatedAt), "MMM d, yyyy") : "N/A"}
       </div>
       
       <div className="flex justify-between">
@@ -183,7 +183,7 @@ const TechComplianceLists = ({ userId }: TechComplianceListsProps) => {
                       {getPropertyName(list.propertyId)}
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
-                      {format(new Date(list.updatedAt), "MMM d, yyyy")}
+                      {list.updatedAt ? format(new Date(list.updatedAt), "MMM d, yyyy") : "N/A"}
                     </TableCell>
                     <TableCell>
                       <Badge 

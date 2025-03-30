@@ -26,7 +26,7 @@ const ComplianceAssignDialog = ({
   const [selectedTechId, setSelectedTechId] = useState<string>("");
   const { toast } = useToast();
 
-  // Reset selected tech when dialog opens/closes
+  // Reset selected tech when dialog opens/closes or when list changes
   useEffect(() => {
     if (isOpen && list?.assignedTo) {
       setSelectedTechId(list.assignedTo);
