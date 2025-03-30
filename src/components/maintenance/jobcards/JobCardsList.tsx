@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MOCK_USERS } from "@/data/mockUsers";
@@ -19,8 +19,8 @@ const JobCardsList = ({ userRole = "admin" }: JobCardsListProps) => {
     user.role === "maintenance_tech" || user.role === "contractor"
   );
   
-  // For Basic plan, we should only show 4 technicians
-  const maintenanceTechs = allMaintenanceTechs.slice(0, 4);
+  // For Basic plan, we should only show 6 technicians
+  const maintenanceTechs = allMaintenanceTechs.slice(0, 6);
   
   const [showTechJobs, setShowTechJobs] = useState(false);
   const [selectedTechId, setSelectedTechId] = useState<string | null>(null);
@@ -30,8 +30,52 @@ const JobCardsList = ({ userRole = "admin" }: JobCardsListProps) => {
   const [showJobDetails, setShowJobDetails] = useState(false);
   const { toast } = useToast();
   
+  // State to track job updates
+  const [jobsUpdated, setJobsUpdated] = useState(0);
+  
   // Check if user has admin access
   const isAdminOrManager = hasAdminAccess(userRole as any);
+
+  // Effect to refresh jobs when localStorage changes
+  useEffect(() => {
+    const handleStorageChange = () => {
+      console.log("Storage changed, refreshing jobs...");
+      if (selectedTechId) {
+        refreshTechJobs(selectedTechId);
+      }
+      setJobsUpdated(prev => prev + 1);
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [selectedTechId]);
+
+  // Function to refresh tech jobs
+  const refreshTechJobs = (techId: string) => {
+    const jobs = getTechnicianJobs(techId);
+    
+    // Format jobs for display
+    const formattedJobs = jobs.map(job => ({
+      id: job.id,
+      title: job.title,
+      location: job.property || job.location,
+      priority: job.priority || "medium",
+      dueDate: new Date(job.dueDate || job.reportDate || Date.now()),
+      status: job.status || "assigned",
+      accepted: job.accepted || false,
+      photos: {
+        reporter: job.imageUrl || "",
+        before: job.beforePhoto || "",
+        after: job.afterPhoto || ""
+      }
+    }));
+    
+    console.log("Refreshed jobs for technician:", formattedJobs);
+    setTechJobs(formattedJobs);
+  };
 
   // Handle view jobs button click
   const handleViewJobs = (techId: string) => {
@@ -41,28 +85,7 @@ const JobCardsList = ({ userRole = "admin" }: JobCardsListProps) => {
       setSelectedTechName(`${tech.first_name} ${tech.last_name}`);
       
       // Get jobs for this technician
-      const jobs = getTechnicianJobs(techId);
-      
-      // Format jobs for display
-      const formattedJobs = jobs.map(job => ({
-        id: job.id,
-        title: job.title,
-        location: job.property || job.location,
-        priority: job.priority || "medium",
-        dueDate: new Date(job.dueDate || job.reportDate || Date.now()),
-        status: job.status || "assigned",
-        accepted: job.accepted || false,
-        photos: {
-          reporter: job.imageUrl || "",
-          before: job.beforePhoto || "",
-          after: job.afterPhoto || ""
-        }
-      }));
-      
-      // Log the jobs we found to help with debugging
-      console.log("Formatted tech jobs for display:", formattedJobs);
-      
-      setTechJobs(formattedJobs);
+      refreshTechJobs(techId);
       setShowTechJobs(true);
     }
   };
@@ -129,7 +152,7 @@ const JobCardsList = ({ userRole = "admin" }: JobCardsListProps) => {
   // Handle assign new job button click
   const handleAssignJob = () => {
     console.log("Assign new job clicked");
-    // Implement assign job functionality
+    // Handle this in JobsHeader for now
   };
 
   return (
@@ -138,7 +161,7 @@ const JobCardsList = ({ userRole = "admin" }: JobCardsListProps) => {
         <h3 className="text-lg font-medium">Maintenance Job Cards</h3>
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">
-            {maintenanceTechs.length}/4 technicians (Basic plan)
+            {maintenanceTechs.length}/6 technicians (Basic plan)
           </span>
           {isAdminOrManager && (
             <Button variant="outline" size="sm" onClick={handleAssignJob}>Assign New Job</Button>
@@ -153,7 +176,10 @@ const JobCardsList = ({ userRole = "admin" }: JobCardsListProps) => {
               <div className="flex justify-between items-center">
                 <div>
                   <p className="font-medium">{tech.first_name} {tech.last_name}</p>
-                  <p className="text-sm text-muted-foreground">{tech.title}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {tech.title} 
+                    {tech.role === "contractor" && " (Contractor)"}
+                  </p>
                 </div>
                 <Button size="sm" onClick={() => handleViewJobs(tech.id)}>View Jobs</Button>
               </div>

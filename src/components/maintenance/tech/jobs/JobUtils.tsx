@@ -1,4 +1,6 @@
 
+import { MOCK_USERS } from "@/data/mockUsers";
+
 export const getPriorityColor = (priority: string) => {
   switch (priority) {
     case "high":
@@ -99,6 +101,10 @@ export const updateJobStatus = (jobId: string, status: string): boolean => {
         return job;
       });
       localStorage.setItem('reporterJobs', JSON.stringify(updatedJobs));
+      
+      // Dispatch a storage event to notify other components
+      window.dispatchEvent(new Event('storage'));
+      
       return true;
     }
   } catch (error) {
@@ -122,6 +128,10 @@ export const updateJobPriority = (jobId: string, priority: string): boolean => {
         return job;
       });
       localStorage.setItem('reporterJobs', JSON.stringify(updatedJobs));
+      
+      // Dispatch a storage event to notify other components
+      window.dispatchEvent(new Event('storage'));
+      
       return true;
     }
   } catch (error) {
@@ -131,6 +141,8 @@ export const updateJobPriority = (jobId: string, priority: string): boolean => {
 };
 
 export const getTechnicianJobs = (techId: string): any[] => {
+  console.log(`Fetching jobs for technician: ${techId}`);
+  
   // Try to get jobs from localStorage
   try {
     const savedJobs = localStorage.getItem('reporterJobs');
@@ -140,14 +152,19 @@ export const getTechnicianJobs = (techId: string): any[] => {
       // This ensures that both "assigned", "in_progress", and "completed" jobs are shown
       const techJobs = allJobs.filter((job: any) => job.assignedTo === techId);
       
+      console.log(`Found ${techJobs.length} jobs for technician ${techId} in localStorage:`, techJobs);
+      
       if (techJobs.length > 0) {
-        console.log("Found jobs for technician in localStorage:", techJobs);
         return techJobs;
       }
     }
   } catch (error) {
     console.error("Error getting technician jobs from localStorage:", error);
   }
+  
+  // Get the technician's details
+  const tech = MOCK_USERS.find(user => user.id === techId);
+  console.log(`Technician details:`, tech);
   
   // Fallback to mock data if no jobs in localStorage
   // Generate some mock jobs for the technician
@@ -182,5 +199,6 @@ export const getTechnicianJobs = (techId: string): any[] => {
     }
   ];
   
+  console.log(`Returning mock jobs for technician ${techId}:`, mockJobs);
   return mockJobs;
 };

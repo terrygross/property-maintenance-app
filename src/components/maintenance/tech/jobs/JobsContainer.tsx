@@ -7,22 +7,29 @@ import { TechJob } from "./types";
 import { useTechJobs } from "./TechJobsContext";
 import { getPriorityColor } from "./JobUtils";
 import JobsHeader from "./JobsHeader";
+import { hasAdminAccess } from "@/types/user";
+import { useAppState } from "@/context/AppStateContext";
 
 interface JobsContainerProps {
   jobs: TechJob[];
+  isAdmin?: boolean;
 }
 
-const JobsContainer: React.FC<JobsContainerProps> = ({ jobs }) => {
+const JobsContainer: React.FC<JobsContainerProps> = ({ jobs, isAdmin = false }) => {
   const { 
     handleViewDetails, 
     handleViewReporterImage, 
     onAcceptJob, 
     onUpdateStatus 
   } = useTechJobs();
+  const { currentUser } = useAppState();
+  
+  // Determine if the current user has admin access
+  const hasAdmin = currentUser ? hasAdminAccess(currentUser.role) : isAdmin;
 
   return (
     <Card>
-      <JobsHeader />
+      <JobsHeader jobCount={jobs.length} isAdmin={hasAdmin} />
       <CardContent>
         {jobs.length === 0 ? (
           <EmptyJobsList />

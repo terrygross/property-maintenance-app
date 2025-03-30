@@ -1,7 +1,8 @@
+
 import React from "react";
 import { useAppState } from "@/context/AppStateContext";
 import { TechJob } from "./types";
-import { TechJobsProvider } from "./TechJobsContext";
+import { TechJobsProvider, useTechJobs } from "./TechJobsContext";
 import JobsContainer from "./JobsContainer";
 import JobsDialogs from "./JobsDialogs";
 import { getPriorityColor } from "./JobUtils";
@@ -11,13 +12,15 @@ interface TechJobsTabProps {
   onPhotoCapture: (jobId: string, type: "before" | "after", imageUrl: string) => void;
   onAcceptJob?: (jobId: string) => void;
   onUpdateStatus?: (jobId: string, status: string) => void;
+  isAdmin?: boolean;
 }
 
 const TechJobsTab: React.FC<TechJobsTabProps> = ({ 
   assignedJobs, 
   onPhotoCapture, 
   onAcceptJob, 
-  onUpdateStatus 
+  onUpdateStatus,
+  isAdmin = false
 }) => {
   const { properties } = useAppState();
 
@@ -46,7 +49,7 @@ const TechJobsTab: React.FC<TechJobsTabProps> = ({
       onAcceptJob={onAcceptJob}
       onUpdateStatus={onUpdateStatus}
     >
-      <JobsContainer jobs={updatedJobs} />
+      <JobsContainer jobs={updatedJobs} isAdmin={isAdmin} />
       <JobsDialogsContainer />
     </TechJobsProvider>
   );
