@@ -31,9 +31,28 @@ const JobsList = ({
   onAcceptJob,
   getPriorityColor 
 }: JobsListProps) => {
+  // Sort jobs to show high priority jobs at the top
+  const sortedJobs = [...jobs].sort((a, b) => {
+    // First by priority (high > medium > low)
+    const priorityOrder = { high: 0, medium: 1, low: 2 };
+    const priorityDiff = 
+      (priorityOrder[a.priority as keyof typeof priorityOrder] || 3) - 
+      (priorityOrder[b.priority as keyof typeof priorityOrder] || 3);
+    
+    if (priorityDiff !== 0) return priorityDiff;
+    
+    // Then by acceptance status (unaccepted first)
+    if (a.accepted !== b.accepted) {
+      return a.accepted ? 1 : -1;
+    }
+    
+    // Then by due date (earliest first)
+    return a.dueDate.getTime() - b.dueDate.getTime();
+  });
+
   return (
     <div className="space-y-4">
-      {jobs.map((job) => (
+      {sortedJobs.map((job) => (
         <JobCard 
           key={job.id}
           job={job} 
