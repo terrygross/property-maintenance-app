@@ -8,7 +8,7 @@ export const userFormSchema = z.object({
   title: z.string().min(1, "Title is required"),
   email: z.string().email("Invalid email address"),
   phone: z.string().optional(),
-  role: z.enum(["admin", "maintenance_tech", "maintenance_manager", "contractor", "reporter"] as const),
+  role: z.enum(["admin", "maintenance_tech", "maintenance_manager", "reporter"] as const),
   photo_url: z.string().optional(),
 });
 
@@ -18,6 +18,5 @@ export const roleOptions = [
   { value: "admin", label: "Admin" },
   { value: "maintenance_manager", label: "Maintenance Manager" },
   { value: "maintenance_tech", label: "Maintenance Technician" },
-  { value: "contractor", label: "Contractor" },
   { value: "reporter", label: "Reporter" },
 ];

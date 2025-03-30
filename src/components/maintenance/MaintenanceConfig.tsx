@@ -1,44 +1,35 @@
 
-import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MaintenanceCategories from "./MaintenanceCategories";
-import ServiceProviders from "./ServiceProviders";
-import WorkflowRules from "./workflow-rules";
 import SLASettings from "./SLASettings";
-import ComplianceLists from "./compliance/ComplianceLists";
+import Contractors from "./ServiceProviders";
+import WorkflowRules from "./workflow-rules";
 
 const MaintenanceConfig = () => {
-  const [activeTab, setActiveTab] = useState("categories");
-
   return (
-    <div className="space-y-6">
-      <Tabs 
-        defaultValue="categories" 
-        value={activeTab} 
-        onValueChange={setActiveTab}
-        className="w-full"
-      >
-        <TabsList className="grid grid-cols-2 md:grid-cols-5 mb-4">
+    <div className="space-y-4">
+      <Tabs defaultValue="contractors" className="w-full">
+        <TabsList className="w-full md:w-auto">
+          <TabsTrigger value="contractors">Contractors</TabsTrigger>
           <TabsTrigger value="categories">Categories</TabsTrigger>
-          <TabsTrigger value="providers">Service Providers</TabsTrigger>
           <TabsTrigger value="sla">SLA Settings</TabsTrigger>
           <TabsTrigger value="workflow">Workflow Rules</TabsTrigger>
-          <TabsTrigger value="compliance">Compliance Lists</TabsTrigger>
         </TabsList>
+        
+        <TabsContent value="contractors">
+          <Contractors />
+        </TabsContent>
+        
         <TabsContent value="categories">
           <MaintenanceCategories />
         </TabsContent>
-        <TabsContent value="providers">
-          <ServiceProviders />
-        </TabsContent>
+        
         <TabsContent value="sla">
           <SLASettings />
         </TabsContent>
+        
         <TabsContent value="workflow">
           <WorkflowRules />
-        </TabsContent>
-        <TabsContent value="compliance">
-          <ComplianceLists />
         </TabsContent>
       </Tabs>
     </div>

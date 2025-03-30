@@ -9,7 +9,10 @@ export function useUserManagement() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
 
-  const filteredUsers = users.filter(
+  // Filter out contractors from the user list
+  const nonContractorUsers = users.filter(user => user.role !== "contractor");
+
+  const filteredUsers = nonContractorUsers.filter(
     (user) =>
       user.first_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.last_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
