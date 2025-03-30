@@ -1,5 +1,5 @@
 
-import { DollarSign } from "lucide-react";
+import { DollarSign, UserCog } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -18,6 +18,14 @@ const AdditionalServices = () => {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
+          <div className="flex items-center justify-between py-2">
+            <div>
+              <h4 className="font-medium">Maintenance Manager Role</h4>
+              <p className="text-sm text-muted-foreground">Add supervisory roles to improve workflow and team management</p>
+            </div>
+            <Button variant="outline">Add - £30/month</Button>
+          </div>
+          <Separator />
           <div className="flex items-center justify-between py-2">
             <div>
               <h4 className="font-medium">Premium Support</h4>

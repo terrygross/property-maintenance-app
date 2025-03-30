@@ -210,7 +210,8 @@ const Index = () => {
             
             <div className="mt-12 text-center">
               <p className="text-gray-600 mb-4">Need additional capacity?</p>
-              <p className="font-medium">Extra Maintenance Technician: £20/month • Extra Reporting Station: £20/month</p>
+              <p className="font-medium mb-2">Extra Maintenance Technician: £20/month • Extra Reporting Station: £20/month</p>
+              <p className="font-medium text-blue-600">Maintenance Manager Role: £30/month per manager (available with any plan)</p>
             </div>
           </div>
         </section>

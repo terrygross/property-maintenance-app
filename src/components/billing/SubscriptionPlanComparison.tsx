@@ -1,11 +1,9 @@
-
 import { Check, X } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-// Define the structure for plan features
 interface PlanFeature {
   name: string;
   basic: boolean | string;
@@ -14,7 +12,6 @@ interface PlanFeature {
 }
 
 const SubscriptionPlanComparison = () => {
-  // Plan data
   const plans = [
     {
       name: "Basic",
@@ -45,7 +42,6 @@ const SubscriptionPlanComparison = () => {
     },
   ];
 
-  // Features comparison data
   const features: PlanFeature[] = [
     { name: "Maintenance Request Management", basic: true, professional: true, enterprise: true },
     { name: "Task Assignment", basic: true, professional: true, enterprise: true },
@@ -59,6 +55,7 @@ const SubscriptionPlanComparison = () => {
     { name: "Data Retention", basic: "1 year", professional: "3 years", enterprise: "Unlimited" },
     { name: "Custom Integrations", basic: false, professional: false, enterprise: true },
     { name: "SLA Guarantees", basic: false, professional: false, enterprise: true },
+    { name: "Maintenance Manager Roles", basic: "Available as add-on", professional: "Available as add-on", enterprise: "Available as add-on" },
   ];
 
   return (
@@ -70,7 +67,6 @@ const SubscriptionPlanComparison = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {/* Plan headers with pricing */}
         <div className="grid grid-cols-4 gap-4 mb-4">
           <div className="col-span-1"></div>
           {plans.map((plan) => (
@@ -83,7 +79,6 @@ const SubscriptionPlanComparison = () => {
           ))}
         </div>
 
-        {/* Capacity comparison */}
         <Table>
           <TableHeader>
             <TableRow>
@@ -114,10 +109,15 @@ const SubscriptionPlanComparison = () => {
                 <TableCell key={plan.name} className="text-center">{plan.stations}</TableCell>
               ))}
             </TableRow>
+            <TableRow>
+              <TableCell className="font-medium">Maintenance Managers</TableCell>
+              {plans.map((plan) => (
+                <TableCell key={plan.name} className="text-center text-blue-600">Optional add-on</TableCell>
+              ))}
+            </TableRow>
           </TableBody>
         </Table>
 
-        {/* Features comparison */}
         <div className="mt-8">
           <h3 className="text-lg font-medium mb-4">Feature Comparison</h3>
           <Table>
@@ -162,7 +162,6 @@ const SubscriptionPlanComparison = () => {
           </Table>
         </div>
 
-        {/* CTA buttons */}
         <div className="grid grid-cols-4 gap-4 mt-8">
           <div className="col-span-1"></div>
           {plans.map((plan) => (
@@ -172,6 +171,11 @@ const SubscriptionPlanComparison = () => {
               </Button>
             </div>
           ))}
+        </div>
+
+        <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
+          <p className="text-center font-medium">Maintenance Manager Role Available as Add-on: £30/month per manager</p>
+          <p className="text-center text-sm text-gray-600 mt-1">Add Maintenance Managers to any plan to improve workflow and team supervision</p>
         </div>
       </CardContent>
     </Card>
