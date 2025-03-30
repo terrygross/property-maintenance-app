@@ -6,7 +6,7 @@ import JobsList from "./jobs/JobsList";
 import EmptyJobsList from "./jobs/EmptyJobsList";
 import JobDetailsDialog from "./jobs/JobDetailsDialog";
 import ReporterImageDialog from "./jobs/ReporterImageDialog";
-import { getPriorityColor, updateLocalStorageJobs, updateJobStatus } from "./jobs/JobUtils";
+import { getPriorityColor, updateLocalStorageJobs, updateJobStatus, checkAfterPhotoForCompletion } from "./jobs/JobUtils";
 import { useAppState } from "@/context/AppStateContext";
 
 interface Job {
@@ -95,6 +95,15 @@ const TechJobsTab = ({ assignedJobs, onPhotoCapture, onAcceptJob, onUpdateStatus
     }
     
     updateLocalStorageJobs(jobId, type, imageUrl);
+    
+    // If this is an after photo and job is in_progress, let user know they can now complete the job
+    if (type === "after" && selectedJob?.status === "in_progress") {
+      toast({
+        title: "After photo added",
+        description: "You can now mark this job as complete.",
+        variant: "default",
+      });
+    }
   };
 
   const handleViewReporterImage = (job: Job) => {
@@ -115,6 +124,27 @@ const TechJobsTab = ({ assignedJobs, onPhotoCapture, onAcceptJob, onUpdateStatus
   };
   
   const handleUpdateStatus = (jobId: string, status: string) => {
+    // If marking as complete, verify after photo exists
+    if (status === "completed") {
+      const job = updatedJobs.find(job => job.id === jobId);
+      
+      if (!job?.photos?.after) {
+        toast({
+          title: "After photo required",
+          description: "You must add an 'after' photo before marking this job as complete.",
+          variant: "destructive",
+        });
+        
+        // Open the job details to allow photo upload
+        const jobToView = updatedJobs.find(j => j.id === jobId);
+        if (jobToView) {
+          handleViewDetails(jobToView);
+        }
+        
+        return;
+      }
+    }
+    
     if (onUpdateStatus) {
       onUpdateStatus(jobId, status);
       
@@ -137,6 +167,18 @@ const TechJobsTab = ({ assignedJobs, onPhotoCapture, onAcceptJob, onUpdateStatus
             : "You have marked this job as complete.",
           variant: "default",
         });
+      } else if (status === "completed") {
+        toast({
+          title: "After photo required",
+          description: "You must add an 'after' photo before marking this job as complete.",
+          variant: "destructive",
+        });
+        
+        // Open the job details to allow photo upload
+        const jobToView = updatedJobs.find(j => j.id === jobId);
+        if (jobToView) {
+          handleViewDetails(jobToView);
+        }
       }
     }
   };

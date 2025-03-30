@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { updateJobAcceptance, updateJobStatus } from "@/components/maintenance/tech/jobs/JobUtils";
+import { updateJobAcceptance, updateJobStatus, checkAfterPhotoForCompletion } from "@/components/maintenance/tech/jobs/JobUtils";
 
 interface Job {
   id: string;
@@ -160,6 +160,19 @@ export const useAssignedJobs = (currentUserId: string) => {
   
   // Function to handle updating job status
   const handleUpdateJobStatus = (jobId: string, status: string) => {
+    // If trying to mark as complete, verify after photo exists
+    if (status === "completed") {
+      const job = assignedJobs.find(j => j.id === jobId);
+      if (!job?.photos?.after) {
+        toast({
+          title: "After photo required",
+          description: "You must add an 'after' photo before marking this job as complete.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+    
     // Update the UI
     setAssignedJobs(prev => 
       prev.map(job => {
@@ -183,6 +196,12 @@ export const useAssignedJobs = (currentUserId: string) => {
           ? "You have marked this job as in progress." 
           : "You have marked this job as complete.",
         variant: "default",
+      });
+    } else if (status === "completed") {
+      toast({
+        title: "After photo required",
+        description: "You must add an 'after' photo before marking this job as complete.",
+        variant: "destructive",
       });
     }
   };

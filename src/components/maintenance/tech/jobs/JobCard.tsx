@@ -1,8 +1,8 @@
-
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ImageIcon, AlertCircle, CheckCircle, Clock, Check } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface Job {
   id: string;
@@ -39,6 +39,7 @@ const JobCard = ({
   const isHighPriority = job.priority === "high";
   const isAccepted = job.accepted;
   const status = job.status || "assigned";
+  const { toast } = useToast();
   
   const getStatusBadge = () => {
     switch(status) {
@@ -65,10 +66,27 @@ const JobCard = ({
     }
   };
   
+  const handleStatusUpdate = () => {
+    if (status === "in_progress" && !job.photos?.after && onUpdateStatus) {
+      toast({
+        variant: "destructive",
+        title: "After photo required",
+        description: "You must add an 'after' photo before marking this job as complete.",
+      });
+      
+      onViewDetails(job);
+      return;
+    }
+    
+    if (onUpdateStatus) {
+      onUpdateStatus(job.id, status === "in_progress" ? "completed" : "in_progress");
+    }
+  };
+  
   return (
     <div key={job.id} className={`border rounded-lg p-4 ${isHighPriority && !isAccepted ? 'border-red-500 bg-red-50' : ''}`}>
       <div className="flex items-start justify-between">
-        <div>
+        <div className="flex-grow">
           <div className="flex items-center gap-2">
             {isHighPriority && !isAccepted && <AlertCircle className="h-4 w-4 text-red-600 animate-pulse" />}
             {isHighPriority && isAccepted && <CheckCircle className="h-4 w-4 text-green-600" />}
@@ -105,6 +123,18 @@ const JobCard = ({
             )}
           </div>
         </div>
+        
+        {job.photos?.reporter && (
+          <div className="hidden md:block w-16 h-16 rounded-md overflow-hidden border bg-gray-50 mr-4 cursor-pointer" 
+               onClick={() => onViewReporterImage(job)}>
+            <img 
+              src={job.photos.reporter} 
+              alt="Reporter photo" 
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
+        
         <div className="flex flex-col gap-2">
           {isHighPriority && !isAccepted && onAcceptJob && (
             <Button 
@@ -121,7 +151,7 @@ const JobCard = ({
             <Button 
               size="sm" 
               variant={status === "in_progress" ? "outline" : "secondary"} 
-              onClick={() => onUpdateStatus(job.id, status === "in_progress" ? "completed" : "in_progress")}
+              onClick={handleStatusUpdate}
               className="mb-1"
             >
               {status === "in_progress" ? "Mark Complete" : "Start Job"}
