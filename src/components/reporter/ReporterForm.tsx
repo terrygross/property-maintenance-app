@@ -10,12 +10,14 @@ import PropertyField from "./form-fields/PropertyField";
 import LocationField from "./form-fields/LocationField";
 import DescriptionField from "./form-fields/DescriptionField";
 import SubmitButton from "./form-fields/SubmitButton";
+import HighPriorityField from "./form-fields/HighPriorityField";
 
 export interface ReporterFormValues {
   reporterName: string;
   propertyId: string;
   location: string;
   description: string;
+  highPriority: boolean;
 }
 
 interface ReporterFormProps {
@@ -35,7 +37,8 @@ const ReporterForm = ({ stationId, stationProperty, propertyName }: ReporterForm
       reporterName: "",
       propertyId: "",
       location: "",
-      description: ""
+      description: "",
+      highPriority: false
     }
   });
 
@@ -71,11 +74,14 @@ const ReporterForm = ({ stationId, stationProperty, propertyName }: ReporterForm
       property: propertyName,
       location: values.location,
       reportDate: new Date().toISOString().split("T")[0],
-      priority: "medium", // Default priority
+      priority: values.highPriority ? "high" : "medium", // Set priority based on checkbox
       status: "unassigned",
       stationId: stationId,
       imageUrl: imageUrl,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      highPriority: values.highPriority,
+      alertsSent: values.highPriority ? 1 : 0, // Track number of alerts sent for high priority jobs
+      lastAlertTime: values.highPriority ? new Date().toISOString() : null // Track when the last alert was sent
     };
     
     // Get existing reports or initialize empty array
@@ -98,6 +104,11 @@ const ReporterForm = ({ stationId, stationProperty, propertyName }: ReporterForm
     // Log for debugging
     console.log("Saved report job:", reportData);
     
+    // Show appropriate toast message based on priority
+    const priorityMessage = values.highPriority ? 
+      "HIGH PRIORITY - Notifications have been sent to maintenance team." : 
+      "";
+    
     // Reset form
     form.reset();
     form.setValue("propertyId", stationProperty); // Keep the property ID
@@ -106,7 +117,8 @@ const ReporterForm = ({ stationId, stationProperty, propertyName }: ReporterForm
     
     toast({
       title: "Report Submitted",
-      description: `Your maintenance report for ${propertyName} has been submitted successfully.`
+      description: `Your maintenance report for ${propertyName} has been submitted successfully. ${priorityMessage}`,
+      variant: values.highPriority ? "destructive" : "default"
     });
   };
 
@@ -122,6 +134,8 @@ const ReporterForm = ({ stationId, stationProperty, propertyName }: ReporterForm
         <LocationField form={form} />
         
         <DescriptionField form={form} />
+        
+        <HighPriorityField form={form} />
         
         <SubmitButton isSubmitting={isSubmitting} />
       </form>
