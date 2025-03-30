@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -25,6 +25,7 @@ const TechComplianceLists = ({ userId }: TechComplianceListsProps) => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [selectedList, setSelectedList] = useState<ComplianceList | null>(null);
   const [isCompleteDialogOpen, setIsCompleteDialogOpen] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const isMobile = useIsMobile();
   
   const {
@@ -53,6 +54,20 @@ const TechComplianceLists = ({ userId }: TechComplianceListsProps) => {
   );
   
   console.log("Final assigned lists:", assignedLists);
+  
+  // Listen for compliance list updates
+  useEffect(() => {
+    const handleListsUpdated = () => {
+      console.log("ComplianceLists updated event received");
+      setRefreshTrigger(prev => prev + 1);
+    };
+    
+    document.addEventListener('complianceListsUpdated', handleListsUpdated);
+    
+    return () => {
+      document.removeEventListener('complianceListsUpdated', handleListsUpdated);
+    };
+  }, []);
   
   // Find the current user
   const currentUser = users.find(user => user.id === userId);

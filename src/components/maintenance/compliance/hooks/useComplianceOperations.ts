@@ -14,16 +14,24 @@ export const useComplianceOperations = (
   };
 
   const handleAssignSubmit = (listId: string, techId: string, techName: string) => {
+    console.log("Submitting assignment:", { listId, techId, techName });
+    
     updateComplianceLists(prevLists => 
       prevLists.map(list => {
         if (list.id === listId) {
-          return { 
+          console.log(`Updating list ${list.id} with techId ${techId}`);
+          
+          // Create a new object with the updated properties
+          const updatedList = { 
             ...list, 
             status: "assigned", 
             assignedTo: techId, 
             assignedToName: techName,
-            updatedAt: new Date() // Use Date object, this will be serialized properly when saved
+            updatedAt: new Date().toISOString() // Use ISO string for consistency
           };
+          
+          console.log("Updated list:", updatedList);
+          return updatedList;
         }
         return list;
       })
@@ -33,6 +41,10 @@ export const useComplianceOperations = (
       title: "List Assigned",
       description: `Compliance list has been assigned to ${techName}.`,
     });
+    
+    // Dispatch a custom event to notify other components (like tech dashboard)
+    const event = new CustomEvent('complianceListsUpdated');
+    document.dispatchEvent(event);
   };
 
   const handleComplete = (list: ComplianceList) => {
@@ -46,9 +58,9 @@ export const useComplianceOperations = (
           return { 
             ...list, 
             status: "completed", 
-            completedAt: new Date(), // Use Date object, this will be serialized properly when saved
+            completedAt: new Date().toISOString(), 
             notes: notes,
-            updatedAt: new Date() // Use Date object, this will be serialized properly when saved
+            updatedAt: new Date().toISOString()
           };
         }
         return list;
@@ -59,6 +71,10 @@ export const useComplianceOperations = (
       title: "List Completed",
       description: "Compliance list has been marked as completed.",
     });
+    
+    // Dispatch a custom event to notify other components
+    const event = new CustomEvent('complianceListsUpdated');
+    document.dispatchEvent(event);
   };
 
   // Move item to recycle bin (soft delete)
@@ -69,8 +85,8 @@ export const useComplianceOperations = (
           return { 
             ...list, 
             status: "deleted", 
-            deletedAt: new Date(),
-            updatedAt: new Date()
+            deletedAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
           };
         }
         return list;
@@ -92,7 +108,7 @@ export const useComplianceOperations = (
             ...list, 
             status: "active", 
             deletedAt: undefined,
-            updatedAt: new Date()
+            updatedAt: new Date().toISOString()
           };
         }
         return list;
@@ -128,8 +144,11 @@ export const useComplianceOperations = (
       const listAssignedTo = String(list.assignedTo || "");
       const techIdString = String(techId);
       
-      return listAssignedTo === techIdString && 
+      const isMatch = listAssignedTo === techIdString && 
         (list.status === "assigned" || list.status === "completed");
+        
+      console.log(`List ${list.id}, assignedTo=${listAssignedTo}, matches ${techIdString}? ${isMatch}`);
+      return isMatch;
     });
     
     console.log("Filtered lists:", filtered);

@@ -55,8 +55,21 @@ const ComplianceAssignDialog = ({
       return;
     }
 
+    // Create the full name for display purposes
     const techName = `${selectedTech.first_name} ${selectedTech.last_name}`;
+    
+    // Log the assignment for debugging
+    console.log("Assigning list:", {
+      listId: list.id,
+      techId: selectedTechId,
+      techName: techName,
+      technician: selectedTech
+    });
+    
+    // Call the onAssign function with the list ID, technician ID, and technician name
     onAssign(list.id, selectedTechId, techName);
+    
+    // Close the dialog after assignment
     onOpenChange(false);
   };
 
