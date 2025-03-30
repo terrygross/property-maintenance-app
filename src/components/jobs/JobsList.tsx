@@ -100,7 +100,7 @@ const JobsList = () => {
             {jobs.length > 0 ? (
               jobs.map((job) => (
                 <div key={job.id} className="border rounded-lg p-4">
-                  <div className="flex items-start justify-between">
+                  <div className="flex items-start justify-between h-full">
                     <div className="flex-grow">
                       <div className="flex items-center gap-2">
                         <h3 className="font-medium">{job.title}</h3>
@@ -135,10 +135,10 @@ const JobsList = () => {
                       </div>
                     </div>
                     
-                    {/* Reporter photo thumbnail moved to the right */}
+                    {/* Reporter photo thumbnail with increased size */}
                     {job.photos?.reporter && (
-                      <div className="flex items-center justify-center ml-4">
-                        <div className="h-24 w-24 rounded-md overflow-hidden border flex-shrink-0">
+                      <div className="flex items-center justify-center ml-4 h-full">
+                        <div className="h-32 w-32 rounded-md overflow-hidden border flex-shrink-0">
                           <img 
                             src={job.photos.reporter} 
                             alt="Reporter" 
