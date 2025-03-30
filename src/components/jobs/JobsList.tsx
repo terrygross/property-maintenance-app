@@ -101,7 +101,7 @@ const JobsList = () => {
               jobs.map((job) => (
                 <div key={job.id} className="border rounded-lg p-4">
                   <div className="flex items-start justify-between">
-                    <div>
+                    <div className="flex-grow">
                       <div className="flex items-center gap-2">
                         <h3 className="font-medium">{job.title}</h3>
                         <span className={`text-xs px-2 py-1 rounded-full text-white ${getPriorityColor(job.priority)}`}>
@@ -128,31 +128,25 @@ const JobsList = () => {
                         </div>
                       )}
                       
-                      {/* Display indicators for photos */}
-                      <div className="mt-2 flex gap-2 items-center">
-                        {job.photos?.reporter && (
-                          <div className="flex items-center">
-                            <div className="h-10 w-10 rounded-md overflow-hidden border mr-2">
-                              <img 
-                                src={job.photos.reporter} 
-                                alt="Reporter" 
-                                className="h-full w-full object-cover"
-                              />
-                            </div>
-                            <span className="text-xs bg-purple-50 px-2 py-1 rounded">Reporter Photo</span>
-                          </div>
-                        )}
-                        {job.photos?.before && (
-                          <span className="text-xs bg-blue-50 px-2 py-1 rounded">Before Photo ✓</span>
-                        )}
-                        {job.photos?.after && (
-                          <span className="text-xs bg-green-50 px-2 py-1 rounded">After Photo ✓</span>
-                        )}
+                      <div className="mt-3">
+                        <Button size="sm" variant="outline" onClick={() => handleViewDetails(job)}>
+                          View Details
+                        </Button>
                       </div>
                     </div>
-                    <Button size="sm" variant="outline" onClick={() => handleViewDetails(job)}>
-                      View Details
-                    </Button>
+                    
+                    {/* Reporter photo thumbnail moved to the right */}
+                    {job.photos?.reporter && (
+                      <div className="flex items-center justify-center ml-4">
+                        <div className="h-24 w-24 rounded-md overflow-hidden border flex-shrink-0">
+                          <img 
+                            src={job.photos.reporter} 
+                            alt="Reporter" 
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))
