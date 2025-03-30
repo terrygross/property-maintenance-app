@@ -1,4 +1,3 @@
-
 import { useState, useRef } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
@@ -10,7 +9,7 @@ import CompliancePreviewFooter from "./preview/CompliancePreviewFooter";
 import { useFileHandlers } from "./preview/useFileHandlers";
 import { usePrintHandler } from "./preview/usePrintHandler";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FileText, CheckSquare } from "lucide-react";
+import { FileText, CheckSquare, ExternalLink } from "lucide-react";
 
 interface CompliancePreviewProps {
   list: ComplianceList;
@@ -22,28 +21,32 @@ const CompliancePreview = ({ list, isOpen, onOpenChange }: CompliancePreviewProp
   const [completedItems, setCompletedItems] = useState<Record<string, boolean>>({});
   const { toast } = useToast();
   
-  // Parse list description content into compliance items
-  // First try to split by commas, if that doesn't work well, split by new lines
   const complianceItems = list.description
     .split(/,|\n/)
     .map((item, index) => ({
       id: `item-${index}`,
       text: item.trim()
     }))
-    .filter(item => item.text.length > 0); // Filter out empty items
-  
-  // If no items could be parsed from description, provide a default placeholder item
+    .filter(item => item.text.length > 0);
+
   const displayItems = complianceItems.length > 0 
     ? complianceItems 
     : [{ id: "default", text: "No checklist items found in description. Please edit the list to add items." }];
+
+  const fileUrl = list.fileUrl && list.fileUrl !== "#" ? list.fileUrl : "";
 
   const {
     hasAttachedFile,
     isPdf,
     isDocx,
     canPreviewFile,
+    isLoading,
+    handleOpenOriginalFile,
     handleDownloadFile
-  } = useFileHandlers({ fileUrl: list.fileUrl, title: list.title });
+  } = useFileHandlers({ 
+    fileUrl: fileUrl,
+    title: list.title 
+  });
 
   const { printRef, handlePrint } = usePrintHandler({ 
     list: {
@@ -65,7 +68,6 @@ const CompliancePreview = ({ list, isOpen, onOpenChange }: CompliancePreviewProp
   };
 
   const handleSave = () => {
-    // In a real implementation, this would save the completion status
     toast({
       title: "Progress saved",
       description: `Saved completion status for ${list.title}`,
@@ -77,11 +79,9 @@ const CompliancePreview = ({ list, isOpen, onOpenChange }: CompliancePreviewProp
   const totalItems = displayItems.length;
   const progressPercentage = totalItems > 0 ? Math.round((completedCount / totalItems) * 100) : 0;
 
-  // Default tab - show document if available, otherwise show checklist
   const defaultTab = hasAttachedFile ? "document" : "checklist";
 
-  // Log the file URL to diagnose any issues
-  console.log("CompliancePreview fileUrl:", list.fileUrl);
+  console.log("CompliancePreview fileUrl:", fileUrl || "No file URL provided");
   console.log("Is PDF:", isPdf);
   console.log("Can preview file:", canPreviewFile);
 
@@ -107,23 +107,35 @@ const CompliancePreview = ({ list, isOpen, onOpenChange }: CompliancePreviewProp
 
           {hasAttachedFile && (
             <TabsContent value="document" className="h-[60vh]">
-              {canPreviewFile ? (
-                <ComplianceFileViewer fileUrl={list.fileUrl} title={list.title} />
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full">
-                  <p className="text-center mb-4">
-                    {isDocx ? 
-                      "This is a Word document that cannot be previewed directly in the browser." :
-                      "This file type cannot be previewed in the browser."}
-                  </p>
-                  <button 
-                    onClick={handleDownloadFile}
-                    className="bg-primary text-white px-4 py-2 rounded hover:bg-primary/90"
-                  >
-                    Download Document
-                  </button>
-                </div>
-              )}
+              <div className="flex flex-col h-full">
+                {canPreviewFile ? (
+                  <ComplianceFileViewer fileUrl={fileUrl} title={list.title} />
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-full">
+                    <p className="text-center mb-4">
+                      {isDocx ? 
+                        "This is a Word document that cannot be previewed directly in the browser." :
+                        "This file type cannot be previewed in the browser."}
+                    </p>
+                    <div className="flex gap-3">
+                      <button 
+                        onClick={handleDownloadFile}
+                        disabled={isLoading}
+                        className="bg-primary text-white px-4 py-2 rounded hover:bg-primary/90 disabled:opacity-50"
+                      >
+                        Download Document
+                      </button>
+                      <button 
+                        onClick={handleOpenOriginalFile}
+                        className="border border-primary text-primary px-4 py-2 rounded hover:bg-primary/10 flex items-center gap-2"
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                        Open in New Tab
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </TabsContent>
           )}
           
@@ -145,6 +157,7 @@ const CompliancePreview = ({ list, isOpen, onOpenChange }: CompliancePreviewProp
           handlePrint={handlePrint}
           onClose={() => onOpenChange(false)}
           handleDownload={handleDownloadFile}
+          handleOpenInNewTab={handleOpenOriginalFile}
         />
       </DialogContent>
     </Dialog>
