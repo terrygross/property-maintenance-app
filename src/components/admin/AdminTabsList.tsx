@@ -4,7 +4,7 @@ import {
   Users, Building, Wrench, BarChart, CreditCard, 
   AlertTriangle, ClipboardList, Calendar, Settings, 
   ArchiveRestore, MessageCircle, Clipboard, UserCog,
-  CheckSquare
+  CheckSquare, Trash2
 } from "lucide-react";
 
 const AdminTabsList = () => {
@@ -112,6 +112,13 @@ const AdminTabsList = () => {
         <span className="flex items-center gap-2">
           <ArchiveRestore className="h-4 w-4" />
           <span className="hidden sm:inline">Backup</span>
+        </span>
+      </TabsTrigger>
+      
+      <TabsTrigger value="recycle-bin" className="data-[state=active]:bg-primary/10">
+        <span className="flex items-center gap-2">
+          <Trash2 className="h-4 w-4" />
+          <span className="hidden sm:inline">Recycle Bin</span>
         </span>
       </TabsTrigger>
     </TabsList>

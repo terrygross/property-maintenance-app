@@ -4,6 +4,8 @@ import { User } from '@/types/user';
 import { useComplianceListsState } from './useComplianceListsState';
 import { useComplianceOperations } from './useComplianceOperations';
 import { useComplianceFormHandlers } from '../useComplianceFormHandlers';
+import { purgeExpiredLists } from '../complianceUtils';
+import { useEffect } from 'react';
 
 export const useComplianceLists = (properties: Property[], users: User[]) => {
   // Get the state management
@@ -33,7 +35,11 @@ export const useComplianceLists = (properties: Property[], users: User[]) => {
     handleComplete,
     handleCompleteSubmit,
     getAssignedListsForTech,
-    getFilteredLists
+    getFilteredLists,
+    handleSoftDelete,
+    handleRestoreFromBin,
+    handlePermanentDelete,
+    getListsDueForDeletion
   } = useComplianceOperations(complianceLists, updateComplianceLists);
 
   // Get form handlers
@@ -57,6 +63,20 @@ export const useComplianceLists = (properties: Property[], users: User[]) => {
     setFormMode,
     setSelectedList
   );
+
+  // Automatically purge expired lists (older than 30 days) on component mount
+  useEffect(() => {
+    const purgeOldLists = () => {
+      updateComplianceLists(prevLists => purgeExpiredLists(prevLists));
+    };
+    
+    purgeOldLists();
+    
+    // Also set up a check periodically (once a day is sufficient)
+    const interval = setInterval(purgeOldLists, 24 * 60 * 60 * 1000);
+    
+    return () => clearInterval(interval);
+  }, [updateComplianceLists]);
 
   // Filter lists by property and status
   const filteredLists = getFilteredLists(selectedPropertyId, activeTab);
@@ -101,6 +121,11 @@ export const useComplianceLists = (properties: Property[], users: User[]) => {
     handleAssignSubmit,
     handleComplete,
     handleCompleteSubmit,
+    
+    // Recycle bin operations
+    handleSoftDelete,
+    handleRestoreFromBin,
+    handlePermanentDelete,
     
     // Tech-specific lists
     getAssignedListsForTech

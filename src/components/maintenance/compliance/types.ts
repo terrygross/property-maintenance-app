@@ -1,5 +1,5 @@
 
-export type ComplianceStatus = "active" | "archived" | "assigned" | "completed";
+export type ComplianceStatus = "active" | "archived" | "assigned" | "completed" | "deleted";
 
 export type ComplianceFormMode = "create" | "edit";
 
@@ -18,4 +18,5 @@ export interface ComplianceList {
   assignedToName?: string; // Name of assigned technician
   completedAt?: Date;  // When the list was marked as completed
   notes?: string;      // Additional notes from the technician
+  deletedAt?: Date;    // When the list was moved to recycle bin
 }

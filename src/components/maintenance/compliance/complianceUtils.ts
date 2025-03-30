@@ -62,6 +62,12 @@ export const useComplianceToasts = () => {
     showDeleteToast: () => {
       toast({
         title: "List Deleted",
+        description: "Compliance list has been moved to the recycle bin",
+      });
+    },
+    showPermanentDeleteToast: () => {
+      toast({
+        title: "List Permanently Deleted",
         description: "Compliance list has been permanently deleted",
       });
     },
@@ -76,6 +82,12 @@ export const useComplianceToasts = () => {
         title: "List Updated",
         description: "Compliance list has been updated",
       });
+    },
+    showRestoreFromBinToast: () => {
+      toast({
+        title: "List Restored from Recycle Bin",
+        description: "Compliance list has been restored from the recycle bin",
+      });
     }
   };
 };
@@ -89,4 +101,16 @@ export const saveComplianceLists = (lists: ComplianceList[]) => {
 export const loadComplianceLists = (mockLists: ComplianceList[]): ComplianceList[] => {
   const savedLists = localStorage.getItem('complianceLists');
   return savedLists ? JSON.parse(savedLists) : mockLists;
+};
+
+// Check and purge lists that are over 30 days old in the recycle bin
+export const purgeExpiredLists = (lists: ComplianceList[]): ComplianceList[] => {
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  
+  return lists.filter(list => 
+    !(list.status === "deleted" && 
+    list.deletedAt && 
+    new Date(list.deletedAt) < thirtyDaysAgo)
+  );
 };

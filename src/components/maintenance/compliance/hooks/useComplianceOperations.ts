@@ -61,6 +61,62 @@ export const useComplianceOperations = (
     });
   };
 
+  // Move item to recycle bin (soft delete)
+  const handleSoftDelete = (listId: string, itemName: string) => {
+    updateComplianceLists(prevLists => 
+      prevLists.map(list => {
+        if (list.id === listId) {
+          return { 
+            ...list, 
+            status: "deleted", 
+            deletedAt: new Date(),
+            updatedAt: new Date()
+          };
+        }
+        return list;
+      })
+    );
+    
+    toast({
+      title: "List Moved to Recycle Bin",
+      description: `"${itemName}" will be permanently deleted after 30 days.`,
+    });
+  };
+
+  // Restore item from recycle bin
+  const handleRestoreFromBin = (listId: string) => {
+    updateComplianceLists(prevLists => 
+      prevLists.map(list => {
+        if (list.id === listId) {
+          return { 
+            ...list, 
+            status: "active", 
+            deletedAt: undefined,
+            updatedAt: new Date()
+          };
+        }
+        return list;
+      })
+    );
+    
+    toast({
+      title: "List Restored",
+      description: "The list has been restored from the recycle bin.",
+    });
+  };
+
+  // Permanently delete item
+  const handlePermanentDelete = (listId: string) => {
+    updateComplianceLists(prevLists => 
+      prevLists.filter(list => list.id !== listId)
+    );
+    
+    toast({
+      title: "List Permanently Deleted",
+      description: "The list has been permanently deleted.",
+    });
+  };
+
   // Helper function to filter lists for a specific technician
   const getAssignedListsForTech = (techId: string) => {
     console.log("Filtering lists for techId:", techId);
@@ -89,7 +145,21 @@ export const useComplianceOperations = (
       complianceLists,
       selectedPropertyId,
       activeTab === "active" ? ["active", "assigned"] : 
-      activeTab === "completed" ? ["completed"] : ["archived"]
+      activeTab === "completed" ? ["completed"] : 
+      activeTab === "deleted" ? ["deleted"] :
+      ["archived"]
+    );
+  };
+
+  // Get lists that are due for permanent deletion (older than 30 days)
+  const getListsDueForDeletion = () => {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    
+    return complianceLists.filter(list => 
+      list.status === "deleted" && 
+      list.deletedAt && 
+      new Date(list.deletedAt) < thirtyDaysAgo
     );
   };
 
@@ -98,7 +168,11 @@ export const useComplianceOperations = (
     handleAssignSubmit,
     handleComplete,
     handleCompleteSubmit,
+    handleSoftDelete,
+    handleRestoreFromBin,
+    handlePermanentDelete,
     getAssignedListsForTech,
-    getFilteredLists
+    getFilteredLists,
+    getListsDueForDeletion
   };
 };
