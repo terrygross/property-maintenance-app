@@ -1,14 +1,15 @@
 
 import { Button } from "@/components/ui/button";
-import { Download, Printer, Save, X, ExternalLink } from "lucide-react";
+import { Download, ExternalLink, Printer, Save, X } from "lucide-react";
 
 interface CompliancePreviewFooterProps {
   showOriginalFile: boolean;
   handleSave: () => void;
   handlePrint: () => void;
   onClose: () => void;
-  handleDownload?: () => void;
-  handleOpenInNewTab?: () => void;
+  handleDownload: () => void;
+  handleOpenInNewTab: () => void;
+  isMobile?: boolean;
 }
 
 const CompliancePreviewFooter = ({
@@ -17,67 +18,97 @@ const CompliancePreviewFooter = ({
   handlePrint,
   onClose,
   handleDownload,
-  handleOpenInNewTab
+  handleOpenInNewTab,
+  isMobile = false
 }: CompliancePreviewFooterProps) => {
-  return (
-    <div className="flex flex-wrap justify-between items-center gap-2 mt-6">
-      <div className="flex flex-wrap items-center gap-2">
-        {showOriginalFile && handleDownload && (
+  // On mobile, use simplified footer with icons only
+  if (isMobile) {
+    return (
+      <div className="flex justify-between items-center border-t pt-4 mt-2">
+        <div className="flex items-center gap-2">
           <Button 
             variant="outline" 
-            size="sm"
-            onClick={handleDownload}
-            className="flex items-center gap-1"
+            size="icon" 
+            onClick={handleSave}
+            title="Save"
           >
-            <Download className="h-4 w-4" />
-            <span>Download</span>
+            <Save className="h-4 w-4" />
           </Button>
-        )}
-        
-        {showOriginalFile && handleOpenInNewTab && (
           <Button 
             variant="outline" 
-            size="sm"
-            onClick={handleOpenInNewTab}
-            className="flex items-center gap-1"
+            size="icon" 
+            onClick={handlePrint}
+            title="Print"
           >
-            <ExternalLink className="h-4 w-4" />
-            <span>Open in New Tab</span>
+            <Printer className="h-4 w-4" />
           </Button>
-        )}
+          
+          {showOriginalFile && (
+            <>
+              <Button 
+                variant="outline" 
+                size="icon" 
+                onClick={handleOpenInNewTab}
+                title="Open in browser"
+              >
+                <ExternalLink className="h-4 w-4" />
+              </Button>
+              <Button 
+                variant="outline" 
+                size="icon" 
+                onClick={handleDownload}
+                title="Download"
+              >
+                <Download className="h-4 w-4" />
+              </Button>
+            </>
+          )}
+        </div>
         
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={handlePrint}
-          className="flex items-center gap-1"
-        >
-          <Printer className="h-4 w-4" />
-          <span>Print</span>
-        </Button>
-      </div>
-      
-      <div className="flex items-center gap-2">
         <Button 
           variant="default" 
-          size="sm"
-          onClick={handleSave}
-          className="flex items-center gap-1"
-        >
-          <Save className="h-4 w-4" />
-          <span>Save & Close</span>
-        </Button>
-        
-        <Button 
-          variant="ghost" 
-          size="sm"
+          size="icon" 
           onClick={onClose}
-          className="flex items-center gap-1"
+          title="Close"
         >
           <X className="h-4 w-4" />
-          <span>Cancel</span>
         </Button>
       </div>
+    );
+  }
+
+  // Desktop view with text labels
+  return (
+    <div className="flex justify-between items-center border-t pt-4 mt-4">
+      <div className="space-x-2">
+        <Button variant="outline" onClick={handleSave}>
+          <Save className="h-4 w-4 mr-2" />
+          Save Progress
+        </Button>
+        
+        <Button variant="outline" onClick={handlePrint}>
+          <Printer className="h-4 w-4 mr-2" />
+          Print
+        </Button>
+        
+        {showOriginalFile && (
+          <>
+            <Button variant="outline" onClick={handleOpenInNewTab}>
+              <ExternalLink className="h-4 w-4 mr-2" />
+              Open in New Tab
+            </Button>
+            <Button variant="outline" onClick={handleDownload}>
+              <Download className="h-4 w-4 mr-2" />
+              Download
+            </Button>
+          </>
+        )}
+      </div>
+      
+      <Button variant="default" onClick={onClose}>
+        <X className="h-4 w-4 mr-2" /> 
+        Close
+      </Button>
     </div>
   );
 };

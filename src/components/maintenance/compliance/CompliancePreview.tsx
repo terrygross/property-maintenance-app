@@ -1,3 +1,4 @@
+
 import { useState, useRef } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
@@ -9,7 +10,8 @@ import CompliancePreviewFooter from "./preview/CompliancePreviewFooter";
 import { useFileHandlers } from "./preview/useFileHandlers";
 import { usePrintHandler } from "./preview/usePrintHandler";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FileText, CheckSquare, ExternalLink } from "lucide-react";
+import { FileText, CheckSquare } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface CompliancePreviewProps {
   list: ComplianceList;
@@ -20,6 +22,7 @@ interface CompliancePreviewProps {
 const CompliancePreview = ({ list, isOpen, onOpenChange }: CompliancePreviewProps) => {
   const [completedItems, setCompletedItems] = useState<Record<string, boolean>>({});
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   
   const complianceItems = list.description
     .split(/,|\n/)
@@ -79,15 +82,17 @@ const CompliancePreview = ({ list, isOpen, onOpenChange }: CompliancePreviewProp
   const totalItems = displayItems.length;
   const progressPercentage = totalItems > 0 ? Math.round((completedCount / totalItems) * 100) : 0;
 
-  const defaultTab = hasAttachedFile ? "document" : "checklist";
+  // Default to checklist view on mobile
+  const defaultTab = isMobile ? "checklist" : (hasAttachedFile ? "document" : "checklist");
 
   console.log("CompliancePreview fileUrl:", fileUrl || "No file URL provided");
   console.log("Is PDF:", isPdf);
   console.log("Can preview file:", canPreviewFile);
+  console.log("Is mobile:", isMobile);
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-3xl h-[90vh]">
+      <DialogContent className={`sm:max-w-3xl ${isMobile ? 'h-[95vh] max-h-[95vh] p-3' : 'h-[90vh]'}`}>
         <DialogTitle className="sr-only">{list.title} Preview</DialogTitle>
         <CompliancePreviewHeader data={list} />
         
@@ -106,40 +111,19 @@ const CompliancePreview = ({ list, isOpen, onOpenChange }: CompliancePreviewProp
           </TabsList>
 
           {hasAttachedFile && (
-            <TabsContent value="document" className="h-[60vh]">
+            <TabsContent value="document" className={`${isMobile ? 'h-[55vh]' : 'h-[60vh]'}`}>
               <div className="flex flex-col h-full">
-                {canPreviewFile ? (
-                  <ComplianceFileViewer fileUrl={fileUrl} title={list.title} />
-                ) : (
-                  <div className="flex flex-col items-center justify-center h-full">
-                    <p className="text-center mb-4">
-                      {isDocx ? 
-                        "This is a Word document that cannot be previewed directly in the browser." :
-                        "This file type cannot be previewed in the browser."}
-                    </p>
-                    <div className="flex gap-3">
-                      <button 
-                        onClick={handleDownloadFile}
-                        disabled={isLoading}
-                        className="bg-primary text-white px-4 py-2 rounded hover:bg-primary/90 disabled:opacity-50"
-                      >
-                        Download Document
-                      </button>
-                      <button 
-                        onClick={handleOpenOriginalFile}
-                        className="border border-primary text-primary px-4 py-2 rounded hover:bg-primary/10 flex items-center gap-2"
-                      >
-                        <ExternalLink className="h-4 w-4" />
-                        Open in New Tab
-                      </button>
-                    </div>
-                  </div>
-                )}
+                <ComplianceFileViewer 
+                  fileUrl={fileUrl} 
+                  title={list.title} 
+                  onOpenInNewTab={handleOpenOriginalFile}
+                  onDownload={handleDownloadFile}
+                />
               </div>
             </TabsContent>
           )}
           
-          <TabsContent value="checklist">
+          <TabsContent value="checklist" className={`${isMobile ? 'overflow-auto max-h-[55vh]' : ''}`}>
             <div ref={printRef}>
               <ComplianceChecklist
                 displayItems={displayItems}
@@ -158,6 +142,7 @@ const CompliancePreview = ({ list, isOpen, onOpenChange }: CompliancePreviewProp
           onClose={() => onOpenChange(false)}
           handleDownload={handleDownloadFile}
           handleOpenInNewTab={handleOpenOriginalFile}
+          isMobile={isMobile}
         />
       </DialogContent>
     </Dialog>

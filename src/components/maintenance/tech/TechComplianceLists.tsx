@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import { Eye, CheckSquare } from "lucide-react";
+import { Eye, CheckSquare, FileText } from "lucide-react";
 import { ComplianceList } from "../compliance/types";
 import CompliancePreview from "../compliance/CompliancePreview";
 import ComplianceComplete from "../compliance/ComplianceComplete";
@@ -14,6 +14,7 @@ import { useComplianceLists } from "../compliance/hooks/useComplianceLists";
 import { Property } from "@/types/property";
 import EmptyComplianceLists from "./compliance/EmptyComplianceLists";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface TechComplianceListsProps {
   userId: string;
@@ -24,6 +25,7 @@ const TechComplianceLists = ({ userId }: TechComplianceListsProps) => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [selectedList, setSelectedList] = useState<ComplianceList | null>(null);
   const [isCompleteDialogOpen, setIsCompleteDialogOpen] = useState(false);
+  const isMobile = useIsMobile();
   
   const {
     getAssignedListsForTech,
@@ -70,6 +72,55 @@ const TechComplianceLists = ({ userId }: TechComplianceListsProps) => {
     return property ? property.name : "Unknown Property";
   };
 
+  // Mobile card view for a compliance list
+  const renderMobileCard = (list: ComplianceList) => (
+    <div key={list.id} className="bg-white rounded-lg border p-4 mb-3 shadow-sm">
+      <div className="flex justify-between items-start mb-2">
+        <div>
+          <h3 className="font-medium">{list.title}</h3>
+          <p className="text-sm text-muted-foreground mb-1">{getPropertyName(list.propertyId)}</p>
+        </div>
+        <Badge 
+          variant="outline" 
+          className={list.status === "completed" 
+            ? "bg-green-50 text-green-600 border-green-200" 
+            : "bg-yellow-50 text-yellow-600 border-yellow-200"
+          }
+        >
+          {list.status === "completed" ? "Completed" : "Assigned"}
+        </Badge>
+      </div>
+      
+      <div className="text-xs text-muted-foreground mb-3">
+        Updated: {format(new Date(list.updatedAt), "MMM d, yyyy")}
+      </div>
+      
+      <div className="flex justify-between">
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={() => handleViewList(list)}
+          className="flex items-center gap-1"
+        >
+          <Eye className="h-3.5 w-3.5" />
+          <span>View</span>
+        </Button>
+        
+        {list.status !== "completed" && (
+          <Button 
+            variant="default" 
+            size="sm"
+            onClick={() => handleOpenCompleteDialog(list)}
+            className="flex items-center gap-1"
+          >
+            <CheckSquare className="h-3.5 w-3.5" />
+            <span>Complete</span>
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <div className="space-y-6">
       <Card>
@@ -87,7 +138,13 @@ const TechComplianceLists = ({ userId }: TechComplianceListsProps) => {
         <CardContent>
           {assignedLists.length === 0 ? (
             <EmptyComplianceLists />
+          ) : isMobile ? (
+            // Mobile view
+            <div>
+              {assignedLists.map(renderMobileCard)}
+            </div>
           ) : (
+            // Desktop view
             <Table>
               <TableHeader>
                 <TableRow>
