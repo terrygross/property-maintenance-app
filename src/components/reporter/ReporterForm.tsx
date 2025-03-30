@@ -1,14 +1,15 @@
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { useEffect, useState } from "react";
+import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import ReporterImageCapture from "./ReporterImageCapture";
 import { useAppState } from "@/context/AppStateContext";
 import { useToast } from "@/hooks/use-toast";
-import { Property } from "@/types/property";
+import ReporterNameField from "./form-fields/ReporterNameField";
+import PropertyField from "./form-fields/PropertyField";
+import LocationField from "./form-fields/LocationField";
+import DescriptionField from "./form-fields/DescriptionField";
+import SubmitButton from "./form-fields/SubmitButton";
 
 export interface ReporterFormValues {
   reporterName: string;
@@ -39,11 +40,11 @@ const ReporterForm = ({ stationId, stationProperty, propertyName }: ReporterForm
   });
 
   // Update form values when stationProperty changes
-  useState(() => {
+  useEffect(() => {
     if (stationProperty) {
       form.setValue("propertyId", stationProperty);
     }
-  });
+  }, [stationProperty, form]);
 
   const handleSubmit = (values: ReporterFormValues) => {
     setIsSubmitting(true);
@@ -114,85 +115,15 @@ const ReporterForm = ({ stationId, stationProperty, propertyName }: ReporterForm
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <ReporterImageCapture imageUrl={imageUrl} onImageChange={setImageUrl} />
         
-        <FormField
-          control={form.control}
-          name="reporterName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Your Name</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter your name" {...field} required />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <ReporterNameField form={form} />
         
-        <FormField
-          control={form.control}
-          name="propertyId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Property</FormLabel>
-              <FormControl>
-                <Input 
-                  value={propertyName} 
-                  readOnly 
-                  className="bg-gray-100 border border-gray-300 px-4 py-2 rounded" 
-                />
-              </FormControl>
-              <input type="hidden" {...field} />
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <PropertyField form={form} propertyName={propertyName} />
         
-        <FormField
-          control={form.control}
-          name="location"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Location</FormLabel>
-              <FormControl>
-                <Input 
-                  placeholder="Specific location within the property (e.g., Room 101, Lobby, North Wing)" 
-                  {...field} 
-                  required 
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <LocationField form={form} />
         
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Issue Description</FormLabel>
-              <FormControl>
-                <Textarea 
-                  placeholder="Please describe the maintenance issue" 
-                  className="min-h-[120px]" 
-                  {...field}
-                  required
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <DescriptionField form={form} />
         
-        <div className="pt-2">
-          <Button 
-            type="submit" 
-            className="w-full" 
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Submitting..." : "Submit Report"}
-          </Button>
-        </div>
+        <SubmitButton isSubmitting={isSubmitting} />
       </form>
     </Form>
   );
