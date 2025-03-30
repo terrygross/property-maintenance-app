@@ -1,12 +1,7 @@
 
-import React, { useState, useEffect } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import React, { useEffect } from "react";
+import TechJobsTab from "./jobs/TechJobsTab";
 import { useToast } from "@/hooks/use-toast";
-import JobsList from "./jobs/JobsList";
-import EmptyJobsList from "./jobs/EmptyJobsList";
-import JobDetailsDialog from "./jobs/JobDetailsDialog";
-import ReporterImageDialog from "./jobs/ReporterImageDialog";
-import { getPriorityColor, updateLocalStorageJobs, updateJobStatus, checkAfterPhotoForCompletion } from "./jobs/JobUtils";
 import { useAppState } from "@/context/AppStateContext";
 
 interface Job {
@@ -24,37 +19,20 @@ interface Job {
   };
 }
 
-interface TechJobsTabProps {
+interface TechJobsTabContainerProps {
   assignedJobs: Job[];
   onPhotoCapture: (jobId: string, type: "before" | "after", imageUrl: string) => void;
   onAcceptJob?: (jobId: string) => void;
   onUpdateStatus?: (jobId: string, status: string) => void;
 }
 
-const TechJobsTab = ({ assignedJobs, onPhotoCapture, onAcceptJob, onUpdateStatus }: TechJobsTabProps) => {
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
-  const [showJobDetails, setShowJobDetails] = useState(false);
-  const [showReporterImage, setShowReporterImage] = useState(false);
+const TechJobsTabContainer = ({ 
+  assignedJobs, 
+  onPhotoCapture, 
+  onAcceptJob, 
+  onUpdateStatus 
+}: TechJobsTabContainerProps) => {
   const { toast } = useToast();
-  const { properties } = useAppState();
-
-  // Map generic building names to actual property names
-  const updatedJobs = assignedJobs.map(job => {
-    let propertyName = job.location;
-    
-    // Find matching property name if location is a generic building name
-    if (job.location.includes("Building") || job.location === "Main Building") {
-      const property = properties.find(p => p.status === "active");
-      if (property) {
-        propertyName = property.name;
-      }
-    }
-    
-    return {
-      ...job,
-      location: propertyName
-    };
-  });
 
   useEffect(() => {
     try {
@@ -76,150 +54,14 @@ const TechJobsTab = ({ assignedJobs, onPhotoCapture, onAcceptJob, onUpdateStatus
     }
   }, []);
 
-  const handleViewDetails = (job: Job) => {
-    setSelectedJob(job);
-    setShowJobDetails(true);
-  };
-
-  const handlePhotoCapture = (jobId: string, type: "before" | "after", imageUrl: string) => {
-    onPhotoCapture(jobId, type, imageUrl);
-    
-    if (selectedJob && selectedJob.id === jobId) {
-      setSelectedJob({
-        ...selectedJob,
-        photos: {
-          ...selectedJob.photos,
-          [type]: imageUrl
-        }
-      });
-    }
-    
-    updateLocalStorageJobs(jobId, type, imageUrl);
-    
-    // If this is an after photo and job is in_progress, let user know they can now complete the job
-    if (type === "after" && selectedJob?.status === "in_progress") {
-      toast({
-        title: "After photo added",
-        description: "You can now mark this job as complete.",
-        variant: "default",
-      });
-    }
-  };
-
-  const handleViewReporterImage = (job: Job) => {
-    setSelectedJob(job);
-    setShowReporterImage(true);
-  };
-
-  const handleAcceptJob = (jobId: string) => {
-    if (onAcceptJob) {
-      onAcceptJob(jobId);
-      
-      toast({
-        title: "Job Accepted",
-        description: "You have accepted this high-priority job. It will be prioritized in your work queue.",
-        variant: "default",
-      });
-    }
-  };
-  
-  const handleUpdateStatus = (jobId: string, status: string) => {
-    // If marking as complete, verify after photo exists
-    if (status === "completed") {
-      const job = updatedJobs.find(job => job.id === jobId);
-      
-      if (!job?.photos?.after) {
-        toast({
-          title: "After photo required",
-          description: "You must add an 'after' photo before marking this job as complete.",
-          variant: "destructive",
-        });
-        
-        // Open the job details to allow photo upload
-        const jobToView = updatedJobs.find(j => j.id === jobId);
-        if (jobToView) {
-          handleViewDetails(jobToView);
-        }
-        
-        return;
-      }
-    }
-    
-    if (onUpdateStatus) {
-      onUpdateStatus(jobId, status);
-      
-      toast({
-        title: status === "in_progress" ? "Job Started" : "Job Completed",
-        description: status === "in_progress" 
-          ? "You have marked this job as in progress." 
-          : "You have marked this job as complete.",
-        variant: "default",
-      });
-    } else {
-      // Update locally if parent handler not provided
-      const success = updateJobStatus(jobId, status);
-      
-      if (success) {
-        toast({
-          title: status === "in_progress" ? "Job Started" : "Job Completed",
-          description: status === "in_progress" 
-            ? "You have marked this job as in progress." 
-            : "You have marked this job as complete.",
-          variant: "default",
-        });
-      } else if (status === "completed") {
-        toast({
-          title: "After photo required",
-          description: "You must add an 'after' photo before marking this job as complete.",
-          variant: "destructive",
-        });
-        
-        // Open the job details to allow photo upload
-        const jobToView = updatedJobs.find(j => j.id === jobId);
-        if (jobToView) {
-          handleViewDetails(jobToView);
-        }
-      }
-    }
-  };
-
   return (
-    <>
-      <Card>
-        <CardHeader>
-          <CardTitle>Assigned Jobs</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {updatedJobs.length === 0 ? (
-            <EmptyJobsList />
-          ) : (
-            <JobsList 
-              jobs={updatedJobs}
-              onViewDetails={handleViewDetails}
-              onViewReporterImage={handleViewReporterImage}
-              onAcceptJob={handleAcceptJob}
-              onUpdateStatus={handleUpdateStatus}
-              getPriorityColor={getPriorityColor}
-            />
-          )}
-        </CardContent>
-      </Card>
-
-      <JobDetailsDialog 
-        showJobDetails={showJobDetails}
-        setShowJobDetails={setShowJobDetails}
-        selectedJob={selectedJob}
-        getPriorityColor={getPriorityColor}
-        handlePhotoCapture={handlePhotoCapture}
-      />
-
-      <ReporterImageDialog 
-        showReporterImage={showReporterImage}
-        setShowReporterImage={setShowReporterImage}
-        selectedJob={selectedJob}
-      />
-    </>
+    <TechJobsTab 
+      assignedJobs={assignedJobs}
+      onPhotoCapture={onPhotoCapture}
+      onAcceptJob={onAcceptJob}
+      onUpdateStatus={onUpdateStatus}
+    />
   );
 };
 
-export default TechJobsTab;
+export default TechJobsTabContainer;
