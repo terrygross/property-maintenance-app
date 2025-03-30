@@ -6,7 +6,7 @@ import JobsList from "./jobs/JobsList";
 import EmptyJobsList from "./jobs/EmptyJobsList";
 import JobDetailsDialog from "./jobs/JobDetailsDialog";
 import ReporterImageDialog from "./jobs/ReporterImageDialog";
-import { getPriorityColor, updateLocalStorageJobs } from "./jobs/JobUtils";
+import { getPriorityColor, updateLocalStorageJobs, updateJobStatus } from "./jobs/JobUtils";
 import { useAppState } from "@/context/AppStateContext";
 
 interface Job {
@@ -16,6 +16,7 @@ interface Job {
   priority: string;
   dueDate: Date;
   accepted?: boolean;
+  status?: string;
   photos?: {
     before?: string;
     after?: string;
@@ -27,9 +28,10 @@ interface TechJobsTabProps {
   assignedJobs: Job[];
   onPhotoCapture: (jobId: string, type: "before" | "after", imageUrl: string) => void;
   onAcceptJob?: (jobId: string) => void;
+  onUpdateStatus?: (jobId: string, status: string) => void;
 }
 
-const TechJobsTab = ({ assignedJobs, onPhotoCapture, onAcceptJob }: TechJobsTabProps) => {
+const TechJobsTab = ({ assignedJobs, onPhotoCapture, onAcceptJob, onUpdateStatus }: TechJobsTabProps) => {
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [showJobDetails, setShowJobDetails] = useState(false);
   const [showReporterImage, setShowReporterImage] = useState(false);
@@ -111,6 +113,33 @@ const TechJobsTab = ({ assignedJobs, onPhotoCapture, onAcceptJob }: TechJobsTabP
       });
     }
   };
+  
+  const handleUpdateStatus = (jobId: string, status: string) => {
+    if (onUpdateStatus) {
+      onUpdateStatus(jobId, status);
+      
+      toast({
+        title: status === "in_progress" ? "Job Started" : "Job Completed",
+        description: status === "in_progress" 
+          ? "You have marked this job as in progress." 
+          : "You have marked this job as complete.",
+        variant: "default",
+      });
+    } else {
+      // Update locally if parent handler not provided
+      const success = updateJobStatus(jobId, status);
+      
+      if (success) {
+        toast({
+          title: status === "in_progress" ? "Job Started" : "Job Completed",
+          description: status === "in_progress" 
+            ? "You have marked this job as in progress." 
+            : "You have marked this job as complete.",
+          variant: "default",
+        });
+      }
+    }
+  };
 
   return (
     <>
@@ -127,6 +156,7 @@ const TechJobsTab = ({ assignedJobs, onPhotoCapture, onAcceptJob }: TechJobsTabP
               onViewDetails={handleViewDetails}
               onViewReporterImage={handleViewReporterImage}
               onAcceptJob={handleAcceptJob}
+              onUpdateStatus={handleUpdateStatus}
               getPriorityColor={getPriorityColor}
             />
           )}

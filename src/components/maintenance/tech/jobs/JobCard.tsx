@@ -2,7 +2,7 @@
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ImageIcon, AlertCircle, CheckCircle } from "lucide-react";
+import { ImageIcon, AlertCircle, CheckCircle, Clock, Check } from "lucide-react";
 
 interface Job {
   id: string;
@@ -11,6 +11,7 @@ interface Job {
   priority: string;
   dueDate: Date;
   accepted?: boolean;
+  status?: string;
   photos?: {
     before?: string;
     after?: string;
@@ -23,6 +24,7 @@ interface JobCardProps {
   onViewDetails: (job: Job) => void;
   onViewReporterImage: (job: Job) => void;
   onAcceptJob?: (jobId: string) => void;
+  onUpdateStatus?: (jobId: string, status: string) => void;
   getPriorityColor: (priority: string) => string;
 }
 
@@ -31,10 +33,37 @@ const JobCard = ({
   onViewDetails, 
   onViewReporterImage, 
   onAcceptJob,
+  onUpdateStatus,
   getPriorityColor 
 }: JobCardProps) => {
   const isHighPriority = job.priority === "high";
   const isAccepted = job.accepted;
+  const status = job.status || "assigned";
+  
+  const getStatusBadge = () => {
+    switch(status) {
+      case "in_progress":
+        return (
+          <Badge variant="outline" className="bg-blue-50 border-blue-200 flex items-center gap-1">
+            <Clock className="h-3 w-3 text-blue-500" />
+            In Progress
+          </Badge>
+        );
+      case "completed":
+        return (
+          <Badge variant="outline" className="bg-green-50 border-green-200 flex items-center gap-1">
+            <Check className="h-3 w-3 text-green-500" />
+            Completed
+          </Badge>
+        );
+      default:
+        return isHighPriority && isAccepted ? (
+          <Badge variant="outline" className="bg-green-50 border-green-200">
+            Accepted
+          </Badge>
+        ) : null;
+    }
+  };
   
   return (
     <div key={job.id} className={`border rounded-lg p-4 ${isHighPriority && !isAccepted ? 'border-red-500 bg-red-50' : ''}`}>
@@ -47,11 +76,7 @@ const JobCard = ({
             <Badge className={getPriorityColor(job.priority)}>
               {job.priority.charAt(0).toUpperCase() + job.priority.slice(1)}
             </Badge>
-            {isHighPriority && isAccepted && (
-              <Badge variant="outline" className="bg-green-50 border-green-200">
-                Accepted
-              </Badge>
-            )}
+            {getStatusBadge()}
           </div>
           <p className="text-sm text-muted-foreground">{job.location}</p>
           <p className="text-xs mt-2">
@@ -91,6 +116,18 @@ const JobCard = ({
               Accept Job
             </Button>
           )}
+          
+          {onUpdateStatus && status !== "completed" && (
+            <Button 
+              size="sm" 
+              variant={status === "in_progress" ? "outline" : "secondary"} 
+              onClick={() => onUpdateStatus(job.id, status === "in_progress" ? "completed" : "in_progress")}
+              className="mb-1"
+            >
+              {status === "in_progress" ? "Mark Complete" : "Start Job"}
+            </Button>
+          )}
+          
           <Button 
             size="sm" 
             variant={isHighPriority && !isAccepted ? "destructive" : "outline"} 

@@ -25,7 +25,12 @@ const MaintenanceTech = () => {
   const { highPriorityJobs } = useHighPriorityJobs(currentUserId);
 
   // Use the assigned jobs hook
-  const { assignedJobs, handleJobPhotoUpdate, handleAcceptJob } = useAssignedJobs(currentUserId);
+  const { 
+    assignedJobs, 
+    handleJobPhotoUpdate, 
+    handleAcceptJob, 
+    handleUpdateJobStatus 
+  } = useAssignedJobs(currentUserId);
 
   // Example leave requests
   const [leaveRequests, setLeaveRequests] = useState([
@@ -85,6 +90,7 @@ const MaintenanceTech = () => {
               assignedJobs={assignedJobs} 
               onPhotoCapture={handleJobPhotoUpdate}
               onAcceptJob={handleAcceptJob}
+              onUpdateStatus={handleUpdateJobStatus}
             />
           </TabsContent>
 

@@ -1,6 +1,7 @@
+
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { updateJobAcceptance } from "@/components/maintenance/tech/jobs/JobUtils";
+import { updateJobAcceptance, updateJobStatus } from "@/components/maintenance/tech/jobs/JobUtils";
 
 interface Job {
   id: string;
@@ -9,6 +10,7 @@ interface Job {
   priority: string;
   dueDate: Date;
   accepted?: boolean;
+  status?: string;
   photos?: {
     before?: string;
     after?: string;
@@ -25,7 +27,8 @@ export const useAssignedJobs = (currentUserId: string) => {
       priority: "high", 
       dueDate: new Date(2023, 11, 30),
       photos: { before: "", after: "", reporter: "/images/broken-heater.jpg" },
-      accepted: false
+      accepted: false,
+      status: "assigned"
     },
     { 
       id: "j2", 
@@ -33,7 +36,8 @@ export const useAssignedJobs = (currentUserId: string) => {
       location: "Building C", 
       priority: "medium", 
       dueDate: new Date(2023, 12, 5),
-      photos: { before: "", after: "", reporter: "/images/broken-light.jpg" }
+      photos: { before: "", after: "", reporter: "/images/broken-light.jpg" },
+      status: "assigned"
     },
     { 
       id: "j3", 
@@ -41,7 +45,8 @@ export const useAssignedJobs = (currentUserId: string) => {
       location: "Building B", 
       priority: "low", 
       dueDate: new Date(2023, 12, 10),
-      photos: { before: "", after: "", reporter: "/images/water-damage.jpg" }
+      photos: { before: "", after: "", reporter: "/images/water-damage.jpg" },
+      status: "assigned"
     },
     { 
       id: "j4", 
@@ -50,7 +55,8 @@ export const useAssignedJobs = (currentUserId: string) => {
       priority: "high", 
       dueDate: new Date(), // Today
       photos: { before: "", after: "", reporter: "/images/electrical-hazard.jpg" },
-      accepted: false
+      accepted: false,
+      status: "assigned"
     }
   ]);
   const { toast } = useToast();
@@ -63,7 +69,8 @@ export const useAssignedJobs = (currentUserId: string) => {
         // Update assigned jobs from localStorage
         if (parsedJobs.length > 0) {
           const techJobs = parsedJobs
-            .filter((job: any) => job.status === "assigned" && job.assignedTo === currentUserId)
+            .filter((job: any) => job.status === "assigned" || job.status === "in_progress" || 
+                               (job.status === "completed" && job.assignedTo === currentUserId))
             .map((job: any) => ({
               id: job.id,
               title: job.title,
@@ -75,7 +82,8 @@ export const useAssignedJobs = (currentUserId: string) => {
                 after: job.afterPhoto || "",
                 reporter: job.imageUrl || ""
               },
-              accepted: job.accepted || false
+              accepted: job.accepted || false,
+              status: job.status || "assigned"
             }));
           
           if (techJobs.length > 0) {
@@ -149,10 +157,40 @@ export const useAssignedJobs = (currentUserId: string) => {
       });
     }
   };
+  
+  // Function to handle updating job status
+  const handleUpdateJobStatus = (jobId: string, status: string) => {
+    // Update the UI
+    setAssignedJobs(prev => 
+      prev.map(job => {
+        if (job.id === jobId) {
+          return {
+            ...job,
+            status: status
+          };
+        }
+        return job;
+      })
+    );
+    
+    // Update localStorage
+    const success = updateJobStatus(jobId, status);
+    
+    if (success) {
+      toast({
+        title: status === "in_progress" ? "Job Started" : "Job Completed",
+        description: status === "in_progress" 
+          ? "You have marked this job as in progress." 
+          : "You have marked this job as complete.",
+        variant: "default",
+      });
+    }
+  };
 
   return {
     assignedJobs,
     handleJobPhotoUpdate,
-    handleAcceptJob
+    handleAcceptJob,
+    handleUpdateJobStatus
   };
 };

@@ -56,3 +56,26 @@ export const updateJobAcceptance = (jobId: string) => {
   }
   return false;
 };
+
+export const updateJobStatus = (jobId: string, status: string) => {
+  try {
+    const savedJobs = localStorage.getItem('reporterJobs');
+    if (savedJobs) {
+      const parsedJobs = JSON.parse(savedJobs);
+      const updatedJobs = parsedJobs.map((job: any) => {
+        if (job.id === jobId) {
+          return {
+            ...job,
+            status: status
+          };
+        }
+        return job;
+      });
+      localStorage.setItem('reporterJobs', JSON.stringify(updatedJobs));
+      return true;
+    }
+  } catch (error) {
+    console.error("Error updating job status in localStorage:", error);
+  }
+  return false;
+};
