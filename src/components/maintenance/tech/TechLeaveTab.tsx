@@ -21,6 +21,19 @@ const TechLeaveTab = ({ leaveRequests }: TechLeaveTabProps) => {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [openRequest, setOpenRequest] = useState(false);
 
+  // Add a new leave request for testing
+  const testLeaveRequests = [
+    ...leaveRequests,
+    {
+      id: "3",
+      userId: "1",
+      startDate: new Date(new Date().getTime() + (7 * 24 * 60 * 60 * 1000)), // 7 days from now
+      endDate: new Date(new Date().getTime() + (14 * 24 * 60 * 60 * 1000)), // 14 days from now
+      status: "pending",
+      reason: "Testing leave request"
+    }
+  ];
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -48,13 +61,13 @@ const TechLeaveTab = ({ leaveRequests }: TechLeaveTabProps) => {
             <CardTitle>My Leave Requests</CardTitle>
           </CardHeader>
           <CardContent>
-            {leaveRequests.length === 0 ? (
+            {testLeaveRequests.length === 0 ? (
               <div className="text-center p-6">
                 <p className="text-muted-foreground">No leave requests found</p>
               </div>
             ) : (
               <div className="space-y-4">
-                {leaveRequests.map((leave) => (
+                {testLeaveRequests.map((leave) => (
                   <div key={leave.id} className="border rounded-lg p-4">
                     <div className="flex justify-between items-start">
                       <div>

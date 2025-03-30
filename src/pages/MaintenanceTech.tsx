@@ -21,7 +21,7 @@ const MaintenanceTech = () => {
     { id: "2", userId: "1", startDate: new Date(2024, 1, 15), endDate: new Date(2024, 1, 18), status: "pending", reason: "Personal time" },
   ]);
 
-  // Example assigned jobs with photo fields
+  // Example assigned jobs with photo fields and a high priority job
   const [assignedJobs, setAssignedJobs] = useState([
     { 
       id: "j1", 
@@ -47,6 +47,14 @@ const MaintenanceTech = () => {
       dueDate: new Date(2023, 12, 10),
       photos: { before: "", after: "", reporter: "/images/water-damage.jpg" }
     },
+    { 
+      id: "j4", 
+      title: "URGENT: Electrical hazard", 
+      location: "Main Building", 
+      priority: "high", 
+      dueDate: new Date(), // Today
+      photos: { before: "", after: "", reporter: "/images/electrical-hazard.jpg" }
+    }
   ]);
 
   // Function to handle photo updates for jobs
@@ -83,6 +91,22 @@ const MaintenanceTech = () => {
     }, 800);
   }, []);
 
+  // Show a high priority alert when the component mounts
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (!loading) {
+        toast({
+          title: "High Priority Alert!",
+          description: "URGENT: Electrical hazard in Main Building requires immediate attention!",
+          variant: "destructive",
+          duration: 10000, // Show for 10 seconds
+        });
+      }
+    }, 2000); // Show 2 seconds after loading completes
+    
+    return () => clearTimeout(timeout);
+  }, [loading, toast]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -94,7 +118,7 @@ const MaintenanceTech = () => {
     );
   }
 
-  // For demo purposes, we'll use a hardcoded current user ID
+  // For demo purposes, we'll use a hardcoded current user ID for Tristan Gross
   const currentUserId = "1";
 
   return (

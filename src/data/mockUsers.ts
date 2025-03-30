@@ -1,15 +1,14 @@
-
 import { User } from "@/types/user";
 
 export const MOCK_USERS: User[] = [
   {
     id: "1",
-    first_name: "John",
-    last_name: "Doe",
+    first_name: "Tristan",
+    last_name: "Gross",
     title: "Senior Maintenance Technician",
-    email: "john.doe@example.com",
+    email: "tristan.gross@example.com",
     phone: "555-123-4567",
-    photo_url: "https://i.pravatar.cc/150?u=john",
+    photo_url: "https://i.pravatar.cc/150?u=tristan",
     role: "maintenance_tech",
   },
   {

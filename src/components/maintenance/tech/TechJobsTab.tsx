@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -32,23 +31,18 @@ const TechJobsTab = ({ assignedJobs, onPhotoCapture }: TechJobsTabProps) => {
   const [showReporterImage, setShowReporterImage] = useState(false);
   const { toast } = useToast();
 
-  // On mount, check localStorage for reporter jobs that have been assigned to this technician
   useEffect(() => {
     try {
-      // For demo purposes, let's assume the current technician has id "3" (Mike Johnson)
-      const currentTechId = "3"; 
+      const currentTechId = "1"; 
       
       const savedJobs = localStorage.getItem('reporterJobs');
       if (savedJobs) {
         const parsedJobs = JSON.parse(savedJobs);
-        // Filter for jobs assigned to this technician
         const techJobs = parsedJobs.filter((job: any) => 
           job.status === "assigned" && job.assignedTo === currentTechId
         );
         
-        // Update any existing assignedJobs with reporter photos from localStorage
         if (techJobs.length > 0) {
-          // This would be handled by your state management in a real app
           console.log("Found tech jobs in localStorage:", techJobs);
         }
       }
@@ -78,7 +72,6 @@ const TechJobsTab = ({ assignedJobs, onPhotoCapture }: TechJobsTabProps) => {
   const handlePhotoCapture = (jobId: string, type: "before" | "after", imageUrl: string) => {
     onPhotoCapture(jobId, type, imageUrl);
     
-    // Update selected job UI if it's the one being modified
     if (selectedJob && selectedJob.id === jobId) {
       setSelectedJob({
         ...selectedJob,
@@ -89,7 +82,6 @@ const TechJobsTab = ({ assignedJobs, onPhotoCapture }: TechJobsTabProps) => {
       });
     }
     
-    // Also update in localStorage if this job exists there
     try {
       const savedJobs = localStorage.getItem('reporterJobs');
       if (savedJobs) {
@@ -176,7 +168,6 @@ const TechJobsTab = ({ assignedJobs, onPhotoCapture }: TechJobsTabProps) => {
         </CardContent>
       </Card>
 
-      {/* Job details dialog */}
       <Dialog open={showJobDetails} onOpenChange={setShowJobDetails}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
@@ -251,7 +242,6 @@ const TechJobsTab = ({ assignedJobs, onPhotoCapture }: TechJobsTabProps) => {
         </DialogContent>
       </Dialog>
 
-      {/* Reporter image dialog */}
       <Dialog open={showReporterImage} onOpenChange={setShowReporterImage}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
