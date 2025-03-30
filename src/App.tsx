@@ -1,21 +1,37 @@
-import { RouterProvider } from 'react-router-dom';
-import { router } from './router';
-import { ThemeProvider } from "@/components/ui/theme-provider"
-import { Toaster } from "@/components/ui/toaster"
-import { AppStateProvider } from './context/AppStateContext';
-import { NotificationProvider } from './context/NotificationContext';
 
-function App() {
-  return (
-    <ThemeProvider defaultTheme="system" enableSystem>
-      <NotificationProvider>
-        <AppStateProvider>
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Index from "./pages/Index";
+import Admin from "./pages/Admin";
+import Reporter from "./pages/Reporter";
+import MaintenanceTech from "./pages/MaintenanceTech";
+import NotFound from "./pages/NotFound";
+import { AppStateProvider } from "./context/AppStateContext";
+
+const queryClient = new QueryClient();
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <AppStateProvider>
+      <BrowserRouter>
+        <TooltipProvider>
           <Toaster />
-          <RouterProvider router={router} />
-        </AppStateProvider>
-      </NotificationProvider>
-    </ThemeProvider>
-  );
-}
+          <Sonner />
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/reporter" element={<Reporter />} />
+            <Route path="/maintenance" element={<MaintenanceTech />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </TooltipProvider>
+      </BrowserRouter>
+    </AppStateProvider>
+  </QueryClientProvider>
+);
 
 export default App;

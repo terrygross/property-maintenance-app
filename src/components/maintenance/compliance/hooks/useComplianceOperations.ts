@@ -2,7 +2,6 @@
 import { ComplianceList } from '../types';
 import { useToast } from '@/hooks/use-toast';
 import { filterComplianceLists } from '../complianceUtils';
-import { notificationService, EVENTS } from '@/services/notification-service';
 
 export const useComplianceOperations = (
   complianceLists: ComplianceList[],
@@ -15,24 +14,16 @@ export const useComplianceOperations = (
   };
 
   const handleAssignSubmit = (listId: string, techId: string, techName: string) => {
-    console.log("Submitting assignment:", { listId, techId, techName });
-    
     updateComplianceLists(prevLists => 
       prevLists.map(list => {
         if (list.id === listId) {
-          console.log(`Updating list ${list.id} with techId ${techId}`);
-          
-          // Create a new object with the updated properties
-          const updatedList: ComplianceList = { 
+          return { 
             ...list, 
             status: "assigned", 
             assignedTo: techId, 
             assignedToName: techName,
-            updatedAt: new Date() // Use Date object directly, not string
+            updatedAt: new Date() // Use Date object, this will be serialized properly when saved
           };
-          
-          console.log("Updated list:", updatedList);
-          return updatedList;
         }
         return list;
       })
@@ -42,10 +33,6 @@ export const useComplianceOperations = (
       title: "List Assigned",
       description: `Compliance list has been assigned to ${techName}.`,
     });
-    
-    // Publish event instead of using DOM events
-    notificationService.publish(EVENTS.COMPLIANCE_LIST_ASSIGNED, { techId, techName });
-    notificationService.publish(EVENTS.COMPLIANCE_LISTS_UPDATED);
   };
 
   const handleComplete = (list: ComplianceList) => {
@@ -53,19 +40,16 @@ export const useComplianceOperations = (
   };
 
   const handleCompleteSubmit = (listId: string, notes: string) => {
-    let completedList: ComplianceList | null = null;
-    
     updateComplianceLists(prevLists => 
       prevLists.map(list => {
         if (list.id === listId) {
-          completedList = { 
+          return { 
             ...list, 
             status: "completed", 
-            completedAt: new Date(), // Use Date object directly
+            completedAt: new Date(), // Use Date object, this will be serialized properly when saved
             notes: notes,
-            updatedAt: new Date() // Use Date object directly
+            updatedAt: new Date() // Use Date object, this will be serialized properly when saved
           };
-          return completedList;
         }
         return list;
       })
@@ -75,12 +59,6 @@ export const useComplianceOperations = (
       title: "List Completed",
       description: "Compliance list has been marked as completed.",
     });
-    
-    // Publish event instead of using DOM events
-    if (completedList) {
-      notificationService.publish(EVENTS.COMPLIANCE_LIST_COMPLETED, { listId, notes, list: completedList });
-    }
-    notificationService.publish(EVENTS.COMPLIANCE_LISTS_UPDATED);
   };
 
   // Move item to recycle bin (soft delete)
@@ -91,8 +69,8 @@ export const useComplianceOperations = (
           return { 
             ...list, 
             status: "deleted", 
-            deletedAt: new Date(), // Use Date object directly
-            updatedAt: new Date() // Use Date object directly
+            deletedAt: new Date(),
+            updatedAt: new Date()
           };
         }
         return list;
@@ -103,10 +81,6 @@ export const useComplianceOperations = (
       title: "List Moved to Recycle Bin",
       description: `"${itemName}" will be permanently deleted after 30 days.`,
     });
-    
-    // Publish event instead of using DOM events
-    notificationService.publish(EVENTS.COMPLIANCE_LIST_DELETED, { listId, itemName });
-    notificationService.publish(EVENTS.COMPLIANCE_LISTS_UPDATED);
   };
 
   // Restore item from recycle bin
@@ -118,7 +92,7 @@ export const useComplianceOperations = (
             ...list, 
             status: "active", 
             deletedAt: undefined,
-            updatedAt: new Date() // Use Date object directly
+            updatedAt: new Date()
           };
         }
         return list;
@@ -129,10 +103,6 @@ export const useComplianceOperations = (
       title: "List Restored",
       description: "The list has been restored from the recycle bin.",
     });
-    
-    // Publish event instead of using DOM events
-    notificationService.publish(EVENTS.COMPLIANCE_LIST_RESTORED, { listId });
-    notificationService.publish(EVENTS.COMPLIANCE_LISTS_UPDATED);
   };
 
   // Permanently delete item
@@ -145,10 +115,6 @@ export const useComplianceOperations = (
       title: "List Permanently Deleted",
       description: "The list has been permanently deleted.",
     });
-    
-    // Publish event instead of using DOM events
-    notificationService.publish(EVENTS.COMPLIANCE_LIST_DELETED, { listId, permanent: true });
-    notificationService.publish(EVENTS.COMPLIANCE_LISTS_UPDATED);
   };
 
   // Helper function to filter lists for a specific technician
@@ -162,11 +128,8 @@ export const useComplianceOperations = (
       const listAssignedTo = String(list.assignedTo || "");
       const techIdString = String(techId);
       
-      const isMatch = listAssignedTo === techIdString && 
+      return listAssignedTo === techIdString && 
         (list.status === "assigned" || list.status === "completed");
-        
-      console.log(`List ${list.id}, assignedTo=${listAssignedTo}, matches ${techIdString}? ${isMatch}`);
-      return isMatch;
     });
     
     console.log("Filtered lists:", filtered);

@@ -1,6 +1,6 @@
 
 import { useState, useRef } from "react";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { ComplianceList } from "./types";
 import CompliancePreviewHeader from "./preview/CompliancePreviewHeader";
@@ -9,9 +9,6 @@ import ComplianceChecklist from "./preview/ComplianceChecklist";
 import CompliancePreviewFooter from "./preview/CompliancePreviewFooter";
 import { useFileHandlers } from "./preview/useFileHandlers";
 import { usePrintHandler } from "./preview/usePrintHandler";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FileText, CheckSquare } from "lucide-react";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 interface CompliancePreviewProps {
   list: ComplianceList;
@@ -22,37 +19,30 @@ interface CompliancePreviewProps {
 const CompliancePreview = ({ list, isOpen, onOpenChange }: CompliancePreviewProps) => {
   const [completedItems, setCompletedItems] = useState<Record<string, boolean>>({});
   const { toast } = useToast();
-  const isMobile = useIsMobile();
   
+  // Parse list description content into compliance items
+  // First try to split by commas, if that doesn't work well, split by new lines
   const complianceItems = list.description
     .split(/,|\n/)
     .map((item, index) => ({
       id: `item-${index}`,
       text: item.trim()
     }))
-    .filter(item => item.text.length > 0);
-
+    .filter(item => item.text.length > 0); // Filter out empty items
+  
+  // If no items could be parsed from description, provide a default placeholder item
   const displayItems = complianceItems.length > 0 
     ? complianceItems 
     : [{ id: "default", text: "No checklist items found in description. Please edit the list to add items." }];
 
-  // Ensure fileUrl is properly formatted
-  const fileUrl = list.fileUrl && list.fileUrl !== "#" && list.fileUrl.trim() !== "" 
-    ? list.fileUrl
-    : "";
-
   const {
+    showOriginalFile,
+    setShowOriginalFile,
     hasAttachedFile,
     isPdf,
-    isDocx,
     canPreviewFile,
-    isLoading,
-    handleOpenOriginalFile,
     handleDownloadFile
-  } = useFileHandlers({ 
-    fileUrl: fileUrl,
-    title: list.title 
-  });
+  } = useFileHandlers({ fileUrl: list.fileUrl, title: list.title });
 
   const { printRef, handlePrint } = usePrintHandler({ 
     list: {
@@ -74,6 +64,7 @@ const CompliancePreview = ({ list, isOpen, onOpenChange }: CompliancePreviewProp
   };
 
   const handleSave = () => {
+    // In a real implementation, this would save the completion status
     toast({
       title: "Progress saved",
       description: `Saved completion status for ${list.title}`,
@@ -85,67 +76,29 @@ const CompliancePreview = ({ list, isOpen, onOpenChange }: CompliancePreviewProp
   const totalItems = displayItems.length;
   const progressPercentage = totalItems > 0 ? Math.round((completedCount / totalItems) * 100) : 0;
 
-  // Default to checklist view on mobile
-  const defaultTab = isMobile ? "checklist" : (hasAttachedFile ? "document" : "checklist");
-
-  console.log("CompliancePreview fileUrl:", fileUrl || "No file URL provided");
-  console.log("Is PDF:", isPdf);
-  console.log("Can preview file:", canPreviewFile);
-  console.log("Is mobile:", isMobile);
-
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className={`sm:max-w-3xl ${isMobile ? 'h-[95vh] max-h-[95vh] p-3' : 'h-[90vh]'}`}>
-        <DialogTitle className="sr-only">{list.title} Preview</DialogTitle>
+      <DialogContent className={showOriginalFile && isPdf ? "sm:max-w-3xl h-[90vh]" : "sm:max-w-md"}>
         <CompliancePreviewHeader data={list} />
         
-        <Tabs defaultValue={defaultTab} className="w-full">
-          <TabsList className="w-full grid grid-cols-2">
-            {hasAttachedFile && (
-              <TabsTrigger value="document" className="flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                <span>Document</span>
-              </TabsTrigger>
-            )}
-            <TabsTrigger value="checklist" className="flex items-center gap-2">
-              <CheckSquare className="h-4 w-4" />
-              <span>Checklist</span>
-            </TabsTrigger>
-          </TabsList>
-
-          {hasAttachedFile && (
-            <TabsContent value="document" className={`${isMobile ? 'h-[55vh]' : 'h-[60vh]'}`}>
-              <div className="flex flex-col h-full">
-                <ComplianceFileViewer 
-                  fileUrl={fileUrl} 
-                  title={list.title} 
-                  onOpenInNewTab={handleOpenOriginalFile}
-                  onDownload={handleDownloadFile}
-                />
-              </div>
-            </TabsContent>
-          )}
-          
-          <TabsContent value="checklist" className={`${isMobile ? 'overflow-auto max-h-[55vh]' : ''}`}>
-            <div ref={printRef}>
-              <ComplianceChecklist
-                displayItems={displayItems}
-                completedItems={completedItems}
-                toggleItem={toggleItem}
-                progressPercentage={progressPercentage}
-              />
-            </div>
-          </TabsContent>
-        </Tabs>
+        {showOriginalFile && isPdf ? (
+          <ComplianceFileViewer fileUrl={list.fileUrl} title={list.title} />
+        ) : (
+          <div ref={printRef}>
+            <ComplianceChecklist
+              displayItems={displayItems}
+              completedItems={completedItems}
+              toggleItem={toggleItem}
+              progressPercentage={progressPercentage}
+            />
+          </div>
+        )}
         
         <CompliancePreviewFooter
-          showOriginalFile={hasAttachedFile}
+          showOriginalFile={showOriginalFile}
           handleSave={handleSave}
           handlePrint={handlePrint}
           onClose={() => onOpenChange(false)}
-          handleDownload={handleDownloadFile}
-          handleOpenInNewTab={handleOpenOriginalFile}
-          isMobile={isMobile}
         />
       </DialogContent>
     </Dialog>
