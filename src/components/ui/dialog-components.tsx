@@ -108,7 +108,13 @@ export const ConfirmDialog = ({
         </>
       }
     >
-      {/* Dialog can have additional content here */}
+      {/* Adding children content to fix the TypeScript error */}
+      <div className="py-2">
+        {description && (
+          <p className="text-sm text-muted-foreground">{description}</p>
+        )}
+      </div>
     </StandardDialog>
   );
 };
+
