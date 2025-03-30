@@ -19,6 +19,13 @@ import ReporterManagement from "./reporter/ReporterManagement";
 import BillingManagement from "./billing/BillingManagement";
 import { UserRole } from "@/types/user";
 import HighPriorityAlert from "./alerts/HighPriorityAlert";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { useAppState } from "@/context/AppStateContext";
 
 interface AdminDashboardProps {
   userRole?: UserRole;
@@ -27,9 +34,22 @@ interface AdminDashboardProps {
 const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
   const [activeTab, setActiveTab] = useState("overview");
   const [highPriorityJobs, setHighPriorityJobs] = useState<any[]>([]);
+  const [showNewTaskDialog, setShowNewTaskDialog] = useState(false);
+  const [selectedTechs, setSelectedTechs] = useState<string[]>([]);
+  const [jobTitle, setJobTitle] = useState("");
+  const [jobLocation, setJobLocation] = useState("");
+  const [jobDescription, setJobDescription] = useState("");
+  const [priority, setPriority] = useState("medium");
+  const { toast } = useToast();
+  const { users, properties } = useAppState();
   
   // For demo purposes, we'll use a hardcoded admin user ID
   const currentUserId = "4"; // Admin user ID
+
+  // Filter users to get only technicians (including Nishad)
+  const technicians = users.filter(user => 
+    user.role === "maintenance_tech" || user.role === "contractor"
+  );
 
   // Check for high priority jobs in localStorage
   useEffect(() => {
@@ -65,6 +85,85 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
     setActiveTab("reporter");
   };
 
+  // Handle creating a new task
+  const handleCreateTask = () => {
+    if (!jobTitle || !jobLocation || selectedTechs.length === 0) {
+      toast({
+        title: "Missing information",
+        description: "Please fill in all required fields and select at least one technician.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Get existing jobs from localStorage or initialize an empty array
+      const savedJobs = localStorage.getItem('reporterJobs');
+      const jobs = savedJobs ? JSON.parse(savedJobs) : [];
+      
+      // Create a new job for each selected technician
+      selectedTechs.forEach(techId => {
+        const newJob = {
+          id: `job-${Date.now()}-${techId}`,
+          title: jobTitle,
+          property: jobLocation,
+          description: jobDescription,
+          priority: priority,
+          status: "assigned",
+          assignedTo: techId,
+          reportDate: new Date().toISOString(),
+          dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+          emailSent: true
+        };
+        
+        // Add the new job to the array
+        jobs.push(newJob);
+      });
+      
+      // Save all jobs back to localStorage
+      localStorage.setItem('reporterJobs', JSON.stringify(jobs));
+      
+      // Notify the user
+      toast({
+        title: "Task created",
+        description: `The new task has been assigned to ${selectedTechs.length} technician(s).`,
+      });
+      
+      // Reset form and close dialog
+      setJobTitle("");
+      setJobLocation("");
+      setJobDescription("");
+      setPriority("medium");
+      setSelectedTechs([]);
+      setShowNewTaskDialog(false);
+      
+      // Dispatch a custom event to notify other components about job updates
+      const event = new Event('jobsUpdated');
+      document.dispatchEvent(event);
+      
+      // Also dispatch storage event for backward compatibility
+      window.dispatchEvent(new Event('storage'));
+    } catch (error) {
+      console.error("Error creating task:", error);
+      toast({
+        title: "Failed to create task",
+        description: "There was an error creating the task. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Handle technician selection
+  const handleTechnicianSelection = (techId: string) => {
+    setSelectedTechs(prev => {
+      if (prev.includes(techId)) {
+        return prev.filter(id => id !== techId);
+      } else {
+        return [...prev, techId];
+      }
+    });
+  };
+
   return (
     <div className="container mx-auto p-4 md:p-6">
       <div className="flex justify-between items-center mb-6">
@@ -81,7 +180,10 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
           )}
         </div>
         <div className="flex gap-2">
-          <Button className="flex items-center gap-2">
+          <Button 
+            className="flex items-center gap-2"
+            onClick={() => setShowNewTaskDialog(true)}
+          >
             <PlusCircle className="h-4 w-4" />
             <span>New Task</span>
           </Button>
@@ -178,6 +280,101 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
           />
         </TabsContent>
       </Tabs>
+      
+      {/* New Task Dialog */}
+      <Dialog open={showNewTaskDialog} onOpenChange={setShowNewTaskDialog}>
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Create New Maintenance Task</DialogTitle>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="title" className="text-right">Title</Label>
+              <Input
+                id="title"
+                placeholder="Task title"
+                className="col-span-3"
+                value={jobTitle}
+                onChange={(e) => setJobTitle(e.target.value)}
+              />
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="location" className="text-right">Location</Label>
+              <Select value={jobLocation} onValueChange={setJobLocation}>
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select location" />
+                </SelectTrigger>
+                <SelectContent>
+                  {properties.map((property) => (
+                    <SelectItem key={property.id} value={property.name}>
+                      {property.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="description" className="text-right">Description</Label>
+              <Textarea
+                id="description"
+                placeholder="Task description"
+                className="col-span-3"
+                value={jobDescription}
+                onChange={(e) => setJobDescription(e.target.value)}
+              />
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="priority" className="text-right">Priority</Label>
+              <Select value={priority} onValueChange={setPriority}>
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select priority" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">Low</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="grid grid-cols-4 items-start gap-4">
+              <Label className="text-right pt-2">Assign To</Label>
+              <div className="col-span-3 border rounded-md p-3 space-y-2">
+                <p className="text-sm text-muted-foreground mb-2">
+                  Select one or more technicians to assign this task to:
+                </p>
+                {technicians.map((tech) => (
+                  <div key={tech.id} className="flex items-center space-x-2">
+                    <input 
+                      type="checkbox" 
+                      id={`tech-${tech.id}`} 
+                      checked={selectedTechs.includes(tech.id)}
+                      onChange={() => handleTechnicianSelection(tech.id)}
+                      className="h-4 w-4 rounded border-gray-300"
+                    />
+                    <label htmlFor={`tech-${tech.id}`} className="text-sm">
+                      {tech.first_name} {tech.last_name} 
+                      {tech.role === "contractor" ? " (Contractor)" : " (In-house)"}
+                    </label>
+                  </div>
+                ))}
+                {technicians.length === 0 && (
+                  <p className="text-sm text-muted-foreground">No technicians available</p>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowNewTaskDialog(false)}>Cancel</Button>
+            <Button onClick={handleCreateTask}>Create Task</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

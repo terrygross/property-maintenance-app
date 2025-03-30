@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,15 +9,17 @@ import { AlertTriangle, Check } from "lucide-react";
 import JobCard from "../tech/jobs/JobCard";
 import { getPriorityColor, getTechnicianJobs, updateJobStatus, updateJobPriority } from "../tech/jobs/JobUtils";
 import { useToast } from "@/hooks/use-toast";
+import { useAppState } from "@/context/AppStateContext";
 
 interface JobCardsListProps {
   userRole?: string;
 }
 
 const JobCardsList = ({ userRole = "admin" }: JobCardsListProps) => {
-  // Filter maintenance technicians
-  const allMaintenanceTechs = MOCK_USERS.filter(user => 
-    user.role === "maintenance_tech" || user.role === "contractor"
+  const { users } = useAppState();
+  // Filter only in-house maintenance technicians (exclude contractors)
+  const allMaintenanceTechs = users.filter(user => 
+    user.role === "maintenance_tech"
   );
   
   // For Basic plan, we should only show 6 technicians
@@ -47,9 +50,11 @@ const JobCardsList = ({ userRole = "admin" }: JobCardsListProps) => {
     };
     
     window.addEventListener('storage', handleStorageChange);
+    document.addEventListener('jobsUpdated', handleStorageChange as EventListener);
     
     return () => {
       window.removeEventListener('storage', handleStorageChange);
+      document.removeEventListener('jobsUpdated', handleStorageChange as EventListener);
     };
   }, [selectedTechId]);
 
@@ -152,7 +157,7 @@ const JobCardsList = ({ userRole = "admin" }: JobCardsListProps) => {
   // Handle assign new job button click
   const handleAssignJob = () => {
     console.log("Assign new job clicked");
-    // Handle this in JobsHeader for now
+    // This is now handled in AdminDashboard
   };
 
   return (
@@ -163,9 +168,6 @@ const JobCardsList = ({ userRole = "admin" }: JobCardsListProps) => {
           <span className="text-sm text-muted-foreground">
             {maintenanceTechs.length}/6 technicians (Basic plan)
           </span>
-          {isAdminOrManager && (
-            <Button variant="outline" size="sm" onClick={handleAssignJob}>Assign New Job</Button>
-          )}
         </div>
       </div>
 

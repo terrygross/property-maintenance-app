@@ -1,7 +1,6 @@
-
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { updateJobAcceptance, updateJobStatus, checkAfterPhotoForCompletion, updateJobPriority } from "@/components/maintenance/tech/jobs/JobUtils";
+import { updateJobAcceptance, updateJobStatus, updateJobPriority } from "@/components/maintenance/tech/jobs/JobUtils";
 
 interface Job {
   id: string;
@@ -61,16 +60,18 @@ export const useAssignedJobs = (currentUserId: string) => {
   ]);
   const { toast } = useToast();
 
-  useEffect(() => {
+  const loadJobsFromStorage = () => {
     try {
       const savedJobs = localStorage.getItem('reporterJobs');
       if (savedJobs) {
         const parsedJobs = JSON.parse(savedJobs);
-        // Update assigned jobs from localStorage
         if (parsedJobs.length > 0) {
           const techJobs = parsedJobs
-            .filter((job: any) => job.status === "assigned" || job.status === "in_progress" || 
-                               (job.status === "completed" && job.assignedTo === currentUserId))
+            .filter((job: any) => 
+              (job.status === "assigned" || job.status === "in_progress" || 
+              (job.status === "completed" && job.assignedTo === currentUserId)) &&
+              job.assignedTo === currentUserId // Filter specifically for this technician
+            )
             .map((job: any) => ({
               id: job.id,
               title: job.title,
@@ -87,15 +88,13 @@ export const useAssignedJobs = (currentUserId: string) => {
             }));
           
           if (techJobs.length > 0) {
+            console.log(`Found ${techJobs.length} jobs for tech ID: ${currentUserId}`, techJobs);
             setAssignedJobs(prevJobs => {
-              // Merge with existing jobs by replacing matching IDs
-              const existingJobIds = prevJobs.map(j => j.id);
+              // Keep default jobs if there's nothing in localStorage
+              if (techJobs.length === 0) return prevJobs;
               
-              // Keep non-matched default jobs + add new ones from localStorage
-              return [
-                ...prevJobs.filter(j => !techJobs.some(tj => tj.id === j.id)),
-                ...techJobs
-              ];
+              // Otherwise, replace mock data with real data from localStorage
+              return techJobs;
             });
           }
         }
@@ -103,6 +102,25 @@ export const useAssignedJobs = (currentUserId: string) => {
     } catch (error) {
       console.error("Error loading tech jobs:", error);
     }
+  };
+
+  useEffect(() => {
+    // Load jobs when the component mounts
+    loadJobsFromStorage();
+    
+    // Set up event listeners for job updates
+    const handleStorageChange = () => {
+      console.log("Storage changed, refreshing jobs for technician:", currentUserId);
+      loadJobsFromStorage();
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    document.addEventListener('jobsUpdated', handleStorageChange as EventListener);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      document.removeEventListener('jobsUpdated', handleStorageChange as EventListener);
+    };
   }, [currentUserId]);
 
   // Function to handle photo updates for jobs
@@ -197,6 +215,10 @@ export const useAssignedJobs = (currentUserId: string) => {
           : "You have marked this job as complete.",
         variant: "default",
       });
+      
+      // Dispatch a custom event to notify other components about job updates
+      const event = new Event('jobsUpdated');
+      document.dispatchEvent(event);
     } else if (status === "completed") {
       toast({
         title: "After photo required",
