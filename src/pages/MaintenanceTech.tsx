@@ -118,7 +118,8 @@ const MaintenanceTech = () => {
     );
   }
 
-  // For demo purposes, we'll use a hardcoded current user ID for Tristan Gross
+  // We need to ensure the currentUserId matches the format used in the compliance lists
+  // For Tristan Gross, it should be "1"
   const currentUserId = "1";
 
   return (

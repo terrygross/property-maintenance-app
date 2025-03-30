@@ -88,17 +88,18 @@ export const useComplianceLists = (properties: Property[], users: User[]) => {
 
   const handleAssignSubmit = (listId: string, techId: string, techName: string) => {
     updateComplianceLists(prevLists => 
-      prevLists.map(list => 
-        list.id === listId 
-          ? { 
-              ...list, 
-              status: "assigned", 
-              assignedTo: techId, 
-              assignedToName: techName,
-              updatedAt: new Date().toISOString() // Ensure this is a string
-            } 
-          : list
-      )
+      prevLists.map(list => {
+        if (list.id === listId) {
+          return { 
+            ...list, 
+            status: "assigned", 
+            assignedTo: techId, 
+            assignedToName: techName,
+            updatedAt: new Date() // Use Date object, this will be serialized properly when saved
+          };
+        }
+        return list;
+      })
     );
     
     toast({
@@ -114,17 +115,18 @@ export const useComplianceLists = (properties: Property[], users: User[]) => {
 
   const handleCompleteSubmit = (listId: string, notes: string) => {
     updateComplianceLists(prevLists => 
-      prevLists.map(list => 
-        list.id === listId 
-          ? { 
-              ...list, 
-              status: "completed", 
-              completedAt: new Date().toISOString(), // Ensure this is a string
-              notes: notes,
-              updatedAt: new Date().toISOString() // Ensure this is a string
-            } 
-          : list
-      )
+      prevLists.map(list => {
+        if (list.id === listId) {
+          return { 
+            ...list, 
+            status: "completed", 
+            completedAt: new Date(), // Use Date object, this will be serialized properly when saved
+            notes: notes,
+            updatedAt: new Date() // Use Date object, this will be serialized properly when saved
+          };
+        }
+        return list;
+      })
     );
     
     toast({
@@ -146,10 +148,15 @@ export const useComplianceLists = (properties: Property[], users: User[]) => {
     console.log("Filtering lists for techId:", techId);
     console.log("All compliance lists:", complianceLists);
     
-    const filtered = complianceLists.filter(list => 
-      list.assignedTo === techId && 
-      (list.status === "assigned" || list.status === "completed")
-    );
+    // Check both string and number types for assignedTo since the userId could be either
+    const filtered = complianceLists.filter(list => {
+      // Make sure to convert all IDs to strings for comparison
+      const listAssignedTo = String(list.assignedTo || "");
+      const techIdString = String(techId);
+      
+      return listAssignedTo === techIdString && 
+        (list.status === "assigned" || list.status === "completed");
+    });
     
     console.log("Filtered lists:", filtered);
     return filtered;

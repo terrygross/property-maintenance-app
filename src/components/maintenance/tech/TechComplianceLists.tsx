@@ -30,6 +30,8 @@ const TechComplianceLists = ({ userId }: TechComplianceListsProps) => {
   } = useComplianceLists(properties, users);
   
   // Get lists assigned to this technician
+  // The userId in MaintenanceTech.tsx is "1", but in the compliance list it's stored as a number
+  // Convert to consistent format
   const assignedLists = getAssignedListsForTech(userId);
   
   const handleViewList = (list: ComplianceList) => {
