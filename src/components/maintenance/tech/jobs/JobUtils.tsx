@@ -32,3 +32,27 @@ export const updateLocalStorageJobs = (jobId: string, type: "before" | "after", 
     console.error("Error updating job photos in localStorage:", error);
   }
 };
+
+export const updateJobAcceptance = (jobId: string) => {
+  try {
+    const savedJobs = localStorage.getItem('reporterJobs');
+    if (savedJobs) {
+      const parsedJobs = JSON.parse(savedJobs);
+      const updatedJobs = parsedJobs.map((job: any) => {
+        if (job.id === jobId) {
+          return {
+            ...job,
+            accepted: true,
+            alertShown: true // Prevent further alerts for this job
+          };
+        }
+        return job;
+      });
+      localStorage.setItem('reporterJobs', JSON.stringify(updatedJobs));
+      return true;
+    }
+  } catch (error) {
+    console.error("Error updating job acceptance in localStorage:", error);
+  }
+  return false;
+};

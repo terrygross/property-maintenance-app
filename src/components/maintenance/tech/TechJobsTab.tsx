@@ -15,6 +15,7 @@ interface Job {
   location: string;
   priority: string;
   dueDate: Date;
+  accepted?: boolean;
   photos?: {
     before?: string;
     after?: string;
@@ -25,9 +26,10 @@ interface Job {
 interface TechJobsTabProps {
   assignedJobs: Job[];
   onPhotoCapture: (jobId: string, type: "before" | "after", imageUrl: string) => void;
+  onAcceptJob?: (jobId: string) => void;
 }
 
-const TechJobsTab = ({ assignedJobs, onPhotoCapture }: TechJobsTabProps) => {
+const TechJobsTab = ({ assignedJobs, onPhotoCapture, onAcceptJob }: TechJobsTabProps) => {
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [showJobDetails, setShowJobDetails] = useState(false);
   const [showReporterImage, setShowReporterImage] = useState(false);
@@ -98,6 +100,18 @@ const TechJobsTab = ({ assignedJobs, onPhotoCapture }: TechJobsTabProps) => {
     setShowReporterImage(true);
   };
 
+  const handleAcceptJob = (jobId: string) => {
+    if (onAcceptJob) {
+      onAcceptJob(jobId);
+      
+      toast({
+        title: "Job Accepted",
+        description: "You have accepted this high-priority job. It will be prioritized in your work queue.",
+        variant: "default",
+      });
+    }
+  };
+
   return (
     <>
       <Card>
@@ -112,6 +126,7 @@ const TechJobsTab = ({ assignedJobs, onPhotoCapture }: TechJobsTabProps) => {
               jobs={updatedJobs}
               onViewDetails={handleViewDetails}
               onViewReporterImage={handleViewReporterImage}
+              onAcceptJob={handleAcceptJob}
               getPriorityColor={getPriorityColor}
             />
           )}

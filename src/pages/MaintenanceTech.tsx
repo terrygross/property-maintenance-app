@@ -9,6 +9,7 @@ import TechCallOutTab from "@/components/maintenance/tech/TechCallOutTab";
 import TechComplianceLists from "@/components/maintenance/tech/TechComplianceLists";
 import ChatDrawer from "@/components/chat/ChatDrawer";
 import HighPriorityAlert from "@/components/alerts/HighPriorityAlert";
+import { updateJobAcceptance } from "@/components/maintenance/tech/jobs/JobUtils";
 
 const MaintenanceTech = () => {
   const [activeTab, setActiveTab] = useState("jobs");
@@ -34,7 +35,8 @@ const MaintenanceTech = () => {
       location: "Building A", 
       priority: "high", 
       dueDate: new Date(2023, 11, 30),
-      photos: { before: "", after: "", reporter: "/images/broken-heater.jpg" }
+      photos: { before: "", after: "", reporter: "/images/broken-heater.jpg" },
+      accepted: false
     },
     { 
       id: "j2", 
@@ -58,7 +60,8 @@ const MaintenanceTech = () => {
       location: "Main Building", 
       priority: "high", 
       dueDate: new Date(), // Today
-      photos: { before: "", after: "", reporter: "/images/electrical-hazard.jpg" }
+      photos: { before: "", after: "", reporter: "/images/electrical-hazard.jpg" },
+      accepted: false
     }
   ]);
 
@@ -69,14 +72,47 @@ const MaintenanceTech = () => {
         const savedJobs = localStorage.getItem('reporterJobs');
         if (savedJobs) {
           const parsedJobs = JSON.parse(savedJobs);
-          // Filter to only show assigned high priority jobs for this technician
+          // Filter to only show assigned high priority jobs for this technician that are not accepted
           const highPriorityAssigned = parsedJobs.filter((job: any) => 
             job.priority === "high" && 
             job.status === "assigned" && 
-            job.assignedTo === currentUserId
+            job.assignedTo === currentUserId &&
+            !job.accepted
           );
           
           setHighPriorityJobs(highPriorityAssigned);
+          
+          // Update assigned jobs from localStorage
+          if (parsedJobs.length > 0) {
+            const techJobs = parsedJobs
+              .filter((job: any) => job.status === "assigned" && job.assignedTo === currentUserId)
+              .map((job: any) => ({
+                id: job.id,
+                title: job.title,
+                location: job.property || job.location,
+                priority: job.priority,
+                dueDate: new Date(job.dueDate || Date.now()),
+                photos: {
+                  before: job.beforePhoto || "",
+                  after: job.afterPhoto || "",
+                  reporter: job.imageUrl || ""
+                },
+                accepted: job.accepted || false
+              }));
+            
+            if (techJobs.length > 0) {
+              setAssignedJobs(prevJobs => {
+                // Merge with existing jobs by replacing matching IDs
+                const existingJobIds = prevJobs.map(j => j.id);
+                
+                // Keep non-matched default jobs + add new ones from localStorage
+                return [
+                  ...prevJobs.filter(j => !techJobs.some(tj => tj.id === j.id)),
+                  ...techJobs
+                ];
+              });
+            }
+          }
           
           // Show toast for newly assigned high priority jobs
           highPriorityAssigned.forEach(job => {
@@ -145,6 +181,30 @@ const MaintenanceTech = () => {
     console.log(`Updated ${type} photo for job ${jobId}`);
   };
 
+  // Function to handle accepting high priority jobs
+  const handleAcceptJob = (jobId: string) => {
+    // Update the UI
+    setAssignedJobs(prev => 
+      prev.map(job => {
+        if (job.id === jobId) {
+          return {
+            ...job,
+            accepted: true
+          };
+        }
+        return job;
+      })
+    );
+    
+    // Update localStorage
+    const success = updateJobAcceptance(jobId);
+    
+    // Refresh high priority jobs count
+    if (success) {
+      setHighPriorityJobs(prev => prev.filter(job => job.id !== jobId));
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -195,6 +255,7 @@ const MaintenanceTech = () => {
             <TechJobsTab 
               assignedJobs={assignedJobs} 
               onPhotoCapture={handleJobPhotoUpdate}
+              onAcceptJob={handleAcceptJob}
             />
           </TabsContent>
 

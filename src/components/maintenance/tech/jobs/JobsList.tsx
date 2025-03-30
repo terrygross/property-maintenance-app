@@ -8,6 +8,7 @@ interface Job {
   location: string;
   priority: string;
   dueDate: Date;
+  accepted?: boolean;
   photos?: {
     before?: string;
     after?: string;
@@ -19,10 +20,17 @@ interface JobsListProps {
   jobs: Job[];
   onViewDetails: (job: Job) => void;
   onViewReporterImage: (job: Job) => void;
+  onAcceptJob: (jobId: string) => void;
   getPriorityColor: (priority: string) => string;
 }
 
-const JobsList = ({ jobs, onViewDetails, onViewReporterImage, getPriorityColor }: JobsListProps) => {
+const JobsList = ({ 
+  jobs, 
+  onViewDetails, 
+  onViewReporterImage, 
+  onAcceptJob,
+  getPriorityColor 
+}: JobsListProps) => {
   return (
     <div className="space-y-4">
       {jobs.map((job) => (
@@ -31,6 +39,7 @@ const JobsList = ({ jobs, onViewDetails, onViewReporterImage, getPriorityColor }
           job={job} 
           onViewDetails={onViewDetails}
           onViewReporterImage={onViewReporterImage}
+          onAcceptJob={onAcceptJob}
           getPriorityColor={getPriorityColor}
         />
       ))}

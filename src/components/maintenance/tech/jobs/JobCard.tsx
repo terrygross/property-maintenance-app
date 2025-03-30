@@ -2,7 +2,7 @@
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ImageIcon, AlertCircle } from "lucide-react";
+import { ImageIcon, AlertCircle, CheckCircle } from "lucide-react";
 
 interface Job {
   id: string;
@@ -10,6 +10,7 @@ interface Job {
   location: string;
   priority: string;
   dueDate: Date;
+  accepted?: boolean;
   photos?: {
     before?: string;
     after?: string;
@@ -21,22 +22,36 @@ interface JobCardProps {
   job: Job;
   onViewDetails: (job: Job) => void;
   onViewReporterImage: (job: Job) => void;
+  onAcceptJob?: (jobId: string) => void;
   getPriorityColor: (priority: string) => string;
 }
 
-const JobCard = ({ job, onViewDetails, onViewReporterImage, getPriorityColor }: JobCardProps) => {
+const JobCard = ({ 
+  job, 
+  onViewDetails, 
+  onViewReporterImage, 
+  onAcceptJob,
+  getPriorityColor 
+}: JobCardProps) => {
   const isHighPriority = job.priority === "high";
+  const isAccepted = job.accepted;
   
   return (
-    <div key={job.id} className={`border rounded-lg p-4 ${isHighPriority ? 'border-red-500 bg-red-50' : ''}`}>
+    <div key={job.id} className={`border rounded-lg p-4 ${isHighPriority && !isAccepted ? 'border-red-500 bg-red-50' : ''}`}>
       <div className="flex items-start justify-between">
         <div>
           <div className="flex items-center gap-2">
-            {isHighPriority && <AlertCircle className="h-4 w-4 text-red-600 animate-pulse" />}
+            {isHighPriority && !isAccepted && <AlertCircle className="h-4 w-4 text-red-600 animate-pulse" />}
+            {isHighPriority && isAccepted && <CheckCircle className="h-4 w-4 text-green-600" />}
             <h3 className="font-medium">{job.title}</h3>
             <Badge className={getPriorityColor(job.priority)}>
               {job.priority.charAt(0).toUpperCase() + job.priority.slice(1)}
             </Badge>
+            {isHighPriority && isAccepted && (
+              <Badge variant="outline" className="bg-green-50 border-green-200">
+                Accepted
+              </Badge>
+            )}
           </div>
           <p className="text-sm text-muted-foreground">{job.location}</p>
           <p className="text-xs mt-2">
@@ -65,13 +80,25 @@ const JobCard = ({ job, onViewDetails, onViewReporterImage, getPriorityColor }: 
             )}
           </div>
         </div>
-        <Button 
-          size="sm" 
-          variant={isHighPriority ? "destructive" : "outline"} 
-          onClick={() => onViewDetails(job)}
-        >
-          {isHighPriority ? "Urgent" : "View Details"}
-        </Button>
+        <div className="flex flex-col gap-2">
+          {isHighPriority && !isAccepted && onAcceptJob && (
+            <Button 
+              size="sm" 
+              variant="destructive"
+              onClick={() => onAcceptJob(job.id)}
+              className="mb-1"
+            >
+              Accept Job
+            </Button>
+          )}
+          <Button 
+            size="sm" 
+            variant={isHighPriority && !isAccepted ? "destructive" : "outline"} 
+            onClick={() => onViewDetails(job)}
+          >
+            {isHighPriority && !isAccepted ? "Urgent" : "View Details"}
+          </Button>
+        </div>
       </div>
     </div>
   );
