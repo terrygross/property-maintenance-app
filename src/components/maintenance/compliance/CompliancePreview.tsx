@@ -1,11 +1,12 @@
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { ComplianceList } from "./types";
 import { useToast } from "@/hooks/use-toast";
-import { Check, ClipboardCheck, Printer } from "lucide-react";
+import { Check, ClipboardCheck, Printer, FileText, Download, ExternalLink, CheckCircle } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface CompliancePreviewProps {
   list: ComplianceList;
@@ -15,12 +16,15 @@ interface CompliancePreviewProps {
 
 const CompliancePreview = ({ list, isOpen, onOpenChange }: CompliancePreviewProps) => {
   const [completedItems, setCompletedItems] = useState<Record<string, boolean>>({});
+  const [showOriginalFile, setShowOriginalFile] = useState(false);
   const { toast } = useToast();
   const printRef = useRef<HTMLDivElement>(null);
+  const fileRef = useRef<HTMLIFrameElement>(null);
   
-  // Parse list description content into compliance items (assuming items are separated by commas)
+  // Parse list description content into compliance items
+  // First try to split by commas, if that doesn't work well, split by new lines
   const complianceItems = list.description
-    .split(',')
+    .split(/,|\n/)
     .map((item, index) => ({
       id: `item-${index}`,
       text: item.trim()
@@ -31,6 +35,13 @@ const CompliancePreview = ({ list, isOpen, onOpenChange }: CompliancePreviewProp
   const displayItems = complianceItems.length > 0 
     ? complianceItems 
     : [{ id: "default", text: "No checklist items found in description. Please edit the list to add items." }];
+
+  // Handle file URL detection - check if the list has a fileUrl property
+  const hasAttachedFile = !!list.fileUrl && list.fileUrl.length > 0;
+  const fileExtension = hasAttachedFile ? list.fileUrl.split('.').pop()?.toLowerCase() : '';
+  const isPdf = fileExtension === 'pdf';
+  const isDocx = fileExtension === 'docx' || fileExtension === 'doc';
+  const canPreviewFile = isPdf; // Only PDFs can be viewed in iframe reliably
 
   const toggleItem = (id: string) => {
     setCompletedItems(prev => ({
@@ -171,68 +182,139 @@ const CompliancePreview = ({ list, isOpen, onOpenChange }: CompliancePreviewProp
     });
   };
 
+  const handleOpenOriginalFile = () => {
+    if (hasAttachedFile) {
+      if (canPreviewFile) {
+        setShowOriginalFile(true);
+      } else {
+        // For non-previewable files, open in a new tab or download
+        window.open(list.fileUrl, '_blank');
+      }
+    }
+  };
+
+  const handleDownloadFile = () => {
+    if (hasAttachedFile) {
+      const link = document.createElement('a');
+      link.href = list.fileUrl;
+      link.download = `${list.title}.${fileExtension}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast({
+        title: "File downloading",
+        description: `Downloading ${list.title}.${fileExtension}`,
+      });
+    }
+  };
+
   const completedCount = Object.values(completedItems).filter(Boolean).length;
   const totalItems = displayItems.length;
   const progressPercentage = totalItems > 0 ? Math.round((completedCount / totalItems) * 100) : 0;
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className={showOriginalFile && isPdf ? "sm:max-w-3xl h-[90vh]" : "sm:max-w-md"}>
         <DialogHeader>
-          <DialogTitle>{list.title}</DialogTitle>
+          <DialogTitle className="flex items-center justify-between">
+            <span>{list.title}</span>
+            {hasAttachedFile && (
+              <div className="flex gap-2">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={() => setShowOriginalFile(!showOriginalFile)}
+                  className="flex items-center gap-1 text-xs"
+                >
+                  {showOriginalFile ? <CheckCircle className="h-3 w-3" /> : <FileText className="h-3 w-3" />}
+                  {showOriginalFile ? "Show Checklist" : "View Original"}
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={handleDownloadFile}
+                  className="flex items-center gap-1 text-xs"
+                >
+                  <Download className="h-3 w-3" />
+                  Download
+                </Button>
+              </div>
+            )}
+          </DialogTitle>
           <DialogDescription>
-            {list.description}
-            <div className="mt-1 text-xs">
-              Last updated: {format(list.updatedAt, 'MMM d, yyyy')} - Version {list.version}
-            </div>
+            {!showOriginalFile && (
+              <>
+                {list.description}
+                <div className="mt-1 text-xs">
+                  Last updated: {format(list.updatedAt, 'MMM d, yyyy')} - Version {list.version}
+                </div>
+              </>
+            )}
           </DialogDescription>
         </DialogHeader>
         
-        <div className="py-4" ref={printRef}>
-          <div className="flex justify-between items-center mb-2">
-            <h3 className="font-medium">Compliance Checklist</h3>
-            <span className="text-xs text-muted-foreground flex items-center gap-1">
-              <ClipboardCheck className="h-3 w-3" />
-              {progressPercentage}% complete
-            </span>
+        {showOriginalFile && isPdf ? (
+          <div className="flex-1 w-full h-full min-h-[500px]">
+            <iframe 
+              ref={fileRef}
+              src={list.fileUrl} 
+              className="w-full h-full border rounded"
+              title={list.title}
+            />
           </div>
-          <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
-            {displayItems.map(item => (
-              <div 
-                key={item.id} 
-                className="flex items-center p-2 border rounded hover:bg-muted/50 cursor-pointer"
-                onClick={() => toggleItem(item.id)}
-              >
-                <div className="flex items-center justify-center w-5 h-5 mr-3 rounded-sm border">
-                  {completedItems[item.id] && (
-                    <Check className="h-3.5 w-3.5 text-primary" />
-                  )}
+        ) : (
+          <div className="py-4" ref={printRef}>
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="font-medium">Compliance Checklist</h3>
+              <span className="text-xs text-muted-foreground flex items-center gap-1">
+                <ClipboardCheck className="h-3 w-3" />
+                {progressPercentage}% complete
+              </span>
+            </div>
+            <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+              {displayItems.map(item => (
+                <div 
+                  key={item.id} 
+                  className="flex items-center p-2 border rounded hover:bg-muted/50 cursor-pointer"
+                  onClick={() => toggleItem(item.id)}
+                >
+                  <Checkbox 
+                    id={item.id}
+                    checked={completedItems[item.id]} 
+                    onCheckedChange={() => toggleItem(item.id)}
+                    className="mr-3"
+                  />
+                  <span className={completedItems[item.id] ? "line-through text-muted-foreground" : ""}>
+                    {item.text}
+                  </span>
                 </div>
-                <span className={completedItems[item.id] ? "line-through text-muted-foreground" : ""}>
-                  {item.text}
-                </span>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+        )}
         
         <div className="flex justify-between">
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button 
-              variant="outline" 
-              onClick={handlePrint}
-              className="flex items-center gap-1"
-            >
-              <Printer className="h-4 w-4" />
-              Print
-            </Button>
+            {!showOriginalFile && (
+              <Button 
+                variant="outline" 
+                onClick={handlePrint}
+                className="flex items-center gap-1"
+              >
+                <Printer className="h-4 w-4" />
+                Print
+              </Button>
+            )}
           </div>
-          <Button onClick={handleSave}>
-            Save Progress
-          </Button>
+          {!showOriginalFile && (
+            <Button onClick={handleSave}>
+              Save Progress
+            </Button>
+          )}
         </div>
       </DialogContent>
     </Dialog>
