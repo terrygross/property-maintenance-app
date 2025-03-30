@@ -22,12 +22,12 @@ export const useComplianceOperations = (
           console.log(`Updating list ${list.id} with techId ${techId}`);
           
           // Create a new object with the updated properties
-          const updatedList = { 
+          const updatedList: ComplianceList = { 
             ...list, 
             status: "assigned", 
             assignedTo: techId, 
             assignedToName: techName,
-            updatedAt: new Date().toISOString() // Use ISO string for consistency
+            updatedAt: new Date() // Use Date object directly, not string
           };
           
           console.log("Updated list:", updatedList);
@@ -58,9 +58,9 @@ export const useComplianceOperations = (
           return { 
             ...list, 
             status: "completed", 
-            completedAt: new Date().toISOString(), 
+            completedAt: new Date(), // Use Date object directly
             notes: notes,
-            updatedAt: new Date().toISOString()
+            updatedAt: new Date() // Use Date object directly
           };
         }
         return list;
@@ -85,8 +85,8 @@ export const useComplianceOperations = (
           return { 
             ...list, 
             status: "deleted", 
-            deletedAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
+            deletedAt: new Date(), // Use Date object directly
+            updatedAt: new Date() // Use Date object directly
           };
         }
         return list;
@@ -108,7 +108,7 @@ export const useComplianceOperations = (
             ...list, 
             status: "active", 
             deletedAt: undefined,
-            updatedAt: new Date().toISOString()
+            updatedAt: new Date() // Use Date object directly
           };
         }
         return list;
