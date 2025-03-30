@@ -18,14 +18,19 @@ const CompliancePreview = ({ list, isOpen, onOpenChange }: CompliancePreviewProp
   const { toast } = useToast();
   const printRef = useRef<HTMLDivElement>(null);
   
-  // Mock compliance items for demonstration
-  const complianceItems = [
-    { id: "1", text: "Check fire extinguishers are properly charged and accessible" },
-    { id: "2", text: "Inspect smoke detectors and ensure they are operational" },
-    { id: "3", text: "Verify emergency exits are clearly marked and unobstructed" },
-    { id: "4", text: "Test emergency lighting systems" },
-    { id: "5", text: "Check HVAC filters and replace if necessary" },
-  ];
+  // Parse list description content into compliance items (assuming items are separated by commas)
+  const complianceItems = list.description
+    .split(',')
+    .map((item, index) => ({
+      id: `item-${index}`,
+      text: item.trim()
+    }))
+    .filter(item => item.text.length > 0); // Filter out empty items
+  
+  // If no items could be parsed from description, provide a default placeholder item
+  const displayItems = complianceItems.length > 0 
+    ? complianceItems 
+    : [{ id: "default", text: "No checklist items found in description. Please edit the list to add items." }];
 
   const toggleItem = (id: string) => {
     setCompletedItems(prev => ({
@@ -118,7 +123,7 @@ const CompliancePreview = ({ list, isOpen, onOpenChange }: CompliancePreviewProp
 
       // Add checklist items
       const checklistContent = document.createElement("div");
-      complianceItems.forEach(item => {
+      displayItems.forEach(item => {
         const isCompleted = completedItems[item.id];
         checklistContent.innerHTML += `
           <div class="checklist-item">
@@ -131,7 +136,7 @@ const CompliancePreview = ({ list, isOpen, onOpenChange }: CompliancePreviewProp
 
       // Add summary
       const completedCount = Object.values(completedItems).filter(Boolean).length;
-      const totalItems = complianceItems.length;
+      const totalItems = displayItems.length;
       const progressPercentage = totalItems > 0 ? Math.round((completedCount / totalItems) * 100) : 0;
 
       const summaryDiv = document.createElement("div");
@@ -167,7 +172,7 @@ const CompliancePreview = ({ list, isOpen, onOpenChange }: CompliancePreviewProp
   };
 
   const completedCount = Object.values(completedItems).filter(Boolean).length;
-  const totalItems = complianceItems.length;
+  const totalItems = displayItems.length;
   const progressPercentage = totalItems > 0 ? Math.round((completedCount / totalItems) * 100) : 0;
 
   return (
@@ -192,7 +197,7 @@ const CompliancePreview = ({ list, isOpen, onOpenChange }: CompliancePreviewProp
             </span>
           </div>
           <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
-            {complianceItems.map(item => (
+            {displayItems.map(item => (
               <div 
                 key={item.id} 
                 className="flex items-center p-2 border rounded hover:bg-muted/50 cursor-pointer"
