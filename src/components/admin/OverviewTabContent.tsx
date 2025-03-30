@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Users, Building, Wrench, BarChart, CreditCard, AlertTriangle, Clipboard, Calendar, Layout, UserCog } from "lucide-react";
+import { Users, Building, Wrench, BarChart, CreditCard, AlertTriangle, Clipboard, Calendar, Layout, UserCog, CheckSquare } from "lucide-react";
 import AdminCard from "./AdminCard";
 
 interface OverviewTabContentProps {
@@ -32,6 +32,14 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
         icon={<Wrench className="h-5 w-5" />}
         buttonText="Configure Settings"
         buttonAction={() => setActiveTab("maintenance")}
+      />
+      
+      <AdminCard 
+        title="Compliance Lists" 
+        description="Manage property compliance lists and assign them to technicians"
+        icon={<CheckSquare className="h-5 w-5" />}
+        buttonText="Manage Compliance"
+        buttonAction={() => setActiveTab("compliance")}
       />
       
       <AdminCard 
@@ -67,6 +75,22 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
       />
       
       <AdminCard 
+        title="Jobs List" 
+        description="Manage assigned maintenance jobs and track their progress"
+        icon={<Clipboard className="h-5 w-5" />}
+        buttonText="View Jobs List"
+        buttonAction={() => setActiveTab("jobs")}
+      />
+      
+      <AdminCard 
+        title="Team Chat" 
+        description="Communicate with your team members in real-time"
+        icon={<Layout className="h-5 w-5" />}
+        buttonText="Open Chat"
+        buttonAction={() => setActiveTab("chat")}
+      />
+      
+      <AdminCard 
         title="Maintenance Technician UI" 
         description="Preview the interface used by maintenance technicians"
         icon={<Layout className="h-5 w-5" />}
@@ -93,11 +117,27 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
       />
       
       <AdminCard 
+        title="System Settings" 
+        description="Configure global parameters for your maintenance system"
+        icon={<Wrench className="h-5 w-5" />}
+        buttonText="Configure Settings"
+        buttonAction={() => setActiveTab("settings")}
+      />
+      
+      <AdminCard 
         title="System Logs" 
         description="View system activity, errors, and user actions"
         icon={<AlertTriangle className="h-5 w-5" />}
         buttonText="View Logs"
         buttonAction={() => setActiveTab("logs")}
+      />
+      
+      <AdminCard 
+        title="Backup & Restore" 
+        description="Backup and restore your system data"
+        icon={<Layout className="h-5 w-5" />}
+        buttonText="Manage Backups"
+        buttonAction={() => setActiveTab("backup")}
       />
     </div>
   );
