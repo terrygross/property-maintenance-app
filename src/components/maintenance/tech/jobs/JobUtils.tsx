@@ -1,3 +1,4 @@
+
 export const getPriorityColor = (priority: string) => {
   switch (priority) {
     case "high":
@@ -130,12 +131,13 @@ export const updateJobPriority = (jobId: string, priority: string): boolean => {
 };
 
 export const getTechnicianJobs = (techId: string): any[] => {
-  // First try to get jobs from localStorage
+  // Try to get jobs from localStorage
   try {
     const savedJobs = localStorage.getItem('reporterJobs');
     if (savedJobs) {
       const allJobs = JSON.parse(savedJobs);
-      // Filter jobs assigned to this technician
+      // Filter ALL jobs assigned to this technician, regardless of status
+      // This ensures that both "assigned", "in_progress", and "completed" jobs are shown
       const techJobs = allJobs.filter((job: any) => job.assignedTo === techId);
       
       if (techJobs.length > 0) {

@@ -52,6 +52,7 @@ const JobsList = () => {
             });
           
           setJobs(formattedJobs);
+          console.log("Admin Jobs tab - loaded assigned jobs:", formattedJobs);
         }
       };
       
