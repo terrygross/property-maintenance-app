@@ -17,6 +17,7 @@ interface ReporterStationProps {
 interface ReporterFormValues {
   reporterName: string;
   propertyId: string;
+  location: string;
   description: string;
 }
 
@@ -54,6 +55,7 @@ const ReporterStation = ({ stationId }: ReporterStationProps) => {
     defaultValues: {
       reporterName: "",
       propertyId: "",
+      location: "",
       description: ""
     }
   });
@@ -88,6 +90,7 @@ const ReporterStation = ({ stationId }: ReporterStationProps) => {
       title: `Maintenance Request - ${values.reporterName}`,
       description: values.description,
       property: propertyName,
+      location: values.location,
       reportDate: new Date().toISOString().split("T")[0],
       priority: "medium", // Default priority
       status: "unassigned",
@@ -173,6 +176,24 @@ const ReporterStation = ({ stationId }: ReporterStationProps) => {
                     />
                   </FormControl>
                   <input type="hidden" {...field} />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="location"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Location</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="Specific location within the property (e.g., Room 101, Lobby, North Wing)" 
+                      {...field} 
+                      required 
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
