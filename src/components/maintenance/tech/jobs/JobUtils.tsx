@@ -106,3 +106,40 @@ export const updateJobStatus = (jobId: string, status: string): boolean => {
   }
   return false;
 };
+
+export const updateJobPriority = (jobId: string, priority: string): boolean => {
+  try {
+    const savedJobs = localStorage.getItem('reporterJobs');
+    if (savedJobs) {
+      const parsedJobs = JSON.parse(savedJobs);
+      const updatedJobs = parsedJobs.map((job: any) => {
+        if (job.id === jobId) {
+          return {
+            ...job,
+            priority: priority
+          };
+        }
+        return job;
+      });
+      localStorage.setItem('reporterJobs', JSON.stringify(updatedJobs));
+      return true;
+    }
+  } catch (error) {
+    console.error("Error updating job priority in localStorage:", error);
+  }
+  return false;
+};
+
+export const getTechnicianJobs = (technicianId: string): any[] => {
+  try {
+    const savedJobs = localStorage.getItem('reporterJobs');
+    if (savedJobs) {
+      const parsedJobs = JSON.parse(savedJobs);
+      // Filter jobs assigned to this technician
+      return parsedJobs.filter((job: any) => job.assignedTo === technicianId);
+    }
+  } catch (error) {
+    console.error("Error getting technician jobs from localStorage:", error);
+  }
+  return [];
+};

@@ -7,9 +7,14 @@ import { Job } from "./jobsListUtils";
 interface JobsContainerProps {
   jobs: Job[];
   onViewDetails: (job: Job) => void;
+  onMarkComplete?: (jobId: string) => void;
 }
 
-const JobsContainer: React.FC<JobsContainerProps> = ({ jobs, onViewDetails }) => {
+const JobsContainer: React.FC<JobsContainerProps> = ({ 
+  jobs, 
+  onViewDetails,
+  onMarkComplete
+}) => {
   return (
     <Card>
       <CardHeader>
@@ -22,7 +27,8 @@ const JobsContainer: React.FC<JobsContainerProps> = ({ jobs, onViewDetails }) =>
               <JobItem 
                 key={job.id} 
                 job={job} 
-                onViewDetails={onViewDetails} 
+                onViewDetails={onViewDetails}
+                onMarkComplete={onMarkComplete}
               />
             ))
           ) : (

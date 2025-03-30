@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { updateJobAcceptance, updateJobStatus, checkAfterPhotoForCompletion } from "@/components/maintenance/tech/jobs/JobUtils";
+import { updateJobAcceptance, updateJobStatus, checkAfterPhotoForCompletion, updateJobPriority } from "@/components/maintenance/tech/jobs/JobUtils";
 
 interface Job {
   id: string;
@@ -205,11 +205,39 @@ export const useAssignedJobs = (currentUserId: string) => {
       });
     }
   };
+  
+  // Function to handle updating job priority
+  const handleUpdateJobPriority = (jobId: string, priority: string) => {
+    // Update the UI
+    setAssignedJobs(prev => 
+      prev.map(job => {
+        if (job.id === jobId) {
+          return {
+            ...job,
+            priority: priority
+          };
+        }
+        return job;
+      })
+    );
+    
+    // Update localStorage
+    const success = updateJobPriority(jobId, priority);
+    
+    if (success) {
+      toast({
+        title: "Priority updated",
+        description: `Job priority changed to ${priority}`,
+        variant: "default",
+      });
+    }
+  };
 
   return {
     assignedJobs,
     handleJobPhotoUpdate,
     handleAcceptJob,
-    handleUpdateJobStatus
+    handleUpdateJobStatus,
+    handleUpdateJobPriority
   };
 };

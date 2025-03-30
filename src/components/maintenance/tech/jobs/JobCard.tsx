@@ -1,8 +1,23 @@
-import React from "react";
+
+import React, { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ImageIcon, AlertCircle, CheckCircle, Clock, Check } from "lucide-react";
+import { ImageIcon, AlertCircle, CheckCircle, Clock, Check, Edit, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Job {
   id: string;
@@ -25,7 +40,9 @@ interface JobCardProps {
   onViewReporterImage: (job: Job) => void;
   onAcceptJob?: (jobId: string) => void;
   onUpdateStatus?: (jobId: string, status: string) => void;
+  onUpdatePriority?: (jobId: string, priority: string) => void;
   getPriorityColor: (priority: string) => string;
+  isAdmin?: boolean;
 }
 
 const JobCard = ({ 
@@ -34,12 +51,16 @@ const JobCard = ({
   onViewReporterImage, 
   onAcceptJob,
   onUpdateStatus,
-  getPriorityColor 
+  onUpdatePriority,
+  getPriorityColor,
+  isAdmin = false
 }: JobCardProps) => {
   const isHighPriority = job.priority === "high";
   const isAccepted = job.accepted;
   const status = job.status || "assigned";
   const { toast } = useToast();
+  const [showPriorityDialog, setShowPriorityDialog] = useState(false);
+  const [selectedPriority, setSelectedPriority] = useState(job.priority);
   
   const getStatusBadge = () => {
     switch(status) {
@@ -82,6 +103,17 @@ const JobCard = ({
       onUpdateStatus(job.id, status === "in_progress" ? "completed" : "in_progress");
     }
   };
+
+  const handlePriorityChange = () => {
+    if (onUpdatePriority && selectedPriority !== job.priority) {
+      onUpdatePriority(job.id, selectedPriority);
+      toast({
+        title: "Priority updated",
+        description: `Job priority changed to ${selectedPriority}`,
+      });
+      setShowPriorityDialog(false);
+    }
+  };
   
   return (
     <div key={job.id} className={`border rounded-lg p-4 ${isHighPriority && !isAccepted ? 'border-red-500 bg-red-50' : ''}`}>
@@ -94,6 +126,33 @@ const JobCard = ({
             <Badge className={getPriorityColor(job.priority)}>
               {job.priority.charAt(0).toUpperCase() + job.priority.slice(1)}
             </Badge>
+            {isAdmin && (
+              <Dialog open={showPriorityDialog} onOpenChange={setShowPriorityDialog}>
+                <DialogTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                    <Edit className="h-3 w-3" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>Change Priority</DialogTitle>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <Select value={selectedPriority} onValueChange={setSelectedPriority}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select priority" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="low">Low Priority</SelectItem>
+                        <SelectItem value="medium">Medium Priority</SelectItem>
+                        <SelectItem value="high">High Priority</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button onClick={handlePriorityChange}>Update Priority</Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            )}
             {getStatusBadge()}
           </div>
           <p className="text-sm text-muted-foreground">{job.location}</p>
@@ -119,6 +178,12 @@ const JobCard = ({
             {job.photos?.after && (
               <Badge variant="outline" className="bg-green-50">
                 After Photo ✓
+              </Badge>
+            )}
+            {status !== "completed" && !job.photos?.after && (
+              <Badge variant="outline" className="bg-yellow-50 border-yellow-200 flex items-center gap-1">
+                <AlertTriangle className="h-3 w-3 text-yellow-500" />
+                After Photo Required
               </Badge>
             )}
           </div>
@@ -147,7 +212,7 @@ const JobCard = ({
             </Button>
           )}
           
-          {onUpdateStatus && status !== "completed" && (
+          {(onUpdateStatus || isAdmin) && status !== "completed" && (
             <Button 
               size="sm" 
               variant={status === "in_progress" ? "outline" : "secondary"} 

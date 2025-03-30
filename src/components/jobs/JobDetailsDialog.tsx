@@ -3,7 +3,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Mail } from "lucide-react";
+import { Mail, Check, AlertTriangle } from "lucide-react";
 import JobPhotosViewer from "./JobPhotosViewer";
 import { Job } from "./jobsListUtils";
 
@@ -11,14 +11,19 @@ interface JobDetailsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   job: Job | null;
+  onMarkComplete?: (jobId: string) => void;
 }
 
 const JobDetailsDialog: React.FC<JobDetailsDialogProps> = ({ 
   open, 
   onOpenChange, 
-  job 
+  job,
+  onMarkComplete
 }) => {
   if (!job) return null;
+  
+  const isCompleted = job.status === "completed";
+  const hasAfterPhoto = Boolean(job.photos?.after);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -70,10 +75,32 @@ const JobDetailsDialog: React.FC<JobDetailsDialogProps> = ({
               beforePhoto={job.photos?.before}
               afterPhoto={job.photos?.after}
             />
+            
+            {!hasAfterPhoto && !isCompleted && (
+              <div className="mt-2 flex items-center gap-2 text-yellow-600 bg-yellow-50 p-2 rounded-md">
+                <AlertTriangle className="h-4 w-4" />
+                <p className="text-xs">After photo required to mark job as complete</p>
+              </div>
+            )}
           </div>
           
-          <div className="flex justify-end">
-            <Button onClick={() => onOpenChange(false)}>Close</Button>
+          <div className="flex justify-between">
+            {!isCompleted && hasAfterPhoto && onMarkComplete && (
+              <Button 
+                variant="outline" 
+                className="bg-green-50 hover:bg-green-100"
+                onClick={() => {
+                  onMarkComplete(job.id);
+                  onOpenChange(false);
+                }}
+              >
+                <Check className="h-4 w-4 mr-1" />
+                Mark Complete
+              </Button>
+            )}
+            <div className="ml-auto">
+              <Button onClick={() => onOpenChange(false)}>Close</Button>
+            </div>
           </div>
         </div>
       </DialogContent>

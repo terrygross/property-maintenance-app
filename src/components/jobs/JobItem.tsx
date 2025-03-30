@@ -2,15 +2,26 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Mail } from "lucide-react";
+import { Mail, ImageIcon, Check } from "lucide-react";
 import { getPriorityColor, getStatusBadge, Job } from "./jobsListUtils";
 
 interface JobItemProps {
   job: Job;
   onViewDetails: (job: Job) => void;
+  onMarkComplete?: (jobId: string) => void;
 }
 
-const JobItem: React.FC<JobItemProps> = ({ job, onViewDetails }) => {
+const JobItem: React.FC<JobItemProps> = ({ job, onViewDetails, onMarkComplete }) => {
+  const isCompleted = job.status === "completed";
+  const hasAfterPhoto = Boolean(job.photos?.after);
+  
+  const handleMarkComplete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onMarkComplete) {
+      onMarkComplete(job.id);
+    }
+  };
+
   return (
     <div className="border rounded-lg p-4">
       <div className="flex items-start justify-between h-full">
@@ -41,10 +52,44 @@ const JobItem: React.FC<JobItemProps> = ({ job, onViewDetails }) => {
             </div>
           )}
           
-          <div className="mt-3">
+          {/* Photo badges */}
+          <div className="mt-2 flex flex-wrap gap-2">
+            {job.photos?.reporter && (
+              <Badge variant="outline" className="bg-purple-50 flex items-center gap-1">
+                <ImageIcon className="h-3 w-3" />
+                Reporter Photo
+              </Badge>
+            )}
+            {job.photos?.before && (
+              <Badge variant="outline" className="bg-blue-50 flex items-center gap-1">
+                <ImageIcon className="h-3 w-3" />
+                Before Photo
+              </Badge>
+            )}
+            {job.photos?.after && (
+              <Badge variant="outline" className="bg-green-50 flex items-center gap-1">
+                <ImageIcon className="h-3 w-3" />
+                After Photo
+              </Badge>
+            )}
+          </div>
+          
+          <div className="mt-3 flex gap-2">
             <Button size="sm" variant="outline" onClick={() => onViewDetails(job)}>
               View Details
             </Button>
+            
+            {!isCompleted && hasAfterPhoto && onMarkComplete && (
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="bg-green-50 hover:bg-green-100"
+                onClick={handleMarkComplete}
+              >
+                <Check className="h-4 w-4 mr-1" />
+                Mark Complete
+              </Button>
+            )}
           </div>
         </div>
         
