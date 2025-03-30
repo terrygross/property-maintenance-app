@@ -30,9 +30,26 @@ const TechComplianceLists = ({ userId }: TechComplianceListsProps) => {
   } = useComplianceLists(properties, users);
   
   // Get lists assigned to this technician
-  // The userId in MaintenanceTech.tsx is "1", but in the compliance list it's stored as a number
-  // Convert to consistent format
-  const assignedLists = getAssignedListsForTech(userId);
+  console.log("Current user ID:", userId);
+  console.log("Type of userId:", typeof userId);
+
+  // Check for additional IDs that might match (for Tristan Gross)
+  const possibleIds = [userId, "1743265006833"];
+  
+  // Try to get the lists with all possible IDs
+  let assignedLists: ComplianceList[] = [];
+  possibleIds.forEach(id => {
+    const lists = getAssignedListsForTech(id);
+    console.log(`Lists found for ID ${id}:`, lists);
+    assignedLists = [...assignedLists, ...lists];
+  });
+  
+  // Remove duplicates
+  assignedLists = assignedLists.filter((list, index, self) => 
+    index === self.findIndex(l => l.id === list.id)
+  );
+  
+  console.log("Final assigned lists:", assignedLists);
   
   const handleViewList = (list: ComplianceList) => {
     setSelectedList(list);

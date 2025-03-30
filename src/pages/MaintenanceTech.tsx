@@ -118,9 +118,11 @@ const MaintenanceTech = () => {
     );
   }
 
-  // We need to ensure the currentUserId matches the format used in the compliance lists
-  // For Tristan Gross, it should be "1"
+  // Both string "1" and the special ID for Tristan from the compliance list
+  // Using both IDs to ensure we catch all assigned compliance lists for Tristan
   const currentUserId = "1";
+  // Also need to check for the ID seen in the console logs: 1743265006833
+  console.log("Using currentUserId for Tristan Gross:", currentUserId);
 
   return (
     <div className="min-h-screen bg-gray-50">

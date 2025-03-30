@@ -7,6 +7,7 @@ import EmptyJobsList from "./jobs/EmptyJobsList";
 import JobDetailsDialog from "./jobs/JobDetailsDialog";
 import ReporterImageDialog from "./jobs/ReporterImageDialog";
 import { getPriorityColor, updateLocalStorageJobs } from "./jobs/JobUtils";
+import { useAppState } from "@/context/AppStateContext";
 
 interface Job {
   id: string;
@@ -31,6 +32,25 @@ const TechJobsTab = ({ assignedJobs, onPhotoCapture }: TechJobsTabProps) => {
   const [showJobDetails, setShowJobDetails] = useState(false);
   const [showReporterImage, setShowReporterImage] = useState(false);
   const { toast } = useToast();
+  const { properties } = useAppState();
+
+  // Map generic building names to actual property names
+  const updatedJobs = assignedJobs.map(job => {
+    let propertyName = job.location;
+    
+    // Find matching property name if location is a generic building name
+    if (job.location.includes("Building") || job.location === "Main Building") {
+      const property = properties.find(p => p.status === "active");
+      if (property) {
+        propertyName = property.name;
+      }
+    }
+    
+    return {
+      ...job,
+      location: propertyName
+    };
+  });
 
   useEffect(() => {
     try {
@@ -85,11 +105,11 @@ const TechJobsTab = ({ assignedJobs, onPhotoCapture }: TechJobsTabProps) => {
           <CardTitle>Assigned Jobs</CardTitle>
         </CardHeader>
         <CardContent>
-          {assignedJobs.length === 0 ? (
+          {updatedJobs.length === 0 ? (
             <EmptyJobsList />
           ) : (
             <JobsList 
-              jobs={assignedJobs}
+              jobs={updatedJobs}
               onViewDetails={handleViewDetails}
               onViewReporterImage={handleViewReporterImage}
               getPriorityColor={getPriorityColor}
