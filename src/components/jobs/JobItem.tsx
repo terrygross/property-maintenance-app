@@ -19,7 +19,7 @@ const JobItem: React.FC<JobItemProps> = ({ job, onViewDetails, onMarkComplete })
   const { users } = useAppState();
   
   // Find the assigned technician if there is one
-  const assignedTech = job.assignedToId ? users.find(user => user.id === job.assignedToId) : null;
+  const assignedTech = job.assignedTo ? users.find(user => user.id === job.assignedTo) : null;
   
   const handleMarkComplete = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -50,10 +50,10 @@ const JobItem: React.FC<JobItemProps> = ({ job, onViewDetails, onMarkComplete })
                   <AvatarImage src={assignedTech.photo_url} alt={`${assignedTech.first_name} ${assignedTech.last_name}`} />
                   <AvatarFallback>{assignedTech.first_name?.[0]}{assignedTech.last_name?.[0]}</AvatarFallback>
                 </Avatar>
-                {job.assignedTo}
+                {job.assignedTo ? `${assignedTech.first_name} ${assignedTech.last_name}` : "Unassigned"}
               </span>
             )}
-            {!assignedTech && job.assignedTo}
+            {!assignedTech && job.assignedTo && <span className="ml-1">{job.assignedTo}</span>}
           </div>
           <p className="text-xs">Due: {job.dueDate.toLocaleDateString()}</p>
           
