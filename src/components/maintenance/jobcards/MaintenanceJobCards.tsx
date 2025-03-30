@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import JobCardsList from "./JobCardsList";
 import LeaveCalendar from "./LeaveCalendar";
 import CallOutSchedule from "./CallOutSchedule";
+import { hasAdminAccess } from "@/types/user";
 
 interface MaintenanceJobCardsProps {
   userRole?: string;
