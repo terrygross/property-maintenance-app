@@ -12,6 +12,7 @@ import ComplianceComplete from "../compliance/ComplianceComplete";
 import { useAppState } from "@/context/AppStateContext";
 import { useComplianceLists } from "../compliance/useComplianceLists";
 import { Property } from "@/types/property";
+import EmptyComplianceLists from "./compliance/EmptyComplianceLists";
 
 interface TechComplianceListsProps {
   userId: string;
@@ -54,9 +55,7 @@ const TechComplianceLists = ({ userId }: TechComplianceListsProps) => {
         </CardHeader>
         <CardContent>
           {assignedLists.length === 0 ? (
-            <div className="text-center py-6 text-muted-foreground">
-              You don't have any assigned compliance lists.
-            </div>
+            <EmptyComplianceLists />
           ) : (
             <Table>
               <TableHeader>

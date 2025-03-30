@@ -95,7 +95,7 @@ export const useComplianceLists = (properties: Property[], users: User[]) => {
               status: "assigned", 
               assignedTo: techId, 
               assignedToName: techName,
-              updatedAt: new Date()
+              updatedAt: new Date().toISOString() // Ensure this is a string
             } 
           : list
       )
@@ -119,9 +119,9 @@ export const useComplianceLists = (properties: Property[], users: User[]) => {
           ? { 
               ...list, 
               status: "completed", 
-              completedAt: new Date(),
+              completedAt: new Date().toISOString(), // Ensure this is a string
               notes: notes,
-              updatedAt: new Date()
+              updatedAt: new Date().toISOString() // Ensure this is a string
             } 
           : list
       )
@@ -141,12 +141,18 @@ export const useComplianceLists = (properties: Property[], users: User[]) => {
     activeTab === "completed" ? ["completed"] : ["archived"]
   );
 
-  // Filter for technician assigned lists
+  // Filter for technician assigned lists - fixed to correctly check for assigned status
   const getAssignedListsForTech = (techId: string) => {
-    return complianceLists.filter(list => 
+    console.log("Filtering lists for techId:", techId);
+    console.log("All compliance lists:", complianceLists);
+    
+    const filtered = complianceLists.filter(list => 
       list.assignedTo === techId && 
       (list.status === "assigned" || list.status === "completed")
     );
+    
+    console.log("Filtered lists:", filtered);
+    return filtered;
   };
 
   const selectedProperty = properties.find(p => p.id === selectedPropertyId);
