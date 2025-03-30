@@ -2,6 +2,7 @@
 import { ComplianceList } from '../types';
 import { useToast } from '@/hooks/use-toast';
 import { filterComplianceLists } from '../complianceUtils';
+import { notificationService, EVENTS } from '@/services/notification-service';
 
 export const useComplianceOperations = (
   complianceLists: ComplianceList[],
@@ -42,9 +43,9 @@ export const useComplianceOperations = (
       description: `Compliance list has been assigned to ${techName}.`,
     });
     
-    // Dispatch a custom event to notify other components (like tech dashboard)
-    const event = new CustomEvent('complianceListsUpdated');
-    document.dispatchEvent(event);
+    // Publish event instead of using DOM events
+    notificationService.publish(EVENTS.COMPLIANCE_LIST_ASSIGNED, { techId, techName });
+    notificationService.publish(EVENTS.COMPLIANCE_LISTS_UPDATED);
   };
 
   const handleComplete = (list: ComplianceList) => {
@@ -52,16 +53,19 @@ export const useComplianceOperations = (
   };
 
   const handleCompleteSubmit = (listId: string, notes: string) => {
+    let completedList: ComplianceList | null = null;
+    
     updateComplianceLists(prevLists => 
       prevLists.map(list => {
         if (list.id === listId) {
-          return { 
+          completedList = { 
             ...list, 
             status: "completed", 
             completedAt: new Date(), // Use Date object directly
             notes: notes,
             updatedAt: new Date() // Use Date object directly
           };
+          return completedList;
         }
         return list;
       })
@@ -72,9 +76,11 @@ export const useComplianceOperations = (
       description: "Compliance list has been marked as completed.",
     });
     
-    // Dispatch a custom event to notify other components
-    const event = new CustomEvent('complianceListsUpdated');
-    document.dispatchEvent(event);
+    // Publish event instead of using DOM events
+    if (completedList) {
+      notificationService.publish(EVENTS.COMPLIANCE_LIST_COMPLETED, { listId, notes, list: completedList });
+    }
+    notificationService.publish(EVENTS.COMPLIANCE_LISTS_UPDATED);
   };
 
   // Move item to recycle bin (soft delete)
@@ -97,6 +103,10 @@ export const useComplianceOperations = (
       title: "List Moved to Recycle Bin",
       description: `"${itemName}" will be permanently deleted after 30 days.`,
     });
+    
+    // Publish event instead of using DOM events
+    notificationService.publish(EVENTS.COMPLIANCE_LIST_DELETED, { listId, itemName });
+    notificationService.publish(EVENTS.COMPLIANCE_LISTS_UPDATED);
   };
 
   // Restore item from recycle bin
@@ -119,6 +129,10 @@ export const useComplianceOperations = (
       title: "List Restored",
       description: "The list has been restored from the recycle bin.",
     });
+    
+    // Publish event instead of using DOM events
+    notificationService.publish(EVENTS.COMPLIANCE_LIST_RESTORED, { listId });
+    notificationService.publish(EVENTS.COMPLIANCE_LISTS_UPDATED);
   };
 
   // Permanently delete item
@@ -131,6 +145,10 @@ export const useComplianceOperations = (
       title: "List Permanently Deleted",
       description: "The list has been permanently deleted.",
     });
+    
+    // Publish event instead of using DOM events
+    notificationService.publish(EVENTS.COMPLIANCE_LIST_DELETED, { listId, permanent: true });
+    notificationService.publish(EVENTS.COMPLIANCE_LISTS_UPDATED);
   };
 
   // Helper function to filter lists for a specific technician

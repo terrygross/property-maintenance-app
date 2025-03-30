@@ -1,9 +1,10 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ComplianceList } from "../../compliance/types";
 import { useAppState } from "@/context/AppStateContext";
 import { useComplianceLists } from "../../compliance/hooks/useComplianceLists";
 import { Property } from "@/types/property";
+import { useComplianceListUpdates } from "@/hooks/use-notifications";
 
 export const useTechComplianceLists = (userId: string) => {
   const { properties, users } = useAppState();
@@ -39,19 +40,14 @@ export const useTechComplianceLists = (userId: string) => {
   
   console.log("Final assigned lists:", assignedLists);
   
-  // Listen for compliance list updates
-  useEffect(() => {
-    const handleListsUpdated = () => {
-      console.log("ComplianceLists updated event received");
-      setRefreshTrigger(prev => prev + 1);
-    };
-    
-    document.addEventListener('complianceListsUpdated', handleListsUpdated);
-    
-    return () => {
-      document.removeEventListener('complianceListsUpdated', handleListsUpdated);
-    };
+  // Handler for compliance list updates
+  const handleListsUpdated = useCallback(() => {
+    console.log("ComplianceLists updated notification received");
+    setRefreshTrigger(prev => prev + 1);
   }, []);
+  
+  // Use our custom hook instead of DOM events
+  useComplianceListUpdates(handleListsUpdated);
   
   // Find the current user
   const currentUser = users.find(user => user.id === userId);
