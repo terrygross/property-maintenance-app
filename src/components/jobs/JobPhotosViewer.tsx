@@ -1,7 +1,9 @@
 
 import React, { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Camera, Image } from "lucide-react";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
+import PhotoTabsList from "./photos/PhotoTabsList";
+import PhotoTab from "./photos/PhotoTab";
+import NoPhotosPlaceholder from "./photos/NoPhotosPlaceholder";
 
 interface JobPhotosViewerProps {
   reporterPhoto?: string;
@@ -19,76 +21,44 @@ const JobPhotosViewer = ({ reporterPhoto, beforePhoto, afterPhoto }: JobPhotosVi
   const hasAnyPhotos = reporterPhoto || beforePhoto || afterPhoto;
 
   if (!hasAnyPhotos) {
-    return (
-      <div className="text-center py-8 bg-gray-50 rounded-lg">
-        <Camera className="mx-auto h-8 w-8 text-gray-400" />
-        <p className="mt-2 text-sm text-gray-500">No photos available</p>
-      </div>
-    );
+    return <NoPhotosPlaceholder />;
   }
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-      <TabsList className="grid w-full grid-cols-3">
-        <TabsTrigger 
-          value="reporter" 
-          disabled={!reporterPhoto}
-          className={!reporterPhoto ? "opacity-50 cursor-not-allowed" : ""}
-        >
-          Reporter
-        </TabsTrigger>
-        <TabsTrigger 
-          value="before" 
-          disabled={!beforePhoto}
-          className={!beforePhoto ? "opacity-50 cursor-not-allowed" : ""}
-        >
-          Before
-        </TabsTrigger>
-        <TabsTrigger 
-          value="after" 
-          disabled={!afterPhoto}
-          className={!afterPhoto ? "opacity-50 cursor-not-allowed" : ""}
-        >
-          After
-        </TabsTrigger>
-      </TabsList>
+      <PhotoTabsList 
+        reporterPhoto={reporterPhoto}
+        beforePhoto={beforePhoto}
+        afterPhoto={afterPhoto}
+      />
       
       {reporterPhoto && (
-        <TabsContent value="reporter" className="mt-4">
-          <div className="rounded-md overflow-hidden border flex items-center justify-center bg-gray-50 h-64">
-            <img 
-              src={reporterPhoto} 
-              alt="Issue reported by user" 
-              className="max-w-full max-h-64 object-contain"
-            />
-          </div>
-          <p className="text-xs text-center mt-2 text-gray-500">Photo taken by reporter</p>
+        <TabsContent value="reporter">
+          <PhotoTab 
+            photo={reporterPhoto}
+            alt="Issue reported by user"
+            description="Photo taken by reporter"
+          />
         </TabsContent>
       )}
       
       {beforePhoto && (
-        <TabsContent value="before" className="mt-4">
-          <div className="rounded-md overflow-hidden border flex items-center justify-center bg-gray-50 h-64">
-            <img 
-              src={beforePhoto} 
-              alt="Before maintenance" 
-              className="max-w-full max-h-64 object-contain"
-            />
-          </div>
-          <p className="text-xs text-center mt-2 text-gray-500">Photo taken before maintenance work</p>
+        <TabsContent value="before">
+          <PhotoTab 
+            photo={beforePhoto}
+            alt="Before maintenance"
+            description="Photo taken before maintenance work"
+          />
         </TabsContent>
       )}
       
       {afterPhoto && (
-        <TabsContent value="after" className="mt-4">
-          <div className="rounded-md overflow-hidden border flex items-center justify-center bg-gray-50 h-64">
-            <img 
-              src={afterPhoto} 
-              alt="After maintenance" 
-              className="max-w-full max-h-64 object-contain"
-            />
-          </div>
-          <p className="text-xs text-center mt-2 text-gray-500">Photo taken after maintenance work</p>
+        <TabsContent value="after">
+          <PhotoTab 
+            photo={afterPhoto}
+            alt="After maintenance"
+            description="Photo taken after maintenance work"
+          />
         </TabsContent>
       )}
     </Tabs>
