@@ -2,7 +2,7 @@
 import React from "react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MOCK_USERS } from "@/data/mockUsers";
+import { useAppState } from "@/context/AppStateContext";
 
 interface JobsHeaderProps {
   jobCount?: number;
@@ -11,8 +11,11 @@ interface JobsHeaderProps {
 }
 
 const JobsHeader: React.FC<JobsHeaderProps> = ({ jobCount = 0, userId }) => {
+  // Get users from AppState
+  const { users } = useAppState();
+  
   // Find the current technician user if userId is provided
-  const technician = userId ? MOCK_USERS.find(user => user.id === userId) : null;
+  const technician = userId ? users.find(user => user.id === userId) : null;
 
   return (
     <Card>

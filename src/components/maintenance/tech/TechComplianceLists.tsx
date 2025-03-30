@@ -13,6 +13,7 @@ import { useAppState } from "@/context/AppStateContext";
 import { useComplianceLists } from "../compliance/hooks/useComplianceLists";
 import { Property } from "@/types/property";
 import EmptyComplianceLists from "./compliance/EmptyComplianceLists";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface TechComplianceListsProps {
   userId: string;
@@ -51,6 +52,9 @@ const TechComplianceLists = ({ userId }: TechComplianceListsProps) => {
   
   console.log("Final assigned lists:", assignedLists);
   
+  // Find the current user
+  const currentUser = users.find(user => user.id === userId);
+  
   const handleViewList = (list: ComplianceList) => {
     setSelectedList(list);
     setIsPreviewOpen(true);
@@ -69,8 +73,16 @@ const TechComplianceLists = ({ userId }: TechComplianceListsProps) => {
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader>
-          <CardTitle>My Compliance Lists</CardTitle>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div className="flex items-center">
+            {currentUser && (
+              <Avatar className="h-8 w-8 mr-2">
+                <AvatarImage src={currentUser.photo_url} alt={`${currentUser.first_name} ${currentUser.last_name}`} />
+                <AvatarFallback>{currentUser.first_name?.[0]}{currentUser.last_name?.[0]}</AvatarFallback>
+              </Avatar>
+            )}
+            <CardTitle>My Compliance Lists</CardTitle>
+          </div>
         </CardHeader>
         <CardContent>
           {assignedLists.length === 0 ? (
