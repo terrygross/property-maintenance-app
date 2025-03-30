@@ -36,7 +36,10 @@ const CompliancePreview = ({ list, isOpen, onOpenChange }: CompliancePreviewProp
     ? complianceItems 
     : [{ id: "default", text: "No checklist items found in description. Please edit the list to add items." }];
 
-  const fileUrl = list.fileUrl && list.fileUrl !== "#" ? list.fileUrl : "";
+  // Ensure fileUrl is properly formatted
+  const fileUrl = list.fileUrl && list.fileUrl !== "#" && list.fileUrl.trim() !== "" 
+    ? list.fileUrl
+    : "";
 
   const {
     hasAttachedFile,
