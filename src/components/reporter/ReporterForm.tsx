@@ -81,7 +81,8 @@ const ReporterForm = ({ stationId, stationProperty, propertyName }: ReporterForm
       timestamp: new Date().toISOString(),
       highPriority: values.highPriority,
       alertsSent: values.highPriority ? 1 : 0, // Track number of alerts sent for high priority jobs
-      lastAlertTime: values.highPriority ? new Date().toISOString() : null // Track when the last alert was sent
+      lastAlertTime: values.highPriority ? new Date().toISOString() : null, // Track when the last alert was sent
+      alertShown: false // Flag to track if alert has been shown to technician
     };
     
     // Get existing reports or initialize empty array

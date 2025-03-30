@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarClock, ClipboardList, PhoneCall, CheckSquare } from "lucide-react";
@@ -9,11 +8,17 @@ import TechJobsTab from "@/components/maintenance/tech/TechJobsTab";
 import TechCallOutTab from "@/components/maintenance/tech/TechCallOutTab";
 import TechComplianceLists from "@/components/maintenance/tech/TechComplianceLists";
 import ChatDrawer from "@/components/chat/ChatDrawer";
+import HighPriorityAlert from "@/components/alerts/HighPriorityAlert";
 
 const MaintenanceTech = () => {
   const [activeTab, setActiveTab] = useState("jobs");
   const [loading, setLoading] = useState(true);
+  const [highPriorityJobs, setHighPriorityJobs] = useState<any[]>([]);
   const { toast } = useToast();
+
+  // Both string "1" and the special ID for Tristan from the compliance list
+  // Using both IDs to ensure we catch all assigned compliance lists for Tristan
+  const currentUserId = "1";
 
   // Example leave requests
   const [leaveRequests, setLeaveRequests] = useState([
@@ -57,6 +62,63 @@ const MaintenanceTech = () => {
     }
   ]);
 
+  useEffect(() => {
+    // Load high priority jobs from localStorage
+    const checkHighPriorityJobs = () => {
+      try {
+        const savedJobs = localStorage.getItem('reporterJobs');
+        if (savedJobs) {
+          const parsedJobs = JSON.parse(savedJobs);
+          // Filter to only show assigned high priority jobs for this technician
+          const highPriorityAssigned = parsedJobs.filter((job: any) => 
+            job.priority === "high" && 
+            job.status === "assigned" && 
+            job.assignedTo === currentUserId
+          );
+          
+          setHighPriorityJobs(highPriorityAssigned);
+          
+          // Show toast for newly assigned high priority jobs
+          highPriorityAssigned.forEach(job => {
+            if (!job.alertShown) {
+              toast({
+                title: "High Priority Alert!",
+                description: `URGENT: ${job.title} requires immediate attention!`,
+                variant: "destructive",
+                duration: 10000, // Show for 10 seconds
+              });
+              
+              // Mark as shown in localStorage to prevent duplicate notifications
+              const updatedJobs = parsedJobs.map((j: any) => 
+                j.id === job.id ? { ...j, alertShown: true } : j
+              );
+              localStorage.setItem('reporterJobs', JSON.stringify(updatedJobs));
+            }
+          });
+        }
+      } catch (error) {
+        console.error("Error checking high priority jobs:", error);
+      }
+    };
+    
+    // For demo purposes, we'll simulate loading data
+    setTimeout(() => {
+      setLoading(false);
+      checkHighPriorityJobs();
+    }, 800);
+    
+    // Set up periodic checks
+    const interval = setInterval(checkHighPriorityJobs, 10000);
+    
+    return () => clearInterval(interval);
+  }, [toast, currentUserId]);
+
+  // Handle clicking on the alert
+  const handleAlertClick = () => {
+    // Navigate to the jobs tab
+    setActiveTab("jobs");
+  };
+
   // Function to handle photo updates for jobs
   const handleJobPhotoUpdate = (jobId: string, type: "before" | "after", imageUrl: string) => {
     setAssignedJobs(prev => 
@@ -83,30 +145,6 @@ const MaintenanceTech = () => {
     console.log(`Updated ${type} photo for job ${jobId}`);
   };
 
-  useEffect(() => {
-    // For demo purposes, we'll simulate loading data
-    // In a real implementation, we would fetch data from the backend
-    setTimeout(() => {
-      setLoading(false);
-    }, 800);
-  }, []);
-
-  // Show a high priority alert when the component mounts
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (!loading) {
-        toast({
-          title: "High Priority Alert!",
-          description: "URGENT: Electrical hazard in Main Building requires immediate attention!",
-          variant: "destructive",
-          duration: 10000, // Show for 10 seconds
-        });
-      }
-    }, 2000); // Show 2 seconds after loading completes
-    
-    return () => clearTimeout(timeout);
-  }, [loading, toast]);
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -118,17 +156,21 @@ const MaintenanceTech = () => {
     );
   }
 
-  // Both string "1" and the special ID for Tristan from the compliance list
-  // Using both IDs to ensure we catch all assigned compliance lists for Tristan
-  const currentUserId = "1";
-  // Also need to check for the ID seen in the console logs: 1743265006833
-  console.log("Using currentUserId for Tristan Gross:", currentUserId);
-
   return (
     <div className="min-h-screen bg-gray-50">
       <TechHeader userId={currentUserId} />
 
       <div className="container mx-auto p-4 md:p-6">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-bold">Technician Dashboard</h2>
+          {highPriorityJobs.length > 0 && (
+            <HighPriorityAlert 
+              count={highPriorityJobs.length} 
+              onClick={handleAlertClick}
+            />
+          )}
+        </div>
+        
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="mb-6">
             <TabsTrigger value="jobs">

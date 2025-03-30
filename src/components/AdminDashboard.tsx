@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
@@ -18,6 +18,7 @@ import ChatInterface from "./chat/ChatInterface";
 import ReporterManagement from "./reporter/ReporterManagement";
 import BillingManagement from "./billing/BillingManagement";
 import { UserRole } from "@/types/user";
+import HighPriorityAlert from "./alerts/HighPriorityAlert";
 
 interface AdminDashboardProps {
   userRole?: UserRole;
@@ -25,16 +26,59 @@ interface AdminDashboardProps {
 
 const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
   const [activeTab, setActiveTab] = useState("overview");
+  const [highPriorityJobs, setHighPriorityJobs] = useState<any[]>([]);
   
   // For demo purposes, we'll use a hardcoded admin user ID
   const currentUserId = "4"; // Admin user ID
 
+  // Check for high priority jobs in localStorage
+  useEffect(() => {
+    const checkHighPriorityJobs = () => {
+      try {
+        const savedJobs = localStorage.getItem('reporterJobs');
+        if (savedJobs) {
+          const parsedJobs = JSON.parse(savedJobs);
+          // Filter to only show unassigned high priority jobs
+          const highPriorityUnassigned = parsedJobs.filter((job: any) => 
+            job.priority === "high" && job.status === "unassigned"
+          );
+          
+          setHighPriorityJobs(highPriorityUnassigned);
+        }
+      } catch (error) {
+        console.error("Error checking high priority jobs:", error);
+      }
+    };
+    
+    // Check when component mounts
+    checkHighPriorityJobs();
+    
+    // Set up periodic checks
+    const interval = setInterval(checkHighPriorityJobs, 10000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  // Handle clicking on the alert
+  const handleAlertClick = () => {
+    // Navigate to the reporter tab which shows unassigned jobs
+    setActiveTab("reporter");
+  };
+
   return (
     <div className="container mx-auto p-4 md:p-6">
       <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
-          <p className="text-muted-foreground">Manage your maintenance system</p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
+            <p className="text-muted-foreground">Manage your maintenance system</p>
+          </div>
+          {highPriorityJobs.length > 0 && (
+            <HighPriorityAlert 
+              count={highPriorityJobs.length} 
+              onClick={handleAlertClick}
+            />
+          )}
         </div>
         <div className="flex gap-2">
           <Button className="flex items-center gap-2">
