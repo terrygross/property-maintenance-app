@@ -40,14 +40,14 @@ const AdminTabsList = () => {
       <TabsTrigger value="reporter" className="data-[state=active]:bg-primary/10">
         <span className="flex items-center gap-2">
           <Clipboard className="h-4 w-4" />
-          <span className="hidden sm:inline">Reporter Jobs</span>
+          <span className="hidden sm:inline">Reported Jobs</span>
         </span>
       </TabsTrigger>
       
       <TabsTrigger value="reporter-management" className="data-[state=active]:bg-primary/10">
         <span className="flex items-center gap-2">
           <UserCog className="h-4 w-4" />
-          <span className="hidden sm:inline">Reporter</span>
+          <span className="hidden sm:inline">Reporter Mgmt</span>
         </span>
       </TabsTrigger>
       

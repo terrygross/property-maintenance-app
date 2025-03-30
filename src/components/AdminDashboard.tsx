@@ -105,7 +105,7 @@ const AdminDashboard = () => {
         </TabsContent>
 
         <TabsContent value="reporter">
-          <AdminTab title="Reporter Jobs" description="View and assign reported maintenance issues">
+          <AdminTab title="Reported Jobs" description="View and assign reported maintenance issues">
             <ReporterJobCards />
           </AdminTab>
         </TabsContent>

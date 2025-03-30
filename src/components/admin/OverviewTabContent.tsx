@@ -43,10 +43,10 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
       />
       
       <AdminCard 
-        title="Reporter Jobs" 
+        title="Reported Jobs" 
         description="View and manage reported maintenance issues"
         icon={<Clipboard className="h-5 w-5" />}
-        buttonText="View Reporter Jobs"
+        buttonText="View Reported Jobs"
         buttonAction={() => setActiveTab("reporter")}
       />
       
