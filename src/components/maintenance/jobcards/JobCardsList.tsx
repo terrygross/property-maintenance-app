@@ -1,9 +1,10 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { MOCK_USERS } from "@/data/mockUsers";
 import { hasAdminAccess } from "@/types/user";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertTriangle, Check } from "lucide-react";
 import JobCard from "../tech/jobs/JobCard";
 import { getPriorityColor, getTechnicianJobs, updateJobStatus, updateJobPriority } from "../tech/jobs/JobUtils";
 import { useToast } from "@/hooks/use-toast";
@@ -39,8 +40,24 @@ const JobCardsList = ({ userRole = "admin" }: JobCardsListProps) => {
       setSelectedTechId(techId);
       setSelectedTechName(`${tech.first_name} ${tech.last_name}`);
       
-      // Get jobs for this technician
-      const jobs = getTechnicianJobs(techId);
+      // Get jobs for this technician from localStorage
+      let jobs = [];
+      try {
+        const savedJobs = localStorage.getItem('reporterJobs');
+        if (savedJobs) {
+          const allJobs = JSON.parse(savedJobs);
+          // Filter jobs assigned to this technician regardless of status
+          jobs = allJobs.filter((job: any) => job.assignedTo === techId);
+        }
+      } catch (error) {
+        console.error("Error loading technician jobs:", error);
+        jobs = [];
+      }
+      
+      // If no jobs in localStorage, fallback to mock data
+      if (jobs.length === 0) {
+        jobs = getTechnicianJobs(techId);
+      }
       
       // Format jobs for display
       const formattedJobs = jobs.map(job => ({

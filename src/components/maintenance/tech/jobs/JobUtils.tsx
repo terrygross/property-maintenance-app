@@ -1,4 +1,3 @@
-
 export const getPriorityColor = (priority: string) => {
   switch (priority) {
     case "high":
@@ -130,16 +129,56 @@ export const updateJobPriority = (jobId: string, priority: string): boolean => {
   return false;
 };
 
-export const getTechnicianJobs = (technicianId: string): any[] => {
+export const getTechnicianJobs = (techId: string): any[] => {
+  // First try to get jobs from localStorage
   try {
     const savedJobs = localStorage.getItem('reporterJobs');
     if (savedJobs) {
-      const parsedJobs = JSON.parse(savedJobs);
+      const allJobs = JSON.parse(savedJobs);
       // Filter jobs assigned to this technician
-      return parsedJobs.filter((job: any) => job.assignedTo === technicianId);
+      const techJobs = allJobs.filter((job: any) => job.assignedTo === techId);
+      
+      if (techJobs.length > 0) {
+        console.log("Found jobs for technician in localStorage:", techJobs);
+        return techJobs;
+      }
     }
   } catch (error) {
     console.error("Error getting technician jobs from localStorage:", error);
   }
-  return [];
+  
+  // Fallback to mock data if no jobs in localStorage
+  // Generate some mock jobs for the technician
+  const mockJobs = [
+    { 
+      id: `${techId}-job1`, 
+      title: "Fix heating system", 
+      property: "Building A", 
+      priority: "high", 
+      reportDate: new Date().toISOString(),
+      status: "assigned",
+      assignedTo: techId,
+      accepted: false
+    },
+    { 
+      id: `${techId}-job2`, 
+      title: "Replace light fixtures", 
+      property: "Building C", 
+      priority: "medium",
+      reportDate: new Date().toISOString(),
+      status: "assigned",
+      assignedTo: techId
+    },
+    { 
+      id: `${techId}-job3`, 
+      title: "Inspect water damage", 
+      property: "Building B", 
+      priority: "low",
+      reportDate: new Date().toISOString(),
+      status: "assigned",
+      assignedTo: techId
+    }
+  ];
+  
+  return mockJobs;
 };

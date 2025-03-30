@@ -22,31 +22,34 @@ const JobsList = () => {
         if (savedJobs) {
           const parsedJobs = JSON.parse(savedJobs);
           // Format the jobs to match our component's expected structure
-          const formattedJobs = parsedJobs.map((job: any) => {
-            // Find the assigned technician
-            const assignedTech = job.assignedTo ? 
-              users.find((user: any) => user.id === job.assignedTo) : null;
-            
-            return {
-              id: job.id,
-              title: job.title,
-              location: job.property,
-              priority: job.priority || "medium",
-              status: job.status,
-              assignedTo: assignedTech ? 
-                `${assignedTech.first_name} ${assignedTech.last_name}` : 
-                "Unassigned",
-              techId: job.assignedTo,
-              techRole: assignedTech?.role || "",
-              emailSent: job.emailSent || false,
-              dueDate: new Date(new Date(job.reportDate).getTime() + 7 * 24 * 60 * 60 * 1000),
-              photos: { 
-                reporter: job.imageUrl,
-                before: job.beforePhoto || "",
-                after: job.afterPhoto || ""
-              }
-            };
-          });
+          // Only include jobs that have been assigned (not unassigned)
+          const formattedJobs = parsedJobs
+            .filter((job: any) => job.status !== "unassigned")
+            .map((job: any) => {
+              // Find the assigned technician
+              const assignedTech = job.assignedTo ? 
+                users.find((user: any) => user.id === job.assignedTo) : null;
+              
+              return {
+                id: job.id,
+                title: job.title,
+                location: job.property,
+                priority: job.priority || "medium",
+                status: job.status,
+                assignedTo: assignedTech ? 
+                  `${assignedTech.first_name} ${assignedTech.last_name}` : 
+                  "Unassigned",
+                techId: job.assignedTo,
+                techRole: assignedTech?.role || "",
+                emailSent: job.emailSent || false,
+                dueDate: new Date(new Date(job.reportDate).getTime() + 7 * 24 * 60 * 60 * 1000),
+                photos: { 
+                  reporter: job.imageUrl,
+                  before: job.beforePhoto || "",
+                  after: job.afterPhoto || ""
+                }
+              };
+            });
           
           setJobs(formattedJobs);
         }
