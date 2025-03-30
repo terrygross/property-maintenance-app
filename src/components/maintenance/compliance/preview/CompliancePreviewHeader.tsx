@@ -1,63 +1,30 @@
 
-import { format } from "date-fns";
-import { CheckCircle, Download, FileText } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ComplianceList } from "../types";
 
 interface CompliancePreviewHeaderProps {
-  list: ComplianceList;
-  showOriginalFile: boolean;
-  hasAttachedFile: boolean;
-  setShowOriginalFile: (show: boolean) => void;
-  handleDownloadFile: () => void;
+  data: ComplianceList;
 }
 
-const CompliancePreviewHeader = ({
-  list,
-  showOriginalFile,
-  hasAttachedFile,
-  setShowOriginalFile,
-  handleDownloadFile,
-}: CompliancePreviewHeaderProps) => {
+const CompliancePreviewHeader = ({ data }: CompliancePreviewHeaderProps) => {
+  // Ensure propertyName has a fallback value
+  const propertyName = data.propertyName || "Unknown Property";
+  
   return (
-    <DialogHeader>
-      <DialogTitle className="flex items-center justify-between">
-        <span>{list.title}</span>
-        {hasAttachedFile && (
-          <div className="flex gap-2">
-            <Button 
-              size="sm" 
-              variant="outline" 
-              onClick={() => setShowOriginalFile(!showOriginalFile)}
-              className="flex items-center gap-1 text-xs"
-            >
-              {showOriginalFile ? <CheckCircle className="h-3 w-3" /> : <FileText className="h-3 w-3" />}
-              {showOriginalFile ? "Show Checklist" : "View Original"}
-            </Button>
-            <Button 
-              size="sm" 
-              variant="outline" 
-              onClick={handleDownloadFile}
-              className="flex items-center gap-1 text-xs"
-            >
-              <Download className="h-3 w-3" />
-              Download
-            </Button>
-          </div>
-        )}
-      </DialogTitle>
-      <DialogDescription>
-        {!showOriginalFile && (
-          <>
-            {list.description}
-            <div className="mt-1 text-xs">
-              Last updated: {format(list.updatedAt, 'MMM d, yyyy')} - Version {list.version}
-            </div>
-          </>
-        )}
-      </DialogDescription>
-    </DialogHeader>
+    <div className="mb-6">
+      <h2 className="text-2xl font-bold mb-1">{data.title}</h2>
+      <div className="text-sm text-muted-foreground mb-2">
+        <span className="font-medium">Property:</span> {propertyName}
+      </div>
+      <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+        <div>
+          <span className="font-medium">Updated:</span>{" "}
+          {new Date(data.updatedAt).toLocaleDateString()}
+        </div>
+        <div>
+          <span className="font-medium">Version:</span> {data.version}
+        </div>
+      </div>
+    </div>
   );
 };
 
