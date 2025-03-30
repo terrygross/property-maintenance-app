@@ -8,7 +8,6 @@ interface UseFileHandlersProps {
 }
 
 export const useFileHandlers = ({ fileUrl, title }: UseFileHandlersProps) => {
-  const [showOriginalFile, setShowOriginalFile] = useState(false);
   const { toast } = useToast();
   
   const hasAttachedFile = !!fileUrl && fileUrl.length > 0;
@@ -20,7 +19,7 @@ export const useFileHandlers = ({ fileUrl, title }: UseFileHandlersProps) => {
   const handleOpenOriginalFile = () => {
     if (hasAttachedFile) {
       if (canPreviewFile) {
-        setShowOriginalFile(true);
+        window.open(fileUrl, '_blank');
       } else {
         // For non-previewable files, open in a new tab or download
         window.open(fileUrl, '_blank');
@@ -45,8 +44,6 @@ export const useFileHandlers = ({ fileUrl, title }: UseFileHandlersProps) => {
   };
 
   return {
-    showOriginalFile,
-    setShowOriginalFile,
     hasAttachedFile,
     isPdf,
     isDocx,

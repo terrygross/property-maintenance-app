@@ -19,4 +19,6 @@ export interface ComplianceList {
   completedAt?: Date;  // When the list was marked as completed
   notes?: string;      // Additional notes from the technician
   deletedAt?: Date;    // When the list was moved to recycle bin
+  checkedItems?: Record<string, boolean>; // Tracks which items have been checked
+  lastUpdatedBy?: string; // User who last updated the list
 }

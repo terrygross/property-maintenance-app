@@ -9,6 +9,8 @@ import ComplianceChecklist from "./preview/ComplianceChecklist";
 import CompliancePreviewFooter from "./preview/CompliancePreviewFooter";
 import { useFileHandlers } from "./preview/useFileHandlers";
 import { usePrintHandler } from "./preview/usePrintHandler";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FileText, CheckSquare } from "lucide-react";
 
 interface CompliancePreviewProps {
   list: ComplianceList;
@@ -36,10 +38,9 @@ const CompliancePreview = ({ list, isOpen, onOpenChange }: CompliancePreviewProp
     : [{ id: "default", text: "No checklist items found in description. Please edit the list to add items." }];
 
   const {
-    showOriginalFile,
-    setShowOriginalFile,
     hasAttachedFile,
     isPdf,
+    isDocx,
     canPreviewFile,
     handleDownloadFile
   } = useFileHandlers({ fileUrl: list.fileUrl, title: list.title });
@@ -76,26 +77,64 @@ const CompliancePreview = ({ list, isOpen, onOpenChange }: CompliancePreviewProp
   const totalItems = displayItems.length;
   const progressPercentage = totalItems > 0 ? Math.round((completedCount / totalItems) * 100) : 0;
 
+  // Default tab - show document if available, otherwise show checklist
+  const defaultTab = hasAttachedFile ? "document" : "checklist";
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className={showOriginalFile && isPdf ? "sm:max-w-3xl h-[90vh]" : "sm:max-w-md"}>
+      <DialogContent className="sm:max-w-3xl h-[90vh]">
         <CompliancePreviewHeader data={list} />
         
-        {showOriginalFile && isPdf ? (
-          <ComplianceFileViewer fileUrl={list.fileUrl} title={list.title} />
-        ) : (
-          <div ref={printRef}>
-            <ComplianceChecklist
-              displayItems={displayItems}
-              completedItems={completedItems}
-              toggleItem={toggleItem}
-              progressPercentage={progressPercentage}
-            />
-          </div>
-        )}
+        <Tabs defaultValue={defaultTab} className="w-full">
+          <TabsList className="w-full grid grid-cols-2">
+            {hasAttachedFile && (
+              <TabsTrigger value="document" className="flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                <span>Document</span>
+              </TabsTrigger>
+            )}
+            <TabsTrigger value="checklist" className="flex items-center gap-2">
+              <CheckSquare className="h-4 w-4" />
+              <span>Checklist</span>
+            </TabsTrigger>
+          </TabsList>
+
+          {hasAttachedFile && (
+            <TabsContent value="document" className="h-[60vh]">
+              {canPreviewFile ? (
+                <ComplianceFileViewer fileUrl={list.fileUrl} title={list.title} />
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full">
+                  <p className="text-center mb-4">
+                    {isDocx ? 
+                      "This is a Word document that cannot be previewed directly in the browser." :
+                      "This file type cannot be previewed in the browser."}
+                  </p>
+                  <button 
+                    onClick={handleDownloadFile}
+                    className="bg-primary text-white px-4 py-2 rounded hover:bg-primary/90"
+                  >
+                    Download Document
+                  </button>
+                </div>
+              )}
+            </TabsContent>
+          )}
+          
+          <TabsContent value="checklist">
+            <div ref={printRef}>
+              <ComplianceChecklist
+                displayItems={displayItems}
+                completedItems={completedItems}
+                toggleItem={toggleItem}
+                progressPercentage={progressPercentage}
+              />
+            </div>
+          </TabsContent>
+        </Tabs>
         
         <CompliancePreviewFooter
-          showOriginalFile={showOriginalFile}
+          showOriginalFile={hasAttachedFile}
           handleSave={handleSave}
           handlePrint={handlePrint}
           onClose={() => onOpenChange(false)}

@@ -1,19 +1,21 @@
 
 import { Button } from "@/components/ui/button";
-import { Printer } from "lucide-react";
+import { Printer, Download } from "lucide-react";
 
 interface CompliancePreviewFooterProps {
   showOriginalFile: boolean;
   handleSave: () => void;
   handlePrint: () => void;
   onClose: () => void;
+  handleDownload?: () => void;
 }
 
 const CompliancePreviewFooter = ({
   showOriginalFile,
   handleSave,
   handlePrint,
-  onClose
+  onClose,
+  handleDownload
 }: CompliancePreviewFooterProps) => {
   return (
     <div className="flex justify-between">
@@ -21,22 +23,28 @@ const CompliancePreviewFooter = ({
         <Button variant="outline" onClick={onClose}>
           Cancel
         </Button>
-        {!showOriginalFile && (
+        {showOriginalFile && handleDownload && (
           <Button 
             variant="outline" 
-            onClick={handlePrint}
+            onClick={handleDownload}
             className="flex items-center gap-1"
           >
-            <Printer className="h-4 w-4" />
-            Print
+            <Download className="h-4 w-4" />
+            Download
           </Button>
         )}
-      </div>
-      {!showOriginalFile && (
-        <Button onClick={handleSave}>
-          Save Progress
+        <Button 
+          variant="outline" 
+          onClick={handlePrint}
+          className="flex items-center gap-1"
+        >
+          <Printer className="h-4 w-4" />
+          Print
         </Button>
-      )}
+      </div>
+      <Button onClick={handleSave}>
+        Save Progress
+      </Button>
     </div>
   );
 };
