@@ -5,12 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import JobPhotosViewer from "./JobPhotosViewer";
+import { Badge } from "@/components/ui/badge";
+import { Mail, User, Image } from "lucide-react";
+import { useAppState } from "@/context/AppStateContext";
 
 const JobsList = () => {
   const [showJobDetails, setShowJobDetails] = useState(false);
   const [selectedJob, setSelectedJob] = useState<any>(null);
   const [jobs, setJobs] = useState<any[]>([]);
   const { toast } = useToast();
+  const { users } = useAppState();
   
   // Load jobs from localStorage on component mount
   useEffect(() => {
@@ -22,39 +26,37 @@ const JobsList = () => {
         const assignedJobs = parsedJobs.filter((job: any) => job.status === "assigned");
         
         // Format the jobs to match our component's expected structure
-        const formattedJobs = assignedJobs.map((job: any) => ({
-          id: job.id,
-          title: job.title,
-          location: job.property,
-          priority: job.priority || "medium",
-          status: job.status,
-          assignedTo: job.assignedTo ? 
-            MOCK_USERS.find((user: any) => user.id === job.assignedTo)?.first_name + " " + 
-            MOCK_USERS.find((user: any) => user.id === job.assignedTo)?.last_name : 
-            "Unassigned",
-          dueDate: new Date(new Date(job.reportDate).getTime() + 7 * 24 * 60 * 60 * 1000),
-          photos: { 
-            reporter: job.imageUrl,
-            before: job.beforePhoto || "",
-            after: job.afterPhoto || ""
-          }
-        }));
+        const formattedJobs = assignedJobs.map((job: any) => {
+          // Find the assigned technician
+          const assignedTech = job.assignedTo ? 
+            users.find((user: any) => user.id === job.assignedTo) : null;
+          
+          return {
+            id: job.id,
+            title: job.title,
+            location: job.property,
+            priority: job.priority || "medium",
+            status: job.status,
+            assignedTo: assignedTech ? 
+              `${assignedTech.first_name} ${assignedTech.last_name}` : 
+              "Unassigned",
+            techRole: assignedTech?.role || "",
+            emailSent: job.emailSent || false,
+            dueDate: new Date(new Date(job.reportDate).getTime() + 7 * 24 * 60 * 60 * 1000),
+            photos: { 
+              reporter: job.imageUrl,
+              before: job.beforePhoto || "",
+              after: job.afterPhoto || ""
+            }
+          };
+        });
         
         setJobs(formattedJobs);
       }
     } catch (error) {
       console.error("Error loading assigned jobs:", error);
     }
-  }, []);
-  
-  // Mock user data for displaying assigned technicians
-  const MOCK_USERS = [
-    { id: "1", first_name: "John", last_name: "Doe" },
-    { id: "2", first_name: "Jane", last_name: "Smith" },
-    { id: "3", first_name: "Mike", last_name: "Johnson" },
-    { id: "4", first_name: "Admin", last_name: "User" },
-    { id: "5", first_name: "Contractor", last_name: "Service" }
-  ];
+  }, [users]);
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -102,7 +104,7 @@ const JobsList = () => {
                     <div>
                       <div className="flex items-center gap-2">
                         <h3 className="font-medium">{job.title}</h3>
-                        <span className={`text-xs px-2 py-1 rounded-full ${getPriorityColor(job.priority)}`}>
+                        <span className={`text-xs px-2 py-1 rounded-full text-white ${getPriorityColor(job.priority)}`}>
                           {job.priority}
                         </span>
                         <span className={`text-xs px-2 py-1 rounded-full ${getStatusBadge(job.status)}`}>
@@ -113,10 +115,32 @@ const JobsList = () => {
                       <p className="text-xs mt-1">Assigned to: {job.assignedTo}</p>
                       <p className="text-xs">Due: {job.dueDate.toLocaleDateString()}</p>
                       
+                      {/* Email status badge for contractors */}
+                      {job.techRole === "contractor" && (
+                        <div className="mt-2">
+                          <Badge 
+                            variant={job.emailSent ? "outline" : "secondary"} 
+                            className="flex items-center gap-1 text-xs"
+                          >
+                            <Mail className="h-3 w-3" />
+                            {job.emailSent ? "Email Sent" : "Email Pending"}
+                          </Badge>
+                        </div>
+                      )}
+                      
                       {/* Display indicators for photos */}
-                      <div className="mt-2 flex gap-2">
+                      <div className="mt-2 flex gap-2 items-center">
                         {job.photos?.reporter && (
-                          <span className="text-xs bg-purple-50 px-2 py-1 rounded">Reporter Photo ✓</span>
+                          <div className="flex items-center">
+                            <div className="h-10 w-10 rounded-md overflow-hidden border mr-2">
+                              <img 
+                                src={job.photos.reporter} 
+                                alt="Reporter" 
+                                className="h-full w-full object-cover"
+                              />
+                            </div>
+                            <span className="text-xs bg-purple-50 px-2 py-1 rounded">Reporter Photo</span>
+                          </div>
                         )}
                         {job.photos?.before && (
                           <span className="text-xs bg-blue-50 px-2 py-1 rounded">Before Photo ✓</span>
@@ -166,6 +190,17 @@ const JobsList = () => {
                 <div>
                   <p className="text-sm font-medium">Assigned To</p>
                   <p className="text-sm">{selectedJob.assignedTo}</p>
+                  
+                  {/* Email status for contractors */}
+                  {selectedJob.techRole === "contractor" && (
+                    <Badge 
+                      variant={selectedJob.emailSent ? "outline" : "secondary"} 
+                      className="mt-1 flex items-center gap-1 text-xs"
+                    >
+                      <Mail className="h-3 w-3" />
+                      {selectedJob.emailSent ? "Email Sent" : "Email Pending"}
+                    </Badge>
+                  )}
                 </div>
                 <div>
                   <p className="text-sm font-medium">Due Date</p>
