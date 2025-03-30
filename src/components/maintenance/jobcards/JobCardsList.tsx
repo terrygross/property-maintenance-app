@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +9,7 @@ import JobCard from "../tech/jobs/JobCard";
 import { getPriorityColor, getTechnicianJobs, updateJobStatus, updateJobPriority } from "../tech/jobs/JobUtils";
 import { useToast } from "@/hooks/use-toast";
 import { useAppState } from "@/context/AppStateContext";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface JobCardsListProps {
   userRole?: string;
@@ -17,12 +17,10 @@ interface JobCardsListProps {
 
 const JobCardsList = ({ userRole = "admin" }: JobCardsListProps) => {
   const { users } = useAppState();
-  // Filter only in-house maintenance technicians (exclude contractors)
   const allMaintenanceTechs = users.filter(user => 
     user.role === "maintenance_tech"
   );
   
-  // For Basic plan, we should only show 6 technicians
   const maintenanceTechs = allMaintenanceTechs.slice(0, 6);
   
   const [showTechJobs, setShowTechJobs] = useState(false);
@@ -33,13 +31,10 @@ const JobCardsList = ({ userRole = "admin" }: JobCardsListProps) => {
   const [showJobDetails, setShowJobDetails] = useState(false);
   const { toast } = useToast();
   
-  // State to track job updates
   const [jobsUpdated, setJobsUpdated] = useState(0);
   
-  // Check if user has admin access
   const isAdminOrManager = hasAdminAccess(userRole as any);
 
-  // Effect to refresh jobs when localStorage changes
   useEffect(() => {
     const handleStorageChange = () => {
       console.log("Storage changed, refreshing jobs...");
@@ -58,11 +53,9 @@ const JobCardsList = ({ userRole = "admin" }: JobCardsListProps) => {
     };
   }, [selectedTechId]);
 
-  // Function to refresh tech jobs
   const refreshTechJobs = (techId: string) => {
     const jobs = getTechnicianJobs(techId);
     
-    // Format jobs for display
     const formattedJobs = jobs.map(job => ({
       id: job.id,
       title: job.title,
@@ -82,25 +75,21 @@ const JobCardsList = ({ userRole = "admin" }: JobCardsListProps) => {
     setTechJobs(formattedJobs);
   };
 
-  // Handle view jobs button click
   const handleViewJobs = (techId: string) => {
     const tech = maintenanceTechs.find(t => t.id === techId);
     if (tech) {
       setSelectedTechId(techId);
       setSelectedTechName(`${tech.first_name} ${tech.last_name}`);
       
-      // Get jobs for this technician
       refreshTechJobs(techId);
       setShowTechJobs(true);
     }
   };
 
-  // Handle job status update
   const handleUpdateStatus = (jobId: string, status: string) => {
     const success = updateJobStatus(jobId, status);
     
     if (success) {
-      // Update local state
       setTechJobs(prevJobs => 
         prevJobs.map(job => 
           job.id === jobId 
@@ -122,12 +111,10 @@ const JobCardsList = ({ userRole = "admin" }: JobCardsListProps) => {
     }
   };
   
-  // Handle updating job priority
   const handleUpdatePriority = (jobId: string, priority: string) => {
     const success = updateJobPriority(jobId, priority);
     
     if (success) {
-      // Update local state
       setTechJobs(prevJobs => 
         prevJobs.map(job => 
           job.id === jobId 
@@ -150,14 +137,11 @@ const JobCardsList = ({ userRole = "admin" }: JobCardsListProps) => {
   
   const handleViewReporterImage = (job: any) => {
     setSelectedJob(job);
-    // For simplicity, we'll just show job details dialog
     setShowJobDetails(true);
   };
 
-  // Handle assign new job button click
   const handleAssignJob = () => {
     console.log("Assign new job clicked");
-    // This is now handled in AdminDashboard
   };
 
   return (
@@ -176,12 +160,18 @@ const JobCardsList = ({ userRole = "admin" }: JobCardsListProps) => {
           maintenanceTechs.map(tech => (
             <div key={tech.id} className="border rounded-md p-4">
               <div className="flex justify-between items-center">
-                <div>
-                  <p className="font-medium">{tech.first_name} {tech.last_name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {tech.title} 
-                    {tech.role === "contractor" && " (Contractor)"}
-                  </p>
+                <div className="flex items-center">
+                  <Avatar className="h-10 w-10 mr-3">
+                    <AvatarImage src={tech.photo_url} alt={`${tech.first_name} ${tech.last_name}`} />
+                    <AvatarFallback>{tech.first_name?.[0]}{tech.last_name?.[0]}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-medium">{tech.first_name} {tech.last_name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {tech.title} 
+                      {tech.role === "contractor" && " (Contractor)"}
+                    </p>
+                  </div>
                 </div>
                 <Button size="sm" onClick={() => handleViewJobs(tech.id)}>View Jobs</Button>
               </div>
@@ -194,7 +184,6 @@ const JobCardsList = ({ userRole = "admin" }: JobCardsListProps) => {
         )}
       </div>
       
-      {/* Technician Jobs Dialog */}
       <Dialog open={showTechJobs} onOpenChange={setShowTechJobs}>
         <DialogContent className="sm:max-w-[800px] max-h-[80vh] overflow-y-auto">
           <DialogHeader>
@@ -228,7 +217,6 @@ const JobCardsList = ({ userRole = "admin" }: JobCardsListProps) => {
         </DialogContent>
       </Dialog>
       
-      {/* Job Details Dialog */}
       <Dialog open={showJobDetails} onOpenChange={setShowJobDetails}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
@@ -259,11 +247,9 @@ const JobCardsList = ({ userRole = "admin" }: JobCardsListProps) => {
                   </div>
                 </div>
                 
-                {/* Photos section */}
                 <div className="border-t pt-4">
                   <h4 className="font-medium mb-2">Job Photos</h4>
                   
-                  {/* Reporter photo */}
                   {selectedJob.photos?.reporter && (
                     <div className="mb-4">
                       <p className="text-sm font-medium mb-1">Reporter Photo:</p>
@@ -277,7 +263,6 @@ const JobCardsList = ({ userRole = "admin" }: JobCardsListProps) => {
                     </div>
                   )}
                   
-                  {/* Before photo */}
                   {selectedJob.photos?.before && (
                     <div className="mb-4">
                       <p className="text-sm font-medium mb-1">Before Photo:</p>
@@ -291,7 +276,6 @@ const JobCardsList = ({ userRole = "admin" }: JobCardsListProps) => {
                     </div>
                   )}
                   
-                  {/* After photo */}
                   {selectedJob.photos?.after && (
                     <div className="mb-4">
                       <p className="text-sm font-medium mb-1">After Photo:</p>
@@ -305,7 +289,6 @@ const JobCardsList = ({ userRole = "admin" }: JobCardsListProps) => {
                     </div>
                   )}
                   
-                  {/* After photo required message */}
                   {!selectedJob.photos?.after && selectedJob.status !== "completed" && (
                     <div className="mt-2 flex items-center gap-2 text-yellow-600 bg-yellow-50 p-2 rounded-md">
                       <AlertTriangle className="h-4 w-4" />
@@ -314,7 +297,6 @@ const JobCardsList = ({ userRole = "admin" }: JobCardsListProps) => {
                   )}
                 </div>
                 
-                {/* Action buttons */}
                 <div className="flex justify-between">
                   {selectedJob.status !== "completed" && selectedJob.photos?.after && (
                     <Button 

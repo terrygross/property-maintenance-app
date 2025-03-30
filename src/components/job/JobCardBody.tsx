@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Clock, User, Mail, Bell } from "lucide-react";
 import { formatStatus } from "./jobCardUtils";
 import { useAppState } from "@/context/AppStateContext";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface JobCardBodyProps {
   description: string;
@@ -57,7 +58,10 @@ const JobCardBody = ({
           )}
           
           <div className="flex items-center gap-1 text-gray-500">
-            <User className="h-3 w-3" />
+            <Avatar className="h-5 w-5 mr-1">
+              <AvatarImage src={assignedTech.photo_url} alt={`${assignedTech.first_name} ${assignedTech.last_name}`} />
+              <AvatarFallback>{assignedTech.first_name?.[0]}{assignedTech.last_name?.[0]}</AvatarFallback>
+            </Avatar>
             {assignedTech.first_name} {assignedTech.last_name}
           </div>
         </div>

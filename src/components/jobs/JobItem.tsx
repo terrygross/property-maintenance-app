@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Mail, ImageIcon, Check } from "lucide-react";
 import { getPriorityColor, getStatusBadge, Job } from "./jobsListUtils";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAppState } from "@/context/AppStateContext";
 
 interface JobItemProps {
   job: Job;
@@ -14,6 +16,10 @@ interface JobItemProps {
 const JobItem: React.FC<JobItemProps> = ({ job, onViewDetails, onMarkComplete }) => {
   const isCompleted = job.status === "completed";
   const hasAfterPhoto = Boolean(job.photos?.after);
+  const { users } = useAppState();
+  
+  // Find the assigned technician if there is one
+  const assignedTech = job.assignedToId ? users.find(user => user.id === job.assignedToId) : null;
   
   const handleMarkComplete = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -36,7 +42,19 @@ const JobItem: React.FC<JobItemProps> = ({ job, onViewDetails, onMarkComplete })
             </span>
           </div>
           <p className="text-sm text-muted-foreground">{job.location}</p>
-          <p className="text-xs mt-1">Assigned to: {job.assignedTo}</p>
+          <div className="text-xs mt-1 flex items-center">
+            <span>Assigned to: </span>
+            {assignedTech && (
+              <span className="flex items-center ml-1">
+                <Avatar className="h-5 w-5 mr-1">
+                  <AvatarImage src={assignedTech.photo_url} alt={`${assignedTech.first_name} ${assignedTech.last_name}`} />
+                  <AvatarFallback>{assignedTech.first_name?.[0]}{assignedTech.last_name?.[0]}</AvatarFallback>
+                </Avatar>
+                {job.assignedTo}
+              </span>
+            )}
+            {!assignedTech && job.assignedTo}
+          </div>
           <p className="text-xs">Due: {job.dueDate.toLocaleDateString()}</p>
           
           {/* Email status badge for contractors */}

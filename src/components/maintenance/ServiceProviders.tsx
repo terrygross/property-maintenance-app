@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useServiceProviders } from "@/hooks/useServiceProviders";
 import ServiceProviderDialog from "./providers/ServiceProviderDialog";
 import ServiceProviderTable from "./providers/ServiceProviderTable";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Contractors = () => {
   const {
@@ -21,7 +22,9 @@ const Contractors = () => {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-lg font-medium">Contractors</h2>
+        <div className="flex items-center">
+          <h2 className="text-lg font-medium">Contractors</h2>
+        </div>
         <Button onClick={openAddDialog}>
           <Plus className="h-4 w-4 mr-2" />
           Add Contractor
