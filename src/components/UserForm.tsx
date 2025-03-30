@@ -18,8 +18,19 @@ interface UserFormProps {
   defaultRole?: UserRole;
 }
 
-const UserForm = ({ user, onSave, onCancel, defaultRole }: UserFormProps) => {
+const UserForm = ({ 
+  user, 
+  onSave, 
+  onCancel,
+  defaultRole
+}: UserFormProps) => {
   const [photoUrl, setPhotoUrl] = useState(user?.photo_url || "");
+  
+  // Ensure defaultRole is compatible with form schema
+  const safeDefaultRole = defaultRole && 
+    ["admin", "maintenance_tech", "maintenance_manager", "reporter"].includes(defaultRole) ? 
+    defaultRole as "admin" | "maintenance_tech" | "maintenance_manager" | "reporter" : 
+    "maintenance_tech";
   
   const form = useForm<UserFormValues>({
     resolver: zodResolver(userFormSchema),
@@ -29,7 +40,11 @@ const UserForm = ({ user, onSave, onCancel, defaultRole }: UserFormProps) => {
       title: user?.title || "",
       email: user?.email || "",
       phone: user?.phone || "",
-      role: user?.role || defaultRole || "maintenance_tech",
+      role: user?.role ? 
+        (["admin", "maintenance_tech", "maintenance_manager", "reporter"].includes(user.role) ? 
+          user.role as "admin" | "maintenance_tech" | "maintenance_manager" | "reporter" : 
+          "maintenance_tech") : 
+        safeDefaultRole,
       photo_url: user?.photo_url || "",
     },
   });

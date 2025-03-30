@@ -45,7 +45,13 @@ const CompliancePreview = ({ list, isOpen, onOpenChange }: CompliancePreviewProp
   } = useFileHandlers({ fileUrl: list.fileUrl, title: list.title });
 
   const { printRef, handlePrint } = usePrintHandler({ 
-    list, 
+    list: {
+      title: list.title,
+      description: list.description,
+      propertyName: list.propertyName || "Unknown Property",
+      updatedAt: new Date(list.updatedAt),
+      version: list.version || 1
+    }, 
     displayItems, 
     completedItems 
   });
@@ -73,13 +79,7 @@ const CompliancePreview = ({ list, isOpen, onOpenChange }: CompliancePreviewProp
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className={showOriginalFile && isPdf ? "sm:max-w-3xl h-[90vh]" : "sm:max-w-md"}>
-        <CompliancePreviewHeader 
-          list={list}
-          showOriginalFile={showOriginalFile}
-          hasAttachedFile={hasAttachedFile}
-          setShowOriginalFile={setShowOriginalFile}
-          handleDownloadFile={handleDownloadFile}
-        />
+        <CompliancePreviewHeader data={list} />
         
         {showOriginalFile && isPdf ? (
           <ComplianceFileViewer fileUrl={list.fileUrl} title={list.title} />

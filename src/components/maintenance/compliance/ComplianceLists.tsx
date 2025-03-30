@@ -7,7 +7,7 @@ import ComplianceForm from "./ComplianceForm";
 import PropertySelector from "./PropertySelector";
 import PropertyDisplay from "./PropertyDisplay";
 import ComplianceListActions from "./ComplianceListActions";
-import { useComplianceLists } from "./useComplianceLists";
+import { useComplianceLists } from "./hooks/useComplianceLists";
 import CompliancePreview from "./CompliancePreview";
 import ComplianceAssignDialog from "./ComplianceAssignDialog";
 import { useState } from "react";

@@ -10,7 +10,7 @@ import { ComplianceList } from "../compliance/types";
 import CompliancePreview from "../compliance/CompliancePreview";
 import ComplianceComplete from "../compliance/ComplianceComplete";
 import { useAppState } from "@/context/AppStateContext";
-import { useComplianceLists } from "../compliance/useComplianceLists";
+import { useComplianceLists } from "../compliance/hooks/useComplianceLists";
 import { Property } from "@/types/property";
 import EmptyComplianceLists from "./compliance/EmptyComplianceLists";
 
