@@ -1,6 +1,6 @@
 
 import { useState, useRef } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { ComplianceList } from "./types";
 import CompliancePreviewHeader from "./preview/CompliancePreviewHeader";
@@ -80,9 +80,15 @@ const CompliancePreview = ({ list, isOpen, onOpenChange }: CompliancePreviewProp
   // Default tab - show document if available, otherwise show checklist
   const defaultTab = hasAttachedFile ? "document" : "checklist";
 
+  // Log the file URL to diagnose any issues
+  console.log("CompliancePreview fileUrl:", list.fileUrl);
+  console.log("Is PDF:", isPdf);
+  console.log("Can preview file:", canPreviewFile);
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-3xl h-[90vh]">
+        <DialogTitle className="sr-only">{list.title} Preview</DialogTitle>
         <CompliancePreviewHeader data={list} />
         
         <Tabs defaultValue={defaultTab} className="w-full">
@@ -138,6 +144,7 @@ const CompliancePreview = ({ list, isOpen, onOpenChange }: CompliancePreviewProp
           handleSave={handleSave}
           handlePrint={handlePrint}
           onClose={() => onOpenChange(false)}
+          handleDownload={handleDownloadFile}
         />
       </DialogContent>
     </Dialog>

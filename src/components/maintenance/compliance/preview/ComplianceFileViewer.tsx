@@ -1,5 +1,5 @@
 
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 
 interface ComplianceFileViewerProps {
   fileUrl: string;
@@ -12,14 +12,20 @@ const ComplianceFileViewer = ({ fileUrl, title }: ComplianceFileViewerProps) => 
   // Determine if the file is a PDF based on its extension
   const isPdf = fileUrl.toLowerCase().endsWith('.pdf');
 
+  useEffect(() => {
+    // Log when the component mounts with a file URL
+    console.log("ComplianceFileViewer mounted with URL:", fileUrl);
+  }, [fileUrl]);
+
   return (
     <div className="flex-1 w-full h-full">
       {isPdf ? (
         <iframe 
           ref={fileRef}
-          src={fileUrl} 
+          src={fileUrl + "#toolbar=1"} 
           className="w-full h-full border rounded"
           title={title}
+          sandbox="allow-scripts allow-same-origin allow-forms"
         />
       ) : (
         <div className="flex flex-col items-center justify-center h-full">
