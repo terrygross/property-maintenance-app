@@ -3,7 +3,8 @@ import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Users, Building, Wrench, BarChart, CreditCard, 
   AlertTriangle, ClipboardList, Calendar, Settings, 
-  ArchiveRestore, MessageCircle, Clipboard, UserCog
+  ArchiveRestore, MessageCircle, Clipboard, UserCog,
+  CheckSquare
 } from "lucide-react";
 
 const AdminTabsList = () => {
@@ -34,6 +35,13 @@ const AdminTabsList = () => {
         <span className="flex items-center gap-2">
           <Wrench className="h-4 w-4" />
           <span className="hidden sm:inline">Maintenance</span>
+        </span>
+      </TabsTrigger>
+      
+      <TabsTrigger value="compliance" className="data-[state=active]:bg-primary/10">
+        <span className="flex items-center gap-2">
+          <CheckSquare className="h-4 w-4" />
+          <span className="hidden sm:inline">Compliance</span>
         </span>
       </TabsTrigger>
       

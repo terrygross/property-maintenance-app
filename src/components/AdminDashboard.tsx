@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -26,6 +25,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useAppState } from "@/context/AppStateContext";
+import ComplianceLists from "./maintenance/compliance/ComplianceLists";
 
 interface AdminDashboardProps {
   userRole?: UserRole;
@@ -43,22 +43,18 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
   const { toast } = useToast();
   const { users, properties } = useAppState();
   
-  // For demo purposes, we'll use a hardcoded admin user ID
-  const currentUserId = "4"; // Admin user ID
+  const currentUserId = "4";
 
-  // Filter users to get only technicians (including Nishad)
   const technicians = users.filter(user => 
     user.role === "maintenance_tech" || user.role === "contractor"
   );
 
-  // Check for high priority jobs in localStorage
   useEffect(() => {
     const checkHighPriorityJobs = () => {
       try {
         const savedJobs = localStorage.getItem('reporterJobs');
         if (savedJobs) {
           const parsedJobs = JSON.parse(savedJobs);
-          // Filter to only show unassigned high priority jobs
           const highPriorityUnassigned = parsedJobs.filter((job: any) => 
             job.priority === "high" && job.status === "unassigned"
           );
@@ -70,22 +66,17 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
       }
     };
     
-    // Check when component mounts
     checkHighPriorityJobs();
     
-    // Set up periodic checks
     const interval = setInterval(checkHighPriorityJobs, 10000);
     
     return () => clearInterval(interval);
   }, []);
 
-  // Handle clicking on the alert
   const handleAlertClick = () => {
-    // Navigate to the reporter tab which shows unassigned jobs
     setActiveTab("reporter");
   };
 
-  // Handle creating a new task
   const handleCreateTask = () => {
     if (!jobTitle || !jobLocation || selectedTechs.length === 0) {
       toast({
@@ -97,11 +88,9 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
     }
 
     try {
-      // Get existing jobs from localStorage or initialize an empty array
       const savedJobs = localStorage.getItem('reporterJobs');
       const jobs = savedJobs ? JSON.parse(savedJobs) : [];
       
-      // Create a new job for each selected technician
       selectedTechs.forEach(techId => {
         const newJob = {
           id: `job-${Date.now()}-${techId}`,
@@ -116,20 +105,16 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
           emailSent: true
         };
         
-        // Add the new job to the array
         jobs.push(newJob);
       });
       
-      // Save all jobs back to localStorage
       localStorage.setItem('reporterJobs', JSON.stringify(jobs));
       
-      // Notify the user
       toast({
         title: "Task created",
         description: `The new task has been assigned to ${selectedTechs.length} technician(s).`,
       });
       
-      // Reset form and close dialog
       setJobTitle("");
       setJobLocation("");
       setJobDescription("");
@@ -137,11 +122,9 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
       setSelectedTechs([]);
       setShowNewTaskDialog(false);
       
-      // Dispatch a custom event to notify other components about job updates
       const event = new Event('jobsUpdated');
       document.dispatchEvent(event);
       
-      // Also dispatch storage event for backward compatibility
       window.dispatchEvent(new Event('storage'));
     } catch (error) {
       console.error("Error creating task:", error);
@@ -153,7 +136,6 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
     }
   };
 
-  // Handle technician selection
   const handleTechnicianSelection = (techId: string) => {
     setSelectedTechs(prev => {
       if (prev.includes(techId)) {
@@ -212,6 +194,12 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
         <TabsContent value="maintenance">
           <AdminTab title="Maintenance Settings" description="Configure maintenance system parameters">
             <MaintenanceConfig />
+          </AdminTab>
+        </TabsContent>
+
+        <TabsContent value="compliance">
+          <AdminTab title="Compliance Lists" description="Manage property compliance lists and assign them to technicians">
+            <ComplianceLists />
           </AdminTab>
         </TabsContent>
 
@@ -281,7 +269,6 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
         </TabsContent>
       </Tabs>
       
-      {/* New Task Dialog */}
       <Dialog open={showNewTaskDialog} onOpenChange={setShowNewTaskDialog}>
         <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
