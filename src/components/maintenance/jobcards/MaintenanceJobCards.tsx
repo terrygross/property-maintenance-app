@@ -1,11 +1,11 @@
 
 import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent } from "@/components/ui/card";
-import JobCardsList from "./JobCardsList";
-import LeaveCalendar from "./LeaveCalendar";
-import CallOutSchedule from "./CallOutSchedule";
 import { hasAdminAccess, UserRole } from "@/types/user";
+import { useLeaveRequests } from "@/hooks/useLeaveRequests";
+import JobCardsTabContent from "./tabs/JobCardsTabContent";
+import LeaveTabContent from "./tabs/LeaveTabContent";
+import CallOutTabContent from "./tabs/CallOutTabContent";
 
 interface MaintenanceJobCardsProps {
   userRole?: UserRole;
@@ -13,32 +13,8 @@ interface MaintenanceJobCardsProps {
 
 const MaintenanceJobCards = ({ userRole = "admin" }: MaintenanceJobCardsProps) => {
   const [activeTab, setActiveTab] = useState("leave");
-  const [leaveRequests, setLeaveRequests] = useState([
-    { id: "1", userId: "1", startDate: new Date(2023, 11, 20), endDate: new Date(2023, 11, 24), status: "pending", reason: "Family vacation" },
-    { id: "2", userId: "2", startDate: new Date(2023, 11, 27), endDate: new Date(2023, 11, 31), status: "pending", reason: "Personal time" },
-    { id: "3", userId: "3", startDate: new Date(2024, 0, 3), endDate: new Date(2024, 0, 10), status: "pending", reason: "Medical leave" },
-  ]);
-
-  const handleLeaveAction = (leaveId: string, action: "approve" | "deny" | "reschedule", newDates?: { startDate: Date, endDate: Date }) => {
-    setLeaveRequests(prevRequests => 
-      prevRequests.map(request => {
-        if (request.id === leaveId) {
-          const updatedRequest = { 
-            ...request, 
-            status: action === "approve" ? "approved" : action === "deny" ? "denied" : "pending"
-          };
-          
-          if (action === "reschedule" && newDates) {
-            updatedRequest.startDate = newDates.startDate;
-            updatedRequest.endDate = newDates.endDate;
-          }
-          
-          return updatedRequest;
-        }
-        return request;
-      })
-    );
-  };
+  const { leaveRequests, handleLeaveAction } = useLeaveRequests();
+  const isAdmin = hasAdminAccess(userRole);
 
   return (
     <div className="space-y-4">
@@ -50,31 +26,19 @@ const MaintenanceJobCards = ({ userRole = "admin" }: MaintenanceJobCardsProps) =
         </TabsList>
         
         <TabsContent value="jobcards">
-          <Card>
-            <CardContent className="pt-6">
-              <JobCardsList userRole={userRole} />
-            </CardContent>
-          </Card>
+          <JobCardsTabContent userRole={userRole} />
         </TabsContent>
         
         <TabsContent value="leave">
-          <Card>
-            <CardContent className="pt-6">
-              <LeaveCalendar 
-                leaveRequests={leaveRequests} 
-                onLeaveAction={handleLeaveAction} 
-                isAdmin={hasAdminAccess(userRole)} 
-              />
-            </CardContent>
-          </Card>
+          <LeaveTabContent 
+            leaveRequests={leaveRequests} 
+            onLeaveAction={handleLeaveAction} 
+            isAdmin={isAdmin} 
+          />
         </TabsContent>
         
         <TabsContent value="callout">
-          <Card>
-            <CardContent className="pt-6">
-              <CallOutSchedule />
-            </CardContent>
-          </Card>
+          <CallOutTabContent />
         </TabsContent>
       </Tabs>
     </div>
