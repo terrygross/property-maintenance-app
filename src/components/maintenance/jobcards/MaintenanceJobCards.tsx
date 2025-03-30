@@ -6,7 +6,11 @@ import JobCardsList from "./JobCardsList";
 import LeaveCalendar from "./LeaveCalendar";
 import CallOutSchedule from "./CallOutSchedule";
 
-const MaintenanceJobCards = () => {
+interface MaintenanceJobCardsProps {
+  userRole?: string;
+}
+
+const MaintenanceJobCards = ({ userRole = "admin" }: MaintenanceJobCardsProps) => {
   const [activeTab, setActiveTab] = useState("leave");
   const [leaveRequests, setLeaveRequests] = useState([
     { id: "1", userId: "1", startDate: new Date(2023, 11, 20), endDate: new Date(2023, 11, 24), status: "pending", reason: "Family vacation" },
@@ -47,7 +51,7 @@ const MaintenanceJobCards = () => {
         <TabsContent value="jobcards">
           <Card>
             <CardContent className="pt-6">
-              <JobCardsList />
+              <JobCardsList userRole={userRole} />
             </CardContent>
           </Card>
         </TabsContent>
@@ -58,7 +62,7 @@ const MaintenanceJobCards = () => {
               <LeaveCalendar 
                 leaveRequests={leaveRequests} 
                 onLeaveAction={handleLeaveAction} 
-                isAdmin={true} 
+                isAdmin={hasAdminAccess(userRole as any)} 
               />
             </CardContent>
           </Card>

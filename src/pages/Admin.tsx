@@ -6,13 +6,16 @@ import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, ShieldAlert } from "lucide-react";
+import { hasAdminAccess } from "@/types/user";
+import { useNavigate } from "react-router-dom";
 
 const Admin = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // For this demo, we'll simulate a check for admin roles
@@ -23,8 +26,34 @@ const Admin = () => {
         setUser(data.user);
         
         // In a real implementation, we would check if the user has admin role
-        // For demo purposes, we'll set isAdmin to true
-        setIsAdmin(true);
+        // Simulating role check for demo purposes
+        const userResponse = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', data.user?.id)
+          .single();
+        
+        if (userResponse.data) {
+          const hasAccess = hasAdminAccess(userResponse.data.role);
+          setIsAdmin(hasAccess);
+          
+          if (!hasAccess) {
+            toast({
+              title: "Access Denied",
+              description: "You don't have permission to access the admin panel.",
+              variant: "destructive",
+            });
+            
+            // Redirect to appropriate page based on role
+            if (userResponse.data.role === "maintenance_tech" || userResponse.data.role === "contractor") {
+              navigate("/maintenance");
+            } else if (userResponse.data.role === "reporter") {
+              navigate("/reporter");
+            } else {
+              navigate("/");
+            }
+          }
+        }
       } catch (error) {
         console.error("Error checking user:", error);
       } finally {
@@ -35,10 +64,11 @@ const Admin = () => {
     // Since this is just a demo, we'll set loading to false without authentication
     // In a real implementation, we would use checkUser()
     setLoading(false);
+    setIsAdmin(true); // For demo purposes
     
     // Commented out for demo purposes
     // checkUser();
-  }, []);
+  }, [toast, navigate]);
 
   const handleLogin = async () => {
     try {
@@ -89,6 +119,7 @@ const Admin = () => {
           <AlertTitle className="text-xs font-medium">Demo Mode</AlertTitle>
           <AlertDescription className="text-xs">
             In production, this admin dashboard would require authentication and proper role verification.
+            Only Admin and Maintenance Manager roles have access.
           </AlertDescription>
         </Alert>
       </div>
@@ -106,6 +137,23 @@ const Admin = () => {
   //         </p>
   //         <Button className="w-full" onClick={handleLogin}>
   //           Login
+  //         </Button>
+  //       </div>
+  //     </div>
+  //   );
+  // }
+
+  // if (user && !isAdmin) {
+  //   return (
+  //     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+  //       <div className="p-8 rounded-lg bg-white shadow max-w-md w-full text-center">
+  //         <ShieldAlert className="h-12 w-12 text-red-500 mx-auto mb-4" />
+  //         <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
+  //         <p className="mb-6 text-muted-foreground">
+  //           You don't have permission to access the admin panel.
+  //         </p>
+  //         <Button className="w-full" onClick={() => navigate("/")}>
+  //           Return Home
   //         </Button>
   //       </div>
   //     </div>

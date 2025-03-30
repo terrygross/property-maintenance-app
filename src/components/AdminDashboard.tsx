@@ -17,8 +17,13 @@ import MaintenanceJobCards from "./maintenance/jobcards/MaintenanceJobCards";
 import ChatInterface from "./chat/ChatInterface";
 import ReporterManagement from "./reporter/ReporterManagement";
 import BillingManagement from "./billing/BillingManagement";
+import { UserRole } from "@/types/user";
 
-const AdminDashboard = () => {
+interface AdminDashboardProps {
+  userRole?: UserRole;
+}
+
+const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
   const [activeTab, setActiveTab] = useState("overview");
   
   // For demo purposes, we'll use a hardcoded admin user ID
@@ -72,7 +77,7 @@ const AdminDashboard = () => {
 
         <TabsContent value="maintenance-jobcards">
           <AdminTab title="Maintenance Job Cards" description="View job cards, manage leave calendar, and schedule call-out rota">
-            <MaintenanceJobCards />
+            <MaintenanceJobCards userRole={userRole} />
           </AdminTab>
         </TabsContent>
 

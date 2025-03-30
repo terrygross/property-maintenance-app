@@ -2,8 +2,13 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { MOCK_USERS } from "@/data/mockUsers";
+import { hasAdminAccess } from "@/types/user";
 
-const JobCardsList = () => {
+interface JobCardsListProps {
+  userRole?: string;
+}
+
+const JobCardsList = ({ userRole = "admin" }: JobCardsListProps) => {
   // Filter maintenance technicians
   const allMaintenanceTechs = MOCK_USERS.filter(user => 
     user.role === "maintenance_tech" || user.role === "contractor"
@@ -24,6 +29,9 @@ const JobCardsList = () => {
     // Implement assign job functionality
   };
 
+  // Check if user has admin access
+  const isAdminOrManager = hasAdminAccess(userRole as any);
+
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
@@ -32,7 +40,9 @@ const JobCardsList = () => {
           <span className="text-sm text-muted-foreground">
             {maintenanceTechs.length}/4 technicians (Basic plan)
           </span>
-          <Button variant="outline" size="sm" onClick={handleAssignJob}>Assign New Job</Button>
+          {isAdminOrManager && (
+            <Button variant="outline" size="sm" onClick={handleAssignJob}>Assign New Job</Button>
+          )}
         </div>
       </div>
 
