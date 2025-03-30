@@ -4,12 +4,12 @@ import { useState } from "react";
 import { ComplianceList } from "../types";
 import { useAppState } from "@/context/AppStateContext";
 import { useComplianceLists } from "../hooks/useComplianceLists";
-import ComplianceForm from "../ComplianceForm";
+import ComplianceForm from "../dialogs/ComplianceForm";
 import PropertySelector from "../PropertySelector";
 import PropertyDisplay from "../PropertyDisplay";
 import CompliancePreview from "../CompliancePreview";
-import ComplianceAssignDialog from "../ComplianceAssignDialog";
-import DeleteConfirmDialog from "../DeleteConfirmDialog";
+import ComplianceAssignDialog from "../dialogs/ComplianceAssignDialog";
+import DeleteConfirmDialog from "../dialogs/DeleteConfirmDialog";
 import ComplianceListsHeader from "./ComplianceListsHeader";
 import ComplianceTabsContainer from "./ComplianceTabsContainer";
 

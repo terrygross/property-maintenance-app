@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import CompliancePreview from "../compliance/CompliancePreview";
-import ComplianceComplete from "../compliance/ComplianceComplete";
+import ComplianceComplete from "../compliance/dialogs/ComplianceComplete";
 import EmptyComplianceLists from "./compliance/EmptyComplianceLists";
 import ComplianceListCard from "./compliance/ComplianceListCard";
 import ComplianceListTable from "./compliance/ComplianceListTable";
