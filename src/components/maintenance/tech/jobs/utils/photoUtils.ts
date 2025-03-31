@@ -22,7 +22,9 @@ export const updateLocalStorageJobs = (jobId: string, type: "before" | "after", 
               reporter: job.photos?.reporter || job.imageUrl || undefined
             },
             // Keep backward compatibility with old code
-            [type === "before" ? "beforePhoto" : "afterPhoto"]: imageUrl
+            [type === "before" ? "beforePhoto" : "afterPhoto"]: imageUrl,
+            // Also update imageUrl for reporter photos to ensure backward compatibility
+            ...(type === "reporter" ? { imageUrl } : {})
           };
         }
         return job;
@@ -41,6 +43,31 @@ export const updateLocalStorageJobs = (jobId: string, type: "before" | "after", 
     console.error("Error updating job photos in localStorage:", error);
   }
   return false;
+};
+
+/**
+ * Gets all photos for a job
+ */
+export const getJobPhotos = (jobId: string) => {
+  try {
+    const savedJobs = localStorage.getItem('reporterJobs');
+    if (savedJobs) {
+      const parsedJobs = JSON.parse(savedJobs);
+      const job = parsedJobs.find((job: any) => job.id === jobId);
+      
+      if (job) {
+        // Create a standardized photos object
+        return {
+          reporter: job.photos?.reporter || job.imageUrl || undefined,
+          before: job.photos?.before || job.beforePhoto || undefined,
+          after: job.photos?.after || job.afterPhoto || undefined
+        };
+      }
+    }
+  } catch (error) {
+    console.error("Error getting job photos:", error);
+  }
+  return { reporter: undefined, before: undefined, after: undefined };
 };
 
 /**

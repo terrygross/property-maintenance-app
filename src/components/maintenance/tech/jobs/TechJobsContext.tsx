@@ -1,8 +1,8 @@
 
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { TechJob } from "./types";
-import { updateLocalStorageJobs } from "./utils/photoUtils";
+import { updateLocalStorageJobs, getJobPhotos } from "./utils/photoUtils";
 
 interface TechJobsContextProps {
   selectedJob: TechJob | null;
@@ -33,13 +33,35 @@ export const TechJobsProvider: React.FC<{
   const [showReporterImage, setShowReporterImage] = useState(false);
   const { toast } = useToast();
 
+  // Effect to refresh selected job when it changes in assignedJobs
+  useEffect(() => {
+    if (selectedJob) {
+      const updatedJob = assignedJobs.find(job => job.id === selectedJob.id);
+      if (updatedJob) {
+        setSelectedJob(updatedJob);
+      }
+    }
+  }, [assignedJobs, selectedJob]);
+
   const handleViewDetails = (job: TechJob) => {
-    setSelectedJob(job);
+    // When viewing details, get the latest photos from storage
+    const latestPhotos = getJobPhotos(job.id);
+    const updatedJob = {
+      ...job,
+      photos: latestPhotos
+    };
+    setSelectedJob(updatedJob);
     setShowJobDetails(true);
   };
 
   const handleViewReporterImage = (job: TechJob) => {
-    setSelectedJob(job);
+    // When viewing reporter image, get the latest photos from storage
+    const latestPhotos = getJobPhotos(job.id);
+    const updatedJob = {
+      ...job,
+      photos: latestPhotos
+    };
+    setSelectedJob(updatedJob);
     setShowReporterImage(true);
   };
 
@@ -49,14 +71,14 @@ export const TechJobsProvider: React.FC<{
     
     // Update local state if the currently selected job is being updated
     if (selectedJob && selectedJob.id === jobId) {
+      // Get all updated photos after the capture
+      const updatedPhotos = getJobPhotos(jobId);
+      
       setSelectedJob(prevJob => {
         if (!prevJob) return null;
         return {
           ...prevJob,
-          photos: {
-            ...(prevJob.photos || {}),
-            [type]: imageUrl
-          }
+          photos: updatedPhotos
         };
       });
     }

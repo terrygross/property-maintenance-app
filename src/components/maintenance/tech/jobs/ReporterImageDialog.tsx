@@ -1,6 +1,7 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { getJobPhotos } from "./utils/photoUtils";
 
 interface Job {
   id: string;
@@ -26,6 +27,16 @@ const ReporterImageDialog = ({
   setShowReporterImage, 
   selectedJob 
 }: ReporterImageDialogProps) => {
+  const [reporterPhoto, setReporterPhoto] = useState<string | undefined>(undefined);
+  
+  useEffect(() => {
+    if (selectedJob) {
+      // Get the latest photos when the dialog opens
+      const latestPhotos = getJobPhotos(selectedJob.id);
+      setReporterPhoto(latestPhotos.reporter);
+    }
+  }, [selectedJob, showReporterImage]);
+  
   if (!selectedJob) return null;
   
   return (
@@ -34,13 +45,17 @@ const ReporterImageDialog = ({
         <DialogHeader>
           <DialogTitle>Reporter Photo</DialogTitle>
         </DialogHeader>
-        {selectedJob.photos?.reporter && (
+        {reporterPhoto ? (
           <div className="w-full rounded-md overflow-hidden flex justify-center">
             <img 
-              src={selectedJob.photos.reporter} 
+              src={reporterPhoto} 
               alt="Reporter photo"
               className="max-h-[70vh] object-contain"
             />
+          </div>
+        ) : (
+          <div className="text-center py-8 bg-gray-100 rounded-md">
+            <p className="text-gray-500">No reporter photo available</p>
           </div>
         )}
         <div className="mt-2 text-sm text-gray-500">

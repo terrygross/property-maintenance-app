@@ -24,12 +24,15 @@ export const loadJobsFromStorage = (userId: string): Job[] => {
         
         // Format jobs with proper structure
         return userJobs.map((job: any) => {
-          // Ensure photos have the right structure
+          // Ensure photos have the right structure by checking all possible locations
           const photos = {
             reporter: job.photos?.reporter || job.imageUrl || undefined,
             before: job.photos?.before || job.beforePhoto || undefined,
             after: job.photos?.after || job.afterPhoto || undefined
           };
+          
+          // Log the photo structure for debugging
+          console.log(`Job ${job.id} photos:`, photos);
           
           return {
             id: job.id,
