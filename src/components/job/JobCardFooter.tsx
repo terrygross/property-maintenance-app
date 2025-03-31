@@ -1,10 +1,8 @@
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RefreshCw, User, ArrowUpCircle } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
-import { useAppState } from "@/context/AppStateContext";
+import { Check, Send } from "lucide-react";
+import AssignJobDialog from "./AssignJobDialog";
+import { useState } from "react";
 
 interface JobCardFooterProps {
   id: string;
@@ -13,162 +11,92 @@ interface JobCardFooterProps {
   assignedTo?: string;
   onAssign?: (id: string, technicianId: string, priority: string) => void;
   onResendEmail?: (id: string, technicianId: string) => void;
+  onAcceptJob?: (id: string) => void;
 }
 
 const JobCardFooter = ({ 
   id, 
   status, 
-  priority: initialPriority,
-  assignedTo,
+  priority, 
+  assignedTo, 
   onAssign,
-  onResendEmail 
+  onResendEmail,
+  onAcceptJob
 }: JobCardFooterProps) => {
-  const [assigning, setAssigning] = useState(false);
-  const [selectedTechnician, setSelectedTechnician] = useState("");
-  const [selectedPriority, setSelectedPriority] = useState(initialPriority || "medium");
-  const [sendingEmail, setSendingEmail] = useState(false);
-  const { users } = useAppState();
-  
-  // Filter users to get only technicians and contractors
-  const TECHNICIANS = users.filter(user => 
-    user.role === "maintenance_tech" || user.role === "contractor"
-  );
+  const [dialogOpen, setDialogOpen] = useState(false);
 
-  const handleAssign = () => {
-    if (!selectedTechnician) {
-      toast({
-        title: "No technician selected",
-        description: "Please select a technician to assign this job to.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setAssigning(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      if (onAssign) {
-        onAssign(id, selectedTechnician, selectedPriority);
-      }
-      
-      const selectedTech = TECHNICIANS.find(t => t.id === selectedTechnician);
-      const techName = selectedTech ? `${selectedTech.first_name} ${selectedTech.last_name}` : "the technician";
-      
-      toast({
-        title: "Job Assigned",
-        description: `Job has been assigned to ${techName} with ${selectedPriority} priority.`,
-      });
-      
-      setAssigning(false);
-      setSelectedTechnician("");
-    }, 1000);
-  };
-
-  const handleResendEmail = () => {
-    if (!assignedTo) return;
-    
-    setSendingEmail(true);
-    
-    // Simulate API call for resending email
-    setTimeout(() => {
-      if (onResendEmail) {
-        onResendEmail(id, assignedTo);
-      }
-      
-      const assignedTech = TECHNICIANS.find(t => t.id === assignedTo);
-      const techName = assignedTech ? `${assignedTech.first_name} ${assignedTech.last_name}` : "the contractor";
-      
-      toast({
-        title: "Email Resent",
-        description: `Job details have been resent to ${techName}.`,
-      });
-      
-      setSendingEmail(false);
-    }, 1500);
-  };
-
-  // Check if assigned to a contractor
-  const assignedTechnician = assignedTo ? TECHNICIANS.find(t => t.id === assignedTo) : null;
-  const isContractor = assignedTechnician?.role === "contractor";
-
+  // For unassigned jobs, show the assign button
   if (status === "unassigned") {
     return (
-      <div className="w-full space-y-2">
-        <Select value={selectedTechnician} onValueChange={setSelectedTechnician}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select technician" />
-          </SelectTrigger>
-          <SelectContent>
-            {TECHNICIANS.map((tech) => (
-              <SelectItem key={tech.id} value={tech.id}>
-                <div className="flex items-center gap-2">
-                  <User className="h-4 w-4" />
-                  {tech.first_name} {tech.last_name} ({tech.title})
-                  {tech.role === "contractor" && " - Contractor"}
-                  {tech.role === "maintenance_tech" && " - In-house"}
-                </div>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Select value={selectedPriority} onValueChange={setSelectedPriority}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select priority" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="low">
-              <div className="flex items-center gap-2">
-                <ArrowUpCircle className="h-4 w-4 text-blue-500" />
-                Low Priority
-              </div>
-            </SelectItem>
-            <SelectItem value="medium">
-              <div className="flex items-center gap-2">
-                <ArrowUpCircle className="h-4 w-4 text-yellow-500" />
-                Medium Priority
-              </div>
-            </SelectItem>
-            <SelectItem value="high">
-              <div className="flex items-center gap-2">
-                <ArrowUpCircle className="h-4 w-4 text-red-500" />
-                High Priority
-              </div>
-            </SelectItem>
-          </SelectContent>
-        </Select>
-
+      <div className="w-full">
         <Button 
-          className="w-full" 
-          onClick={handleAssign} 
-          disabled={assigning || !selectedTechnician}
+          variant="default" 
+          className="w-full"
+          onClick={() => setDialogOpen(true)}
         >
-          {assigning ? "Assigning..." : "Assign Job"}
+          Assign Job
         </Button>
+        {onAssign && (
+          <AssignJobDialog 
+            jobId={id}
+            priority={priority}
+            open={dialogOpen}
+            onOpenChange={setDialogOpen}
+            onAssign={onAssign}
+          />
+        )}
       </div>
     );
-  } 
-  
-  if (isContractor) {
+  }
+
+  // For assigned jobs, show options based on the email status
+  if (status === "assigned" && assignedTo) {
+    // If this is a high priority job that needs acceptance
+    if (priority === "high" && onAcceptJob) {
+      return (
+        <div className="w-full flex flex-col gap-2">
+          <Button 
+            variant="outline" 
+            className="w-full flex items-center gap-2"
+            onClick={() => onAcceptJob(id)}
+          >
+            <Check className="h-4 w-4" />
+            Accept on Behalf
+          </Button>
+          
+          {onResendEmail && (
+            <Button 
+              variant="secondary" 
+              className="w-full flex items-center gap-2"
+              onClick={() => onResendEmail(id, assignedTo)}
+            >
+              <Send className="h-4 w-4" />
+              Resend Email
+            </Button>
+          )}
+        </div>
+      );
+    }
+    
+    // Regular assigned job with email option
     return (
-      <Button 
-        variant="outline" 
-        className="w-full flex items-center gap-2" 
-        onClick={handleResendEmail}
-        disabled={sendingEmail}
-      >
-        <RefreshCw className={`h-4 w-4 ${sendingEmail ? 'animate-spin' : ''}`} />
-        {sendingEmail ? "Sending..." : "Resend Job Email"}
-      </Button>
+      <div className="w-full">
+        {onResendEmail && (
+          <Button 
+            variant="secondary" 
+            className="w-full flex items-center gap-2"
+            onClick={() => onResendEmail(id, assignedTo)}
+          >
+            <Send className="h-4 w-4" />
+            Resend Email
+          </Button>
+        )}
+      </div>
     );
   }
-  
-  return (
-    <Button variant="outline" className="w-full" disabled>
-      Already Assigned
-    </Button>
-  );
+
+  // Fallback for other statuses
+  return <div className="w-full"></div>;
 };
 
 export default JobCardFooter;

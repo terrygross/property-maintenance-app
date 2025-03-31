@@ -10,6 +10,8 @@ export interface JobCardProps {
   assignedTo?: string;
   emailSent?: boolean;
   reporterPhoto?: string;
+  accepted?: boolean;
   onAssign?: (id: string, technicianId: string, priority: string) => void;
   onResendEmail?: (id: string, technicianId: string) => void;
+  onAcceptJob?: (id: string) => void;
 }

@@ -18,7 +18,8 @@ const JobCard = ({
   assignedTo,
   emailSent = false,
   onAssign,
-  onResendEmail
+  onResendEmail,
+  onAcceptJob
 }: JobCardProps) => {
   return (
     <Card className="h-full">
@@ -50,6 +51,7 @@ const JobCard = ({
           assignedTo={assignedTo}
           onAssign={onAssign}
           onResendEmail={onResendEmail}
+          onAcceptJob={onAcceptJob}
         />
       </CardFooter>
     </Card>
