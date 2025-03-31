@@ -5,7 +5,7 @@
 /**
  * Updates job photos in localStorage
  */
-export const updateLocalStorageJobs = (jobId: string, type: "before" | "after", imageUrl: string) => {
+export const updateLocalStorageJobs = (jobId: string, type: "before" | "after" | "reporter", imageUrl: string) => {
   try {
     const savedJobs = localStorage.getItem('reporterJobs');
     if (savedJobs) {
@@ -18,11 +18,10 @@ export const updateLocalStorageJobs = (jobId: string, type: "before" | "after", 
             photos: {
               ...(job.photos || {}),
               [type]: imageUrl,
-              // Preserve reporter photo if it exists
-              reporter: job.photos?.reporter || job.imageUrl || undefined
             },
             // Keep backward compatibility with old code
-            [type === "before" ? "beforePhoto" : "afterPhoto"]: imageUrl,
+            ...(type === "before" ? { beforePhoto: imageUrl } : {}),
+            ...(type === "after" ? { afterPhoto: imageUrl } : {}),
             // Also update imageUrl for reporter photos to ensure backward compatibility
             ...(type === "reporter" ? { imageUrl } : {})
           };
