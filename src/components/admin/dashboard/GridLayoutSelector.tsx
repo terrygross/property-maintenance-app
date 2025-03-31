@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Columns2, Columns3, Columns4, LayoutGrid } from "lucide-react";
+import { Columns2, Columns3, Columns4, Grid3X3 } from "lucide-react";
 
 interface GridLayoutSelectorProps {
   gridColumns: number;
@@ -46,7 +46,7 @@ const GridLayoutSelector = ({ gridColumns, onGridChange }: GridLayoutSelectorPro
         onClick={() => onGridChange(6)}
         title="6 columns"
       >
-        <LayoutGrid className="h-4 w-4" />
+        <Grid3X3 className="h-4 w-4" />
       </Button>
     </div>
   );
