@@ -3,7 +3,7 @@ import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import ResetJobsButton from "@/components/admin/ResetJobsButton";
 import { Button } from "@/components/ui/button";
-import { Download, Upload, RefreshCw, AlertOctagon } from "lucide-react";
+import { Download, Upload, RefreshCw, AlertOctagon, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const DashboardActions = () => {
@@ -45,7 +45,12 @@ const DashboardActions = () => {
             <p className="text-xs text-muted-foreground">
               This will delete all existing jobs and create fresh mock data for testing.
             </p>
-            <ResetJobsButton variant="destructive" className="w-full mt-1" />
+            <div className="mt-1">
+              <ResetJobsButton variant="destructive" className="w-full" />
+              <p className="text-xs text-muted-foreground mt-1">
+                After reset, check the "Reported Jobs" tab to see unassigned jobs.
+              </p>
+            </div>
           </div>
 
           <div className="space-y-1">
@@ -70,7 +75,7 @@ const DashboardActions = () => {
               onClick={handleSystemCheck} 
               className="w-full mt-1 flex items-center justify-center gap-1"
             >
-              <AlertOctagon className="h-3.5 w-3.5" />
+              <AlertTriangle className="h-3.5 w-3.5" />
               Run System Check
             </Button>
           </div>

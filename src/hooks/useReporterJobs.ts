@@ -15,20 +15,35 @@ export const useReporterJobs = () => {
         if (savedJobs) {
           const parsedJobs = JSON.parse(savedJobs);
           
-          // Include only unassigned jobs
-          const relevantJobs = parsedJobs.filter((job: any) => 
-            // Change this line to make sure we're correctly identifying unassigned jobs
+          // Show all jobs that are unassigned or don't have a status
+          const unassignedJobs = parsedJobs.filter((job: any) => 
             job.status === "unassigned" || !job.status
           );
           
+          console.log("Filtered unassigned jobs:", unassignedJobs);
+          
+          if (unassignedJobs.length === 0) {
+            console.log("No unassigned jobs found in localStorage");
+          }
+          
           // Map the jobs to include the reporter photo
-          const jobsWithPhotos = relevantJobs.map((job: any) => ({
-            ...job,
-            reporterPhoto: job.imageUrl // Include the imageUrl as reporterPhoto
+          const jobsWithPhotos = unassignedJobs.map((job: any) => ({
+            id: job.id,
+            title: job.title || "Maintenance Request",
+            description: job.description || "",
+            property: job.property || "Unknown Property",
+            reportDate: job.reportDate || new Date().toISOString().split("T")[0],
+            priority: job.priority || "medium",
+            status: job.status || "unassigned",
+            reporterPhoto: job.imageUrl, // Include the imageUrl as reporterPhoto
+            imageUrl: job.imageUrl // Also keep imageUrl for backward compatibility
           }));
           
           setJobCards(jobsWithPhotos);
           console.log("Loaded reporter jobs:", jobsWithPhotos);
+        } else {
+          console.log("No reporter jobs found in localStorage");
+          setJobCards([]);
         }
       } catch (error) {
         console.error("Error loading reporter jobs:", error);

@@ -19,8 +19,12 @@ const ResetJobsButton = ({ variant = "outline", className = "" }: ResetJobsButto
       
       toast({
         title: "Jobs Reset Successfully",
-        description: "All jobs have been reset with new mock data.",
+        description: "All jobs have been reset with new mock data. Go to the Reported Jobs tab to see the unassigned jobs.",
       });
+      
+      // Trigger a custom event to notify components to refresh
+      const event = new Event('jobsUpdated');
+      document.dispatchEvent(event);
     }
   };
 

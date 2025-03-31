@@ -115,13 +115,13 @@ export const generateMockJobs = (options: MockJobOptions = {}): MockJob[] => {
     
     // Create the job
     const job: MockJob = {
-      id: `job${Date.now()}-${i}`,
-      title: `Maintenance Request - ${reporterName}`,
-      description: `${issue.title}: ${issue.description} at ${location}`,
+      id: `job-${Date.now()}-${i}`,
+      title: `${issue.title} - Reported by ${reporterName}`,
+      description: `${issue.description} at ${location}`,
       property: property,
       reportDate: reportDate.toISOString().split("T")[0],
       priority: isHighPriority ? "high" : Math.random() > 0.5 ? "medium" : "low",
-      status: "unassigned", // Make sure all newly generated jobs are unassigned
+      status: "unassigned", // All generated jobs are unassigned
       imageUrl: imageUrl,
       timestamp: new Date().toISOString(),
       highPriority: isHighPriority,
