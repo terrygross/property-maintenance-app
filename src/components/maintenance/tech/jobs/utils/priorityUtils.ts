@@ -4,18 +4,18 @@
  */
 
 /**
- * Returns the appropriate background color class for a given priority level
+ * Gets the appropriate Tailwind color class for a job priority
  */
-export const getPriorityColor = (priority: string) => {
-  switch (priority) {
+export const getPriorityColor = (priority: string): string => {
+  switch (priority.toLowerCase()) {
     case "high":
-      return "bg-red-500";
+      return "bg-red-500 hover:bg-red-600 text-white";
     case "medium":
-      return "bg-orange-500";
+      return "bg-amber-500 hover:bg-amber-600 text-white";
     case "low":
-      return "bg-blue-500";
+      return "bg-green-500 hover:bg-green-600 text-white";
     default:
-      return "bg-gray-500";
+      return "bg-blue-500 hover:bg-blue-600 text-white";
   }
 };
 

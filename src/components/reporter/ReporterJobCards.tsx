@@ -20,11 +20,15 @@ const ReporterJobCards = () => {
         const savedJobs = localStorage.getItem('reporterJobs');
         if (savedJobs) {
           const parsedJobs = JSON.parse(savedJobs);
-          // Filter out any jobs that have already been assigned
-          const unassignedJobs = parsedJobs.filter((job: any) => job.status === "unassigned");
+          
+          // Include both unassigned jobs AND assigned high priority jobs that are not accepted
+          const relevantJobs = parsedJobs.filter((job: any) => 
+            job.status === "unassigned" || 
+            (job.priority === "high" && job.status === "assigned" && !job.accepted)
+          );
           
           // Map the jobs to include the reporter photo
-          const jobsWithPhotos = unassignedJobs.map((job: any) => ({
+          const jobsWithPhotos = relevantJobs.map((job: any) => ({
             ...job,
             reporterPhoto: job.imageUrl // Include the imageUrl as reporterPhoto
           }));
@@ -40,6 +44,15 @@ const ReporterJobCards = () => {
     };
 
     loadReporterJobs();
+    
+    // Add event listener for storage changes to refresh jobs list
+    window.addEventListener('storage', loadReporterJobs);
+    document.addEventListener('jobsUpdated', loadReporterJobs as EventListener);
+    
+    return () => {
+      window.removeEventListener('storage', loadReporterJobs);
+      document.removeEventListener('jobsUpdated', loadReporterJobs as EventListener);
+    };
   }, []);
 
   // Function to handle assigning jobs to technicians
@@ -62,9 +75,12 @@ const ReporterJobCards = () => {
         : card
     );
     
-    // Remove the assigned job from the unassigned list
-    const remainingUnassignedJobs = updatedJobCards.filter(job => job.status === "unassigned");
-    setJobCards(remainingUnassignedJobs);
+    // Remove the assigned job from the jobs list
+    const remainingJobs = updatedJobCards.filter(job => 
+      job.status === "unassigned" || 
+      (job.priority === "high" && job.status === "assigned" && !job.accepted)
+    );
+    setJobCards(remainingJobs);
     
     // Update the job in localStorage
     try {
@@ -161,6 +177,34 @@ const ReporterJobCards = () => {
     }
   };
 
+  // This function handles accepting jobs on behalf of technicians (admin role)
+  const handleAcceptJob = (jobId: string) => {
+    try {
+      const savedJobs = localStorage.getItem('reporterJobs');
+      if (savedJobs) {
+        const allJobs = JSON.parse(savedJobs);
+        const updatedAllJobs = allJobs.map((job: any) => 
+          job.id === jobId ? { ...job, accepted: true, alertShown: true } : job
+        );
+        localStorage.setItem('reporterJobs', JSON.stringify(updatedAllJobs));
+        
+        // Remove this job from the list since it's now accepted
+        setJobCards(prevCards => prevCards.filter(card => card.id !== jobId));
+        
+        // Dispatch events to notify other components
+        window.dispatchEvent(new Event('storage'));
+        document.dispatchEvent(new Event('jobsUpdated'));
+        
+        toast({
+          title: "Job Accepted",
+          description: "The job has been accepted on behalf of the technician.",
+        });
+      }
+    } catch (error) {
+      console.error("Error accepting job:", error);
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {jobCards.length > 0 ? (
@@ -170,6 +214,7 @@ const ReporterJobCards = () => {
               {...job}
               onAssign={handleAssignJob}
               onResendEmail={handleResendEmail}
+              onAcceptJob={job.status === "assigned" ? handleAcceptJob : undefined}
             />
             <JobPhotosViewer reporterPhoto={job.reporterPhoto} />
           </div>
