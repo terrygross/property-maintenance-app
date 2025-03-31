@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import AdminDashboard from "@/components/AdminDashboard";
 import { supabase } from "@/integrations/supabase/client";
@@ -108,12 +109,12 @@ const Admin = () => {
   // For demo purposes, we're showing the dashboard without authentication
   // In a real implementation, we would check if the user is authenticated and has admin role
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 relative">
       <AdminDashboard />
       
-      {/* This alert is visible only in demo mode to explain the authentication process - refined to be less intrusive */}
-      <div className="fixed bottom-4 right-4">
-        <Alert variant="default" className="bg-yellow-50 border-yellow-200 p-2 text-xs shadow-md max-w-fit">
+      {/* Demo mode alert positioned in the center of the screen */}
+      <div className="fixed inset-0 flex items-center justify-center pointer-events-none">
+        <Alert variant="default" className="bg-yellow-50 border-yellow-200 p-2 text-xs shadow-md max-w-fit pointer-events-auto">
           <AlertCircle className="h-3 w-3 text-yellow-600" />
           <AlertTitle className="text-xs font-medium">Demo Mode</AlertTitle>
           <AlertDescription className="text-xs">
