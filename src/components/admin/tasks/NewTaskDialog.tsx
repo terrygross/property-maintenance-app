@@ -1,13 +1,14 @@
 
 import React, { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Property } from "@/types/property";
+
+// Import the smaller components
+import TaskDialogHeader from "./dialog/TaskDialogHeader";
+import TaskBasicFields from "./dialog/TaskBasicFields";
+import TaskTechnicianSelection from "./dialog/TaskTechnicianSelection";
+import TaskDialogFooter from "./dialog/TaskDialogFooter";
 
 interface NewTaskDialogProps {
   open: boolean;
@@ -82,12 +83,7 @@ const NewTaskDialog = ({ open, onOpenChange, technicians, properties }: NewTaskD
         description: `The new task has been assigned to ${selectedTechs.length} technician(s).`,
       });
       
-      setJobTitle("");
-      setJobLocation("");
-      setJobDescription("");
-      setPriority("medium");
-      setSelectedTechs([]);
-      onOpenChange(false);
+      resetForm();
       
       const event = new Event('jobsUpdated');
       document.dispatchEvent(event);
@@ -102,105 +98,45 @@ const NewTaskDialog = ({ open, onOpenChange, technicians, properties }: NewTaskD
       });
     }
   };
+  
+  const resetForm = () => {
+    setJobTitle("");
+    setJobLocation("");
+    setJobDescription("");
+    setPriority("medium");
+    setSelectedTechs([]);
+    onOpenChange(false);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Create New Maintenance Task</DialogTitle>
-        </DialogHeader>
+        <TaskDialogHeader />
         
         <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="title" className="text-right">Title</Label>
-            <Input
-              id="title"
-              placeholder="Task title"
-              className="col-span-3"
-              value={jobTitle}
-              onChange={(e) => setJobTitle(e.target.value)}
-            />
-          </div>
+          <TaskBasicFields 
+            jobTitle={jobTitle}
+            setJobTitle={setJobTitle}
+            jobLocation={jobLocation}
+            setJobLocation={setJobLocation}
+            jobDescription={jobDescription}
+            setJobDescription={setJobDescription}
+            priority={priority}
+            setPriority={setPriority}
+            activeProperties={activeProperties}
+          />
           
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="location" className="text-right">Location</Label>
-            <Select value={jobLocation} onValueChange={setJobLocation}>
-              <SelectTrigger className="col-span-3">
-                <SelectValue placeholder="Select location" />
-              </SelectTrigger>
-              <SelectContent className="max-h-[300px] overflow-y-auto">
-                {activeProperties.length > 0 ? (
-                  activeProperties.map((property) => (
-                    <SelectItem key={property.id} value={property.name}>
-                      {property.name}
-                    </SelectItem>
-                  ))
-                ) : (
-                  <SelectItem value="No active properties" disabled>
-                    No active properties available
-                  </SelectItem>
-                )}
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="description" className="text-right">Description</Label>
-            <Textarea
-              id="description"
-              placeholder="Task description"
-              className="col-span-3"
-              value={jobDescription}
-              onChange={(e) => setJobDescription(e.target.value)}
-            />
-          </div>
-          
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="priority" className="text-right">Priority</Label>
-            <Select value={priority} onValueChange={setPriority}>
-              <SelectTrigger className="col-span-3">
-                <SelectValue placeholder="Select priority" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="low">Low</SelectItem>
-                <SelectItem value="medium">Medium</SelectItem>
-                <SelectItem value="high">High</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div className="grid grid-cols-4 items-start gap-4">
-            <Label className="text-right pt-2">Assign To</Label>
-            <div className="col-span-3 border rounded-md p-3 space-y-2 max-h-[200px] overflow-y-auto">
-              <p className="text-sm text-muted-foreground mb-2">
-                Select one or more technicians to assign this task to:
-              </p>
-              {technicians.map((tech) => (
-                <div key={tech.id} className="flex items-center space-x-2">
-                  <input 
-                    type="checkbox" 
-                    id={`tech-${tech.id}`} 
-                    checked={selectedTechs.includes(tech.id)}
-                    onChange={() => handleTechnicianSelection(tech.id)}
-                    className="h-4 w-4 rounded border-gray-300"
-                  />
-                  <label htmlFor={`tech-${tech.id}`} className="text-sm">
-                    {tech.first_name} {tech.last_name} 
-                    {tech.role === "contractor" ? " (Contractor)" : " (In-house)"}
-                  </label>
-                </div>
-              ))}
-              {technicians.length === 0 && (
-                <p className="text-sm text-muted-foreground">No technicians available</p>
-              )}
-            </div>
-          </div>
+          <TaskTechnicianSelection 
+            technicians={technicians}
+            selectedTechs={selectedTechs}
+            handleTechnicianSelection={handleTechnicianSelection}
+          />
         </div>
         
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={handleCreateTask}>Create Task</Button>
-        </DialogFooter>
+        <TaskDialogFooter 
+          onCancel={() => onOpenChange(false)} 
+          onSubmit={handleCreateTask} 
+        />
       </DialogContent>
     </Dialog>
   );
