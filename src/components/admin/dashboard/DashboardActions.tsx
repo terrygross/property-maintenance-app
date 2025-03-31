@@ -6,7 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Download, Upload, RefreshCw, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-const DashboardActions = () => {
+interface DashboardActionsProps {
+  compact?: boolean;
+}
+
+const DashboardActions = ({ compact = false }: DashboardActionsProps) => {
   const { toast } = useToast();
 
   const handleExportData = () => {
@@ -29,6 +33,42 @@ const DashboardActions = () => {
       description: "All systems are operational.",
     });
   };
+
+  if (compact) {
+    return (
+      <Card className="w-full">
+        <CardHeader className="p-3">
+          <CardTitle className="text-sm">System Actions</CardTitle>
+        </CardHeader>
+        <CardContent className="p-3 pt-0 space-y-2">
+          <div className="bg-yellow-50 border border-yellow-200 rounded-md p-2">
+            <div className="flex items-center gap-1 mb-1">
+              <AlertTriangle className="h-3 w-3 text-yellow-600" />
+              <p className="text-xs font-medium text-yellow-800">
+                No jobs showing?
+              </p>
+            </div>
+            <ResetJobsButton variant="destructive" className="w-full text-xs h-7 mb-1" />
+          </div>
+          
+          <div className="grid grid-cols-3 gap-1">
+            <Button variant="outline" size="sm" onClick={handleExportData} className="text-xs h-7 px-1">
+              <Download className="h-3 w-3 mr-1" />
+              Export
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleImportData} className="text-xs h-7 px-1">
+              <Upload className="h-3 w-3 mr-1" />
+              Import
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleSystemCheck} className="text-xs h-7 px-1">
+              <RefreshCw className="h-3 w-3 mr-1" />
+              Check
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>

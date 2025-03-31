@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from "react";
 import DashboardHeader from "./dashboard/DashboardHeader";
 import JobsList from "../jobs/JobsList";
-import DashboardActions from "./dashboard/DashboardActions";
 import { Dispatch, SetStateAction } from "react";
 import { useHighPriorityJobsMonitor } from "@/hooks/useHighPriorityJobsMonitor";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,7 +16,8 @@ import {
   FileText,
   Building,
   Calendar,
-  FileSpreadsheet 
+  FileSpreadsheet,
+  Wrench
 } from "lucide-react";
 import { useAppState } from "@/context/AppStateContext";
 import { useReporterJobs } from "@/hooks/useReporterJobs";
@@ -34,7 +34,7 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
 
   // Count users by role
   const technicianCount = users.filter(user => 
-    user.role === "maintenance_tech" || user.role === "admin"
+    user.role === "maintenance_tech"
   ).length;
 
   // Count contractors
@@ -103,7 +103,7 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
                 <p className="text-2xl font-bold">
                   {technicianCount}
                 </p>
-                <p className="text-xs text-muted-foreground">Active accounts</p>
+                <p className="text-xs text-muted-foreground">Maintenance technicians</p>
               </CardContent>
             </Card>
 
@@ -198,7 +198,24 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
               </CardContent>
             </Card>
 
-            {/* Additional tabs for the second row */}
+            {/* Tech UI card */}
+            <Card 
+              className="bg-white hover:bg-slate-50 transition-colors cursor-pointer border-slate-100"
+              onClick={() => handleCardClick("tech-view")}
+            >
+              <CardHeader className="pb-2">
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-lg font-medium">Tech UI</CardTitle>
+                  <Wrench className="h-5 w-5 text-slate-500" />
+                </div>
+                <CardDescription>Technician Interface</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">{technicianCount}</p>
+                <p className="text-xs text-muted-foreground">Technician views</p>
+              </CardContent>
+            </Card>
+
             <Card 
               className="bg-white hover:bg-indigo-50 transition-colors cursor-pointer border-indigo-100"
               onClick={() => handleCardClick("compliance")}
@@ -254,7 +271,7 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
           <JobsList />
         </div>
         <div>
-          <DashboardActions />
+          {/* Move DashboardActions to ReporterJobCards component */}
         </div>
       </div>
     </div>

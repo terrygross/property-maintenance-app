@@ -20,6 +20,7 @@ import { useAppState } from "@/context/AppStateContext";
 import ComplianceLists from "./maintenance/compliance/ComplianceLists";
 import NewTaskDialog from "./admin/tasks/NewTaskDialog";
 import { useHighPriorityJobsMonitor } from "@/hooks/useHighPriorityJobsMonitor";
+import AdminTechnicianView from "./maintenance/tech/AdminTechnicianView";
 
 interface AdminDashboardProps {
   userRole?: UserRole;
@@ -111,6 +112,12 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
         <TabsContent value="billing">
           <AdminTab title="Billing Management" description="Manage subscription plans, payments, and additional capacity">
             <BillingManagement />
+          </AdminTab>
+        </TabsContent>
+
+        <TabsContent value="tech-view">
+          <AdminTab title="Maintenance Technician UI" description="View the interface as a maintenance technician">
+            <AdminTechnicianView />
           </AdminTab>
         </TabsContent>
 
