@@ -1,32 +1,61 @@
 
-import { useState, useEffect } from "react";
+/**
+ * Hook for monitoring high priority jobs across all technicians
+ * This is used in the admin dashboard
+ */
 
-export function useHighPriorityJobsMonitor() {
-  const [highPriorityJobs, setHighPriorityJobs] = useState<any[]>([]);
+import { useState, useEffect } from "react";
+import { HighPriorityJob } from "./highPriorityJobs/types";
+
+export const useHighPriorityJobsMonitor = () => {
+  const [highPriorityJobs, setHighPriorityJobs] = useState<HighPriorityJob[]>([]);
 
   useEffect(() => {
-    const checkHighPriorityJobs = () => {
+    const monitorHighPriorityJobs = () => {
       try {
         const savedJobs = localStorage.getItem('reporterJobs');
         if (savedJobs) {
           const parsedJobs = JSON.parse(savedJobs);
-          const highPriorityUnassigned = parsedJobs.filter((job: any) => 
-            job.priority === "high" && job.status === "unassigned"
-          );
+          // Get all high priority jobs regardless of technician
+          const highPriorityJobs = parsedJobs
+            .filter((job: any) => 
+              job.priority === "high" && 
+              job.status === "assigned" &&
+              !job.accepted
+            )
+            .map((job: any) => ({
+              id: job.id,
+              title: job.title,
+              location: job.property || job.location,
+              priority: job.priority,
+              status: job.status,
+              assignedTo: job.assignedTo,
+              dueDate: new Date(job.dueDate || Date.now()),
+              accepted: job.accepted || false,
+              photos: {
+                before: job.beforePhoto || "",
+                after: job.afterPhoto || "",
+                reporter: job.imageUrl || ""
+              }
+            }));
           
-          setHighPriorityJobs(highPriorityUnassigned);
+          setHighPriorityJobs(highPriorityJobs);
         }
       } catch (error) {
-        console.error("Error checking high priority jobs:", error);
+        console.error("Error monitoring high priority jobs:", error);
       }
     };
     
-    checkHighPriorityJobs();
+    // Initial check
+    monitorHighPriorityJobs();
     
-    const interval = setInterval(checkHighPriorityJobs, 10000);
+    // Set up periodic checks
+    const interval = setInterval(monitorHighPriorityJobs, 10000);
     
+    // Clean up on unmount
     return () => clearInterval(interval);
   }, []);
 
   return highPriorityJobs;
-}
+};
+
