@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -23,6 +23,16 @@ const NewTaskDialog = ({ open, onOpenChange, technicians, properties }: NewTaskD
   const [jobDescription, setJobDescription] = useState("");
   const [priority, setPriority] = useState("medium");
   const { toast } = useToast();
+  
+  // Filter to only show active properties in the dropdown
+  const activeProperties = properties.filter(property => property.status === "active");
+  
+  // Set a default property when dialog opens, if available
+  useEffect(() => {
+    if (open && activeProperties.length > 0 && !jobLocation) {
+      setJobLocation(activeProperties[0].name);
+    }
+  }, [open, activeProperties, jobLocation]);
 
   const handleTechnicianSelection = (techId: string) => {
     setSelectedTechs(prev => {
@@ -119,11 +129,17 @@ const NewTaskDialog = ({ open, onOpenChange, technicians, properties }: NewTaskD
                 <SelectValue placeholder="Select location" />
               </SelectTrigger>
               <SelectContent>
-                {properties.map((property) => (
-                  <SelectItem key={property.id} value={property.name}>
-                    {property.name}
+                {activeProperties.length > 0 ? (
+                  activeProperties.map((property) => (
+                    <SelectItem key={property.id} value={property.name}>
+                      {property.name}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem value="No active properties" disabled>
+                    No active properties available
                   </SelectItem>
-                ))}
+                )}
               </SelectContent>
             </Select>
           </div>

@@ -4,6 +4,7 @@
  */
 
 import { MOCK_USERS } from "@/data/mockUsers";
+import { mockProperties } from "@/data/mockProperties";
 
 /**
  * Gets jobs assigned to a specific technician
@@ -34,13 +35,22 @@ export const getTechnicianJobs = (techId: string): any[] => {
   const tech = MOCK_USERS.find(user => user.id === techId);
   console.log(`Technician details:`, tech);
   
+  // Get active properties for realistic job assignments
+  const activeProperties = mockProperties
+    .filter(p => p.status === "active")
+    .map(p => p.name);
+  
+  // Use a default property if no active properties are found
+  const defaultProperty = activeProperties.length > 0 ? 
+    activeProperties[0] : "Sunset Apartments";
+  
   // Fallback to mock data if no jobs in localStorage
   // Generate some mock jobs for the technician
   const mockJobs = [
     { 
       id: `${techId}-job1`, 
       title: "Fix heating system", 
-      property: "Building A", 
+      property: defaultProperty, 
       priority: "high", 
       reportDate: new Date().toISOString(),
       status: "assigned",
@@ -50,7 +60,7 @@ export const getTechnicianJobs = (techId: string): any[] => {
     { 
       id: `${techId}-job2`, 
       title: "Replace light fixtures", 
-      property: "Building C", 
+      property: activeProperties.length > 1 ? activeProperties[1] : defaultProperty, 
       priority: "medium",
       reportDate: new Date().toISOString(),
       status: "assigned",
@@ -59,7 +69,7 @@ export const getTechnicianJobs = (techId: string): any[] => {
     { 
       id: `${techId}-job3`, 
       title: "Inspect water damage", 
-      property: "Building B", 
+      property: activeProperties.length > 2 ? activeProperties[2] : defaultProperty, 
       priority: "low",
       reportDate: new Date().toISOString(),
       status: "assigned",
@@ -67,6 +77,6 @@ export const getTechnicianJobs = (techId: string): any[] => {
     }
   ];
   
-  console.log(`Returning mock jobs for technician ${techId}:`, mockJobs);
+  console.log(`Returning mock jobs for technician ${techId} with valid property names:`, mockJobs);
   return mockJobs;
 };

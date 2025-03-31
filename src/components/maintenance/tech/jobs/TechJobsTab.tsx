@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useAppState } from "@/context/AppStateContext";
 import { TechJob } from "./types";
@@ -24,22 +23,27 @@ const TechJobsTab: React.FC<TechJobsTabProps> = ({
 }) => {
   const { properties } = useAppState();
 
-  // Map generic building names to actual property names
+  // Map job locations to actual property names if needed
   const updatedJobs = assignedJobs.map(job => {
-    let propertyName = job.location;
+    // Check if the job location matches any known property
+    const matchingProperty = properties.find(p => p.name === job.location);
     
-    // Find matching property name if location is a generic building name
-    if (job.location.includes("Building") || job.location === "Main Building") {
-      const property = properties.find(p => p.status === "active");
-      if (property) {
-        propertyName = property.name;
+    // If no matching property, try to find an active property to use instead
+    if (!matchingProperty) {
+      // For generic building references, map to an actual property
+      if (job.location.includes("Building") || job.location === "Main Building") {
+        const activeProperty = properties.find(p => p.status === "active");
+        if (activeProperty) {
+          return {
+            ...job,
+            location: activeProperty.name
+          };
+        }
       }
     }
     
-    return {
-      ...job,
-      location: propertyName
-    };
+    // Return original job if we couldn't or didn't need to remap
+    return job;
   });
 
   return (

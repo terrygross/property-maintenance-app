@@ -1,5 +1,6 @@
 
 import { v4 as uuidv4 } from "uuid";
+import { mockProperties } from "@/data/mockProperties";
 
 interface MockJobOptions {
   count?: number;
@@ -54,9 +55,9 @@ const reporterNames = [
 
 // Sample property locations
 const locations = [
-  "Building A, Apt 101", "Building B, Apt 205", "Main Lobby", 
+  "Apt 101", "Apt 205", "Main Lobby", 
   "Parking Garage", "Pool Area", "Roof Access", "Utility Room",
-  "3rd Floor Hallway", "Building C, Apt 310", "Fitness Center"
+  "3rd Floor Hallway", "Apt 310", "Fitness Center"
 ];
 
 // Sample image URLs (placeholder images)
@@ -69,15 +70,27 @@ const sampleImages = [
   "https://placehold.co/600x400?text=Damage+Report"
 ];
 
+// Helper function to get actual property names from mockProperties
+const getActualPropertyNames = (): string[] => {
+  // Filter only active properties
+  return mockProperties
+    .filter(property => property.status === "active")
+    .map(property => property.name);
+};
+
 /**
  * Generates a set of mock maintenance jobs for testing
  */
 export const generateMockJobs = (options: MockJobOptions = {}): MockJob[] => {
+  // Get actual property names for generating realistic mock data
+  const actualPropertyNames = getActualPropertyNames();
+  
   const {
     count = 15,
     includeHighPriority = 3,
     includePhotos = true,
-    properties = ["Sunset Apartments", "Downtown Plaza", "Riverfront Warehouse"]
+    // Use actual property names if available, otherwise fallback to provided ones
+    properties = actualPropertyNames.length > 0 ? actualPropertyNames : ["Sunset Apartments", "Downtown Plaza", "Riverfront Warehouse"]
   } = options;
   
   const jobs: MockJob[] = [];
@@ -97,7 +110,7 @@ export const generateMockJobs = (options: MockJobOptions = {}): MockJob[] => {
     // Determine if this should be a high priority job
     const isHighPriority = i < includeHighPriority;
     
-    // Select random property
+    // Select random property from actual properties list
     const propertyIndex = Math.floor(Math.random() * properties.length);
     const property = properties[propertyIndex];
     
@@ -117,8 +130,8 @@ export const generateMockJobs = (options: MockJobOptions = {}): MockJob[] => {
     const job: MockJob = {
       id: `job-${Date.now()}-${i}`,
       title: `${issue.title} - Reported by ${reporterName}`,
-      description: `${issue.description} at ${location}`,
-      property: property,
+      description: `${issue.description} at ${property}, ${location}`,
+      property: property, // Now using validated property names
       reportDate: reportDate.toISOString().split("T")[0],
       priority: isHighPriority ? "high" : Math.random() > 0.5 ? "medium" : "low",
       status: "unassigned", // Explicitly set to unassigned
@@ -133,7 +146,7 @@ export const generateMockJobs = (options: MockJobOptions = {}): MockJob[] => {
     jobs.push(job);
   }
   
-  console.log(`Generated ${jobs.length} mock jobs, all with 'unassigned' status`);
+  console.log(`Generated ${jobs.length} mock jobs with actual property names, all with 'unassigned' status`);
   return jobs;
 };
 
@@ -155,5 +168,5 @@ export const resetJobsWithMockData = (): void => {
   const storageEvent = new StorageEvent('storage', { key: 'reporterJobs' });
   window.dispatchEvent(storageEvent);
   
-  console.log(`Reset system with ${mockJobs.length} new mock jobs, all unassigned`);
+  console.log(`Reset system with ${mockJobs.length} new mock jobs using actual property names, all unassigned`);
 };
