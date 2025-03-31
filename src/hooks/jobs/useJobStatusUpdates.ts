@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { Job } from "./types";
+import { Job } from "@/components/jobs/jobsListUtils";
 import { updateJobStatus } from "@/components/maintenance/tech/jobs/JobUtils";
 
 /**

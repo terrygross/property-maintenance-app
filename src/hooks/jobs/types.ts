@@ -10,7 +10,7 @@ export interface Job {
   priority: string;
   dueDate: Date;
   status?: string;
-  assignedTo?: string; // Add assignedTo property
+  assignedTo?: string;
   accepted?: boolean;
   photos?: {
     before?: string;

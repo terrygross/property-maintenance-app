@@ -1,13 +1,14 @@
 
 import { useState, useEffect } from "react";
 import { useAppState } from "@/context/AppStateContext";
-import { Job } from "@/hooks/jobs/types";
+import { Job as JobType } from "@/hooks/jobs/types";
+import { Job as JobListType } from "@/components/jobs/jobsListUtils";
 
 /**
  * Custom hook to load jobs data from localStorage
  */
 export const useJobsData = () => {
-  const [jobs, setJobs] = useState<Job[]>([]);
+  const [jobs, setJobs] = useState<JobListType[]>([]);
   const { users } = useAppState();
   
   useEffect(() => {
