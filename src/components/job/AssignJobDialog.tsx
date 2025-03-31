@@ -72,7 +72,7 @@ const AssignJobDialog = ({
               <SelectTrigger id="technician">
                 <SelectValue placeholder="Select technician" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="max-h-[300px] overflow-y-auto">
                 {technicians.map(tech => (
                   <SelectItem key={tech.id} value={tech.id}>
                     {tech.first_name} {tech.last_name} ({tech.role === "contractor" ? "Contractor" : "Technician"})

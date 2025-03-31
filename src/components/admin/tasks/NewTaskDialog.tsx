@@ -128,7 +128,7 @@ const NewTaskDialog = ({ open, onOpenChange, technicians, properties }: NewTaskD
               <SelectTrigger className="col-span-3">
                 <SelectValue placeholder="Select location" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="max-h-[300px] overflow-y-auto">
                 {activeProperties.length > 0 ? (
                   activeProperties.map((property) => (
                     <SelectItem key={property.id} value={property.name}>
@@ -171,7 +171,7 @@ const NewTaskDialog = ({ open, onOpenChange, technicians, properties }: NewTaskD
           
           <div className="grid grid-cols-4 items-start gap-4">
             <Label className="text-right pt-2">Assign To</Label>
-            <div className="col-span-3 border rounded-md p-3 space-y-2">
+            <div className="col-span-3 border rounded-md p-3 space-y-2 max-h-[200px] overflow-y-auto">
               <p className="text-sm text-muted-foreground mb-2">
                 Select one or more technicians to assign this task to:
               </p>

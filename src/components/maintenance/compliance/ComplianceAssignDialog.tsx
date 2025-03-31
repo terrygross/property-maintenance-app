@@ -85,7 +85,7 @@ const ComplianceAssignDialog = ({
               <SelectTrigger id="technician">
                 <SelectValue placeholder="Select a technician" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="max-h-[300px] overflow-y-auto">
                 {technicians
                   .filter(tech => tech.role === "maintenance_tech" || tech.role === "contractor")
                   .map(tech => (
