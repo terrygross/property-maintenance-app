@@ -112,8 +112,8 @@ const Admin = () => {
     <div className="min-h-screen bg-gray-50 relative">
       <AdminDashboard />
       
-      {/* Demo mode alert positioned in the center of the screen */}
-      <div className="fixed inset-0 flex items-center justify-center pointer-events-none">
+      {/* Demo mode alert positioned at the bottom center of the screen */}
+      <div className="fixed bottom-4 left-0 right-0 flex justify-center pointer-events-none">
         <Alert variant="default" className="bg-yellow-50 border-yellow-200 p-2 text-xs shadow-md max-w-fit pointer-events-auto">
           <AlertCircle className="h-3 w-3 text-yellow-600" />
           <AlertTitle className="text-xs font-medium">Demo Mode</AlertTitle>
