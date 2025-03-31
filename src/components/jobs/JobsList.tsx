@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useAppState } from "@/context/AppStateContext";
@@ -7,7 +6,7 @@ import JobDetailsDialog from "./JobDetailsDialog";
 import { Job } from "./jobsListUtils";
 import { updateJobStatus } from "@/components/maintenance/tech/jobs/JobUtils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CheckCircle, ClipboardList, Download, Upload, FileExcel } from "lucide-react";
+import { CheckCircle, ClipboardList, Download, Upload, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const JobsList = () => {
@@ -19,19 +18,15 @@ const JobsList = () => {
   const { users } = useAppState();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  // Load jobs from localStorage on component mount
   useEffect(() => {
     try {
       const loadJobs = () => {
         const savedJobs = localStorage.getItem('reporterJobs');
         if (savedJobs) {
           const parsedJobs = JSON.parse(savedJobs);
-          // Format the jobs to match our component's expected structure
-          // Only include jobs that have been assigned (not unassigned)
           const formattedJobs = parsedJobs
             .filter((job: any) => job.status !== "unassigned")
             .map((job: any) => {
-              // Find the assigned technician
               const assignedTech = job.assignedTo ? 
                 users.find((user: any) => user.id === job.assignedTo) : null;
               
@@ -63,7 +58,6 @@ const JobsList = () => {
       
       loadJobs();
       
-      // Setup a listener for localStorage changes
       window.addEventListener('storage', loadJobs);
       
       return () => {
@@ -80,7 +74,6 @@ const JobsList = () => {
   };
   
   const handleMarkComplete = (jobId: string) => {
-    // Check if the job has an 'after' photo
     const job = jobs.find(j => j.id === jobId);
     
     if (!job?.photos?.after) {
@@ -92,11 +85,9 @@ const JobsList = () => {
       return;
     }
     
-    // Update job status
     const success = updateJobStatus(jobId, "completed");
     
     if (success) {
-      // Update local state
       setJobs(prevJobs => 
         prevJobs.map(job => 
           job.id === jobId 
@@ -114,7 +105,6 @@ const JobsList = () => {
 
   const handleExportJobs = () => {
     try {
-      // Filter to only completed jobs
       const completedJobs = jobs.filter(job => job.status === "completed");
       
       if (completedJobs.length === 0) {
@@ -126,7 +116,6 @@ const JobsList = () => {
         return;
       }
       
-      // Format jobs for Excel export
       const exportData = completedJobs.map(job => ({
         ID: job.id,
         Title: job.title,
@@ -135,26 +124,23 @@ const JobsList = () => {
         Status: job.status,
         AssignedTo: job.assignedTo,
         DueDate: job.dueDate.toLocaleDateString(),
-        CompletionDate: new Date().toLocaleDateString(), // Approximate completion date
+        CompletionDate: new Date().toLocaleDateString(),
         HasBeforePhoto: job.photos?.before ? "Yes" : "No",
         HasAfterPhoto: job.photos?.after ? "Yes" : "No"
       }));
       
-      // Convert to CSV
       const headers = Object.keys(exportData[0]);
       const csvContent = [
-        headers.join(','), // Header row
+        headers.join(','),
         ...exportData.map(row => 
           headers.map(header => {
             const value = row[header as keyof typeof row];
-            // Escape commas and quotes
             const stringValue = String(value).replace(/"/g, '""');
             return `"${stringValue}"`;
           }).join(',')
         )
       ].join('\n');
       
-      // Create blob and download
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -199,9 +185,8 @@ const JobsList = () => {
         
         const importedJobs: Job[] = [];
         
-        // Parse each row after header
         for (let i = 1; i < rows.length; i++) {
-          if (!rows[i].trim()) continue; // Skip empty rows
+          if (!rows[i].trim()) continue;
           
           const values = rows[i].split(',').map(value => 
             value.trim().replace(/^"(.*)"$/, '$1')
@@ -212,7 +197,6 @@ const JobsList = () => {
             rowData[header] = values[index] || '';
           });
           
-          // Create job object from row data
           const job: Job = {
             id: rowData['ID'] || `imported-${Date.now()}-${i}`,
             title: rowData['Title'] || 'Imported Job',
@@ -221,7 +205,10 @@ const JobsList = () => {
             status: "completed",
             assignedTo: rowData['AssignedTo'] || '',
             dueDate: new Date(rowData['DueDate'] || Date.now()),
+            techRole: "",
+            emailSent: false,
             photos: {
+              reporter: "",
               before: rowData['HasBeforePhoto'] === 'Yes' ? 'imported-before-photo' : '',
               after: rowData['HasAfterPhoto'] === 'Yes' ? 'imported-after-photo' : ''
             }
@@ -239,35 +226,28 @@ const JobsList = () => {
           return;
         }
         
-        // Merge imported jobs with existing ones
         setJobs(prevJobs => {
-          // Remove any existing jobs with the same IDs
           const filteredJobs = prevJobs.filter(job => 
             !importedJobs.some(importedJob => importedJob.id === job.id)
           );
           
-          // Combine filtered existing jobs with imported ones
           const updatedJobs = [...filteredJobs, ...importedJobs];
           
-          // Update localStorage
           try {
             const existingData = localStorage.getItem('reporterJobs');
             const parsedData = existingData ? JSON.parse(existingData) : [];
             
-            // Update or add imported jobs to localStorage format
             const updatedData = [...parsedData];
             
             importedJobs.forEach(importedJob => {
               const existingIndex = updatedData.findIndex(job => job.id === importedJob.id);
               
               if (existingIndex >= 0) {
-                // Update existing job
                 updatedData[existingIndex] = {
                   ...updatedData[existingIndex],
                   status: "completed"
                 };
               } else {
-                // Add new job
                 updatedData.push({
                   id: importedJob.id,
                   title: importedJob.title,
@@ -295,12 +275,10 @@ const JobsList = () => {
           description: `${importedJobs.length} jobs imported successfully.`,
         });
         
-        // Reset file input
         if (event.target) {
           event.target.value = '';
         }
         
-        // Switch to completed tab
         setActiveTab("completed");
       } catch (error) {
         console.error("Error importing jobs:", error);
@@ -315,7 +293,6 @@ const JobsList = () => {
     reader.readAsText(file);
   };
 
-  // Filter jobs based on tab
   const ongoingJobs = jobs.filter(job => job.status !== "completed");
   const completedJobs = jobs.filter(job => job.status === "completed");
 
@@ -342,7 +319,6 @@ const JobsList = () => {
         </TabsContent>
 
         <TabsContent value="completed">
-          {/* System Actions for completed jobs */}
           <div className="mb-4 p-4 border rounded-md bg-muted/20">
             <h3 className="text-sm font-medium mb-2">System Actions</h3>
             <div className="flex flex-wrap gap-2">
@@ -364,7 +340,6 @@ const JobsList = () => {
                 <Upload className="h-4 w-4" />
                 Import Job History
               </Button>
-              {/* Hidden file input for import */}
               <input
                 type="file"
                 ref={fileInputRef}
@@ -374,7 +349,7 @@ const JobsList = () => {
               />
             </div>
             <p className="text-xs text-muted-foreground mt-2">
-              <FileExcel className="h-3 w-3 inline mr-1" />
+              <FileText className="h-3 w-3 inline mr-1" />
               Export jobs to CSV or import historical job data
             </p>
           </div>
