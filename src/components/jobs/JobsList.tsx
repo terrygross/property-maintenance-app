@@ -6,11 +6,14 @@ import JobsContainer from "./JobsContainer";
 import JobDetailsDialog from "./JobDetailsDialog";
 import { Job } from "./jobsListUtils";
 import { updateJobStatus } from "@/components/maintenance/tech/jobs/JobUtils";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CheckCircle, ClipboardList } from "lucide-react";
 
 const JobsList = () => {
   const [showJobDetails, setShowJobDetails] = useState(false);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [activeTab, setActiveTab] = useState("ongoing");
   const { toast } = useToast();
   const { users } = useAppState();
   
@@ -107,13 +110,39 @@ const JobsList = () => {
     }
   };
 
+  // Filter jobs based on tab
+  const ongoingJobs = jobs.filter(job => job.status !== "completed");
+  const completedJobs = jobs.filter(job => job.status === "completed");
+
   return (
     <>
-      <JobsContainer 
-        jobs={jobs} 
-        onViewDetails={handleViewDetails}
-        onMarkComplete={handleMarkComplete}
-      />
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="mb-4">
+          <TabsTrigger value="ongoing" className="flex items-center">
+            <ClipboardList className="h-4 w-4 mr-2" />
+            Ongoing Jobs ({ongoingJobs.length})
+          </TabsTrigger>
+          <TabsTrigger value="completed" className="flex items-center">
+            <CheckCircle className="h-4 w-4 mr-2" />
+            Completed Jobs ({completedJobs.length})
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="ongoing">
+          <JobsContainer 
+            jobs={ongoingJobs} 
+            onViewDetails={handleViewDetails}
+            onMarkComplete={handleMarkComplete}
+          />
+        </TabsContent>
+
+        <TabsContent value="completed">
+          <JobsContainer 
+            jobs={completedJobs} 
+            onViewDetails={handleViewDetails}
+          />
+        </TabsContent>
+      </Tabs>
 
       <JobDetailsDialog 
         open={showJobDetails} 

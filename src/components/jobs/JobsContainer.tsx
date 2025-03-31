@@ -10,33 +10,31 @@ interface JobsContainerProps {
   onMarkComplete?: (jobId: string) => void;
 }
 
-const JobsContainer: React.FC<JobsContainerProps> = ({ 
-  jobs, 
-  onViewDetails,
-  onMarkComplete
-}) => {
+const JobsContainer = ({ jobs, onViewDetails, onMarkComplete }: JobsContainerProps) => {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Maintenance Jobs</CardTitle>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-xl font-semibold">
+          {jobs.length} {jobs.length === 1 ? 'Job' : 'Jobs'}
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          {jobs.length > 0 ? (
-            jobs.map((job) => (
+        {jobs.length === 0 ? (
+          <div className="text-center py-10 text-muted-foreground">
+            No jobs found in this category
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {jobs.map((job) => (
               <JobItem 
                 key={job.id} 
                 job={job} 
                 onViewDetails={onViewDetails}
                 onMarkComplete={onMarkComplete}
               />
-            ))
-          ) : (
-            <div className="text-center py-10">
-              <p className="text-muted-foreground">No assigned jobs yet.</p>
-            </div>
-          )}
-        </div>
+            ))}
+          </div>
+        )}
       </CardContent>
     </Card>
   );
