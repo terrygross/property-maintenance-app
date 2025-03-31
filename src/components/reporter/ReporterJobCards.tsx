@@ -7,7 +7,7 @@ import EmptyReporterJobs from "./EmptyReporterJobs";
 
 const ReporterJobCards = () => {
   const { jobCards, setJobCards } = useReporterJobs();
-  const { handleAssignJob, handleResendEmail, handleAcceptJob } = useJobActions({
+  const { handleAssignJob, handleResendEmail } = useJobActions({
     jobCards,
     setJobCards,
   });
@@ -21,7 +21,6 @@ const ReporterJobCards = () => {
             job={job}
             onAssign={handleAssignJob}
             onResendEmail={handleResendEmail}
-            onAcceptJob={handleAcceptJob}
           />
         ))
       ) : (

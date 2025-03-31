@@ -15,10 +15,9 @@ export const useReporterJobs = () => {
         if (savedJobs) {
           const parsedJobs = JSON.parse(savedJobs);
           
-          // Include both unassigned jobs AND assigned high priority jobs that are not accepted
+          // Include only unassigned jobs
           const relevantJobs = parsedJobs.filter((job: any) => 
-            job.status === "unassigned" || 
-            (job.priority === "high" && job.status === "assigned" && !job.accepted)
+            job.status === "unassigned"
           );
           
           // Map the jobs to include the reporter photo

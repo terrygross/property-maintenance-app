@@ -1,40 +1,39 @@
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Check, Send } from "lucide-react";
+import { Check } from "lucide-react";
+import AssignJobDialog from "../AssignJobDialog";
 
 interface HighPriorityJobFooterProps {
   id: string;
-  assignedTo: string;
-  onAcceptJob: (id: string) => void;
-  onResendEmail?: (id: string, technicianId: string) => void;
+  priority: string;
+  onAssign?: (id: string, technicianId: string, priority: string) => void;
 }
 
 const HighPriorityJobFooter = ({ 
   id, 
-  assignedTo,
-  onAcceptJob,
-  onResendEmail
+  priority,
+  onAssign
 }: HighPriorityJobFooterProps) => {
+  const [dialogOpen, setDialogOpen] = useState(false);
+
   return (
     <div className="w-full flex flex-col gap-2">
       <Button 
-        variant="outline" 
-        className="w-full flex items-center gap-2"
-        onClick={() => onAcceptJob(id)}
+        variant="default" 
+        className="w-full"
+        onClick={() => setDialogOpen(true)}
       >
-        <Check className="h-4 w-4" />
-        Accept on Behalf
+        Assign Job
       </Button>
-      
-      {onResendEmail && (
-        <Button 
-          variant="secondary" 
-          className="w-full flex items-center gap-2"
-          onClick={() => onResendEmail(id, assignedTo)}
-        >
-          <Send className="h-4 w-4" />
-          Resend Email
-        </Button>
+      {onAssign && (
+        <AssignJobDialog 
+          jobId={id}
+          priority={priority}
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          onAssign={onAssign}
+        />
       )}
     </div>
   );

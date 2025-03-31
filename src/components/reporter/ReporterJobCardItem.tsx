@@ -8,14 +8,12 @@ interface ReporterJobCardItemProps {
   job: JobCardProps;
   onAssign: (jobId: string, technicianId: string, priority: string) => void;
   onResendEmail: (jobId: string, technicianId: string) => void;
-  onAcceptJob: (jobId: string) => void;
 }
 
 const ReporterJobCardItem = ({ 
   job, 
   onAssign, 
-  onResendEmail, 
-  onAcceptJob 
+  onResendEmail 
 }: ReporterJobCardItemProps) => {
   return (
     <div className="flex flex-col space-y-4">
@@ -23,7 +21,6 @@ const ReporterJobCardItem = ({
         {...job}
         onAssign={onAssign}
         onResendEmail={onResendEmail}
-        onAcceptJob={job.status === "assigned" ? onAcceptJob : undefined}
       />
       <JobPhotosViewer reporterPhoto={job.reporterPhoto} />
     </div>

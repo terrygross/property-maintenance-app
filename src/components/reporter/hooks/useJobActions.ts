@@ -35,8 +35,7 @@ export const useJobActions = ({ jobCards, setJobCards }: UseJobActionsProps) => 
     
     // Remove the assigned job from the jobs list
     const remainingJobs = updatedJobCards.filter(job => 
-      job.status === "unassigned" || 
-      (job.priority === "high" && job.status === "assigned" && !job.accepted)
+      job.status === "unassigned"
     );
     setJobCards(remainingJobs);
     
@@ -135,37 +134,8 @@ export const useJobActions = ({ jobCards, setJobCards }: UseJobActionsProps) => 
     }
   };
 
-  // This function handles accepting jobs on behalf of technicians (admin role)
-  const handleAcceptJob = (jobId: string) => {
-    try {
-      const savedJobs = localStorage.getItem('reporterJobs');
-      if (savedJobs) {
-        const allJobs = JSON.parse(savedJobs);
-        const updatedAllJobs = allJobs.map((job: any) => 
-          job.id === jobId ? { ...job, accepted: true, alertShown: true } : job
-        );
-        localStorage.setItem('reporterJobs', JSON.stringify(updatedAllJobs));
-        
-        // Remove this job from the list since it's now accepted
-        setJobCards(prevCards => prevCards.filter(card => card.id !== jobId));
-        
-        // Dispatch events to notify other components
-        window.dispatchEvent(new Event('storage'));
-        document.dispatchEvent(new Event('jobsUpdated'));
-        
-        toast({
-          title: "Job Accepted",
-          description: "The job has been accepted on behalf of the technician.",
-        });
-      }
-    } catch (error) {
-      console.error("Error accepting job:", error);
-    }
-  };
-
   return {
     handleAssignJob,
-    handleResendEmail,
-    handleAcceptJob
+    handleResendEmail
   };
 };

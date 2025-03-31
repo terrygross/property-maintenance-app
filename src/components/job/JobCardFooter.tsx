@@ -11,7 +11,6 @@ interface JobCardFooterProps {
   assignedTo?: string;
   onAssign?: (id: string, technicianId: string, priority: string) => void;
   onResendEmail?: (id: string, technicianId: string) => void;
-  onAcceptJob?: (id: string) => void;
 }
 
 const JobCardFooter = ({ 
@@ -20,11 +19,20 @@ const JobCardFooter = ({
   priority, 
   assignedTo, 
   onAssign,
-  onResendEmail,
-  onAcceptJob
+  onResendEmail
 }: JobCardFooterProps) => {
   // For unassigned jobs, show the assign button
   if (status === "unassigned") {
+    if (priority === "high") {
+      return (
+        <HighPriorityJobFooter 
+          id={id}
+          priority={priority}
+          onAssign={onAssign}
+        />
+      );
+    }
+    
     return (
       <UnassignedJobFooter 
         id={id}
@@ -34,21 +42,8 @@ const JobCardFooter = ({
     );
   }
 
-  // For assigned jobs, show options based on the email status
+  // For assigned jobs, show the email resend option for contractors
   if (status === "assigned" && assignedTo) {
-    // If this is a high priority job that needs acceptance
-    if (priority === "high" && onAcceptJob) {
-      return (
-        <HighPriorityJobFooter 
-          id={id}
-          assignedTo={assignedTo}
-          onAcceptJob={onAcceptJob}
-          onResendEmail={onResendEmail}
-        />
-      );
-    }
-    
-    // Regular assigned job with email option
     return (
       <AssignedJobFooter 
         id={id}
