@@ -21,7 +21,7 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
 
   const handleNewTaskClick = () => {
     // This function will be passed to DashboardHeader but is handled at the AdminDashboard level
-    // The actual implementation to show the dialog is in AdminDashboard
+    console.log("New task button clicked");
   };
 
   return (

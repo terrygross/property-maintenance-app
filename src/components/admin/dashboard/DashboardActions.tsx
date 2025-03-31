@@ -45,9 +45,9 @@ const DashboardActions = () => {
             <p className="text-xs text-muted-foreground">
               This will delete all existing jobs and create fresh mock data for testing.
             </p>
-            <div className="mt-1">
+            <div className="mt-2 p-3 bg-red-50 border border-red-100 rounded-md">
               <ResetJobsButton variant="destructive" className="w-full" />
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-xs text-red-500 mt-2 font-medium">
                 After reset, check the "Reported Jobs" tab to see unassigned jobs.
               </p>
             </div>

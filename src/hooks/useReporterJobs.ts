@@ -15,12 +15,15 @@ export const useReporterJobs = () => {
         if (savedJobs) {
           const parsedJobs = JSON.parse(savedJobs);
           
+          console.log("All jobs in storage:", parsedJobs.length);
+          
           // Show all jobs that are unassigned or don't have a status
+          // FIXED: The filter was incorrectly checking only for 'unassigned' status
           const unassignedJobs = parsedJobs.filter((job: any) => 
-            job.status === "unassigned" || !job.status
+            !job.assignedTo || job.status === "unassigned" || !job.status
           );
           
-          console.log("Filtered unassigned jobs:", unassignedJobs);
+          console.log("Filtered unassigned jobs:", unassignedJobs.length);
           
           if (unassignedJobs.length === 0) {
             console.log("No unassigned jobs found in localStorage");
@@ -40,7 +43,7 @@ export const useReporterJobs = () => {
           }));
           
           setJobCards(jobsWithPhotos);
-          console.log("Loaded reporter jobs:", jobsWithPhotos);
+          console.log("Loaded reporter jobs:", jobsWithPhotos.length);
         } else {
           console.log("No reporter jobs found in localStorage");
           setJobCards([]);

@@ -113,7 +113,7 @@ export const generateMockJobs = (options: MockJobOptions = {}): MockJob[] => {
     const imageIndex = Math.floor(Math.random() * sampleImages.length);
     const imageUrl = includePhotos ? sampleImages[imageIndex] : undefined;
     
-    // Create the job
+    // Create the job - CRITICAL FIX: explicitly set status to "unassigned"
     const job: MockJob = {
       id: `job-${Date.now()}-${i}`,
       title: `${issue.title} - Reported by ${reporterName}`,
@@ -121,7 +121,7 @@ export const generateMockJobs = (options: MockJobOptions = {}): MockJob[] => {
       property: property,
       reportDate: reportDate.toISOString().split("T")[0],
       priority: isHighPriority ? "high" : Math.random() > 0.5 ? "medium" : "low",
-      status: "unassigned", // All generated jobs are unassigned
+      status: "unassigned", // Explicitly set to unassigned
       imageUrl: imageUrl,
       timestamp: new Date().toISOString(),
       highPriority: isHighPriority,
@@ -133,6 +133,7 @@ export const generateMockJobs = (options: MockJobOptions = {}): MockJob[] => {
     jobs.push(job);
   }
   
+  console.log(`Generated ${jobs.length} mock jobs, all with 'unassigned' status`);
   return jobs;
 };
 
@@ -154,5 +155,5 @@ export const resetJobsWithMockData = (): void => {
   const storageEvent = new StorageEvent('storage', { key: 'reporterJobs' });
   window.dispatchEvent(storageEvent);
   
-  console.log(`Reset system with ${mockJobs.length} new mock jobs`);
+  console.log(`Reset system with ${mockJobs.length} new mock jobs, all unassigned`);
 };
