@@ -121,7 +121,7 @@ export const generateMockJobs = (options: MockJobOptions = {}): MockJob[] => {
       property: property,
       reportDate: reportDate.toISOString().split("T")[0],
       priority: isHighPriority ? "high" : Math.random() > 0.5 ? "medium" : "low",
-      status: "unassigned",
+      status: "unassigned", // Make sure all newly generated jobs are unassigned
       imageUrl: imageUrl,
       timestamp: new Date().toISOString(),
       highPriority: isHighPriority,

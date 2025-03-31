@@ -7,9 +7,10 @@ import { resetJobsWithMockData } from "@/utils/mockJobGenerator";
 
 interface ResetJobsButtonProps {
   variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
+  className?: string;
 }
 
-const ResetJobsButton = ({ variant = "outline" }: ResetJobsButtonProps) => {
+const ResetJobsButton = ({ variant = "outline", className = "" }: ResetJobsButtonProps) => {
   const { toast } = useToast();
 
   const handleResetJobs = () => {
@@ -27,7 +28,7 @@ const ResetJobsButton = ({ variant = "outline" }: ResetJobsButtonProps) => {
     <Button
       variant={variant}
       onClick={handleResetJobs}
-      className="flex items-center gap-2"
+      className={`flex items-center gap-2 ${className}`}
     >
       <RefreshCw className="h-4 w-4" />
       Reset Jobs

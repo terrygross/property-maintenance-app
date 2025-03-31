@@ -18,7 +18,6 @@ import BillingManagement from "./billing/BillingManagement";
 import { UserRole } from "@/types/user";
 import { useAppState } from "@/context/AppStateContext";
 import ComplianceLists from "./maintenance/compliance/ComplianceLists";
-import DashboardHeader from "./admin/dashboard/DashboardHeader";
 import NewTaskDialog from "./admin/tasks/NewTaskDialog";
 import { useHighPriorityJobsMonitor } from "@/hooks/useHighPriorityJobsMonitor";
 
@@ -42,14 +41,12 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
     setActiveTab("reporter");
   };
 
+  const handleNewTaskClick = () => {
+    setShowNewTaskDialog(true);
+  };
+
   return (
     <div className="container mx-auto p-4 md:p-6">
-      <DashboardHeader 
-        highPriorityJobs={highPriorityJobs}
-        onAlertClick={handleAlertClick}
-        onNewTaskClick={() => setShowNewTaskDialog(true)}
-      />
-
       <Tabs defaultValue="overview" className="w-full" value={activeTab} onValueChange={setActiveTab}>
         <AdminTabsList />
 

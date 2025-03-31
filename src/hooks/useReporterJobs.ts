@@ -17,7 +17,8 @@ export const useReporterJobs = () => {
           
           // Include only unassigned jobs
           const relevantJobs = parsedJobs.filter((job: any) => 
-            job.status === "unassigned"
+            // Change this line to make sure we're correctly identifying unassigned jobs
+            job.status === "unassigned" || !job.status
           );
           
           // Map the jobs to include the reporter photo
