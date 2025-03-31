@@ -12,4 +12,5 @@ export interface JobCardProps {
   reporterPhoto?: string;
   onAssign?: (id: string, technicianId: string, priority: string) => void;
   onResendEmail?: (id: string, technicianId: string) => void;
+  onAcceptJob?: (id: string) => void;
 }

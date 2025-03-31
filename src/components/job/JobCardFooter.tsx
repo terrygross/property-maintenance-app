@@ -11,6 +11,7 @@ interface JobCardFooterProps {
   assignedTo?: string;
   onAssign?: (id: string, technicianId: string, priority: string) => void;
   onResendEmail?: (id: string, technicianId: string) => void;
+  onAcceptJob?: (id: string) => void;
 }
 
 const JobCardFooter = ({ 
@@ -19,7 +20,8 @@ const JobCardFooter = ({
   priority, 
   assignedTo, 
   onAssign,
-  onResendEmail
+  onResendEmail,
+  onAcceptJob
 }: JobCardFooterProps) => {
   // For unassigned jobs, show the assign button
   if (status === "unassigned") {
@@ -49,6 +51,7 @@ const JobCardFooter = ({
         id={id}
         assignedTo={assignedTo}
         onResendEmail={onResendEmail}
+        onAcceptJob={onAcceptJob}
       />
     );
   }
