@@ -1,13 +1,26 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import DashboardHeader from "./dashboard/DashboardHeader";
 import JobsList from "../jobs/JobsList";
 import DashboardActions from "./dashboard/DashboardActions";
 import { Dispatch, SetStateAction } from "react";
 import { useHighPriorityJobsMonitor } from "@/hooks/useHighPriorityJobsMonitor";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart3, CheckSquare, ClipboardList, MessageCircle, Settings, Users } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { 
+  BarChart3, 
+  CheckSquare, 
+  ClipboardList, 
+  MessageCircle, 
+  Settings, 
+  Users,
+  CheckCircle2,
+  FileText,
+  Building,
+  Calendar,
+  FileSpreadsheet 
+} from "lucide-react";
+import { useAppState } from "@/context/AppStateContext";
+import { useReporterJobs } from "@/hooks/useReporterJobs";
 
 interface OverviewTabContentProps {
   setActiveTab?: Dispatch<SetStateAction<string>>;
@@ -15,7 +28,32 @@ interface OverviewTabContentProps {
 
 const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
   const highPriorityJobs = useHighPriorityJobsMonitor();
-  const navigate = useNavigate();
+  const { users, properties } = useAppState();
+  const { jobCards: unassignedJobs } = useReporterJobs();
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Count users by role
+  const technicianCount = users.filter(user => 
+    user.role === "maintenance_tech" || user.role === "admin"
+  ).length;
+
+  // Count contractors
+  const contractorCount = users.filter(user => user.role === "contractor").length;
+
+  // Ensure component is properly loaded
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
+
+  // If not loaded, re-render
+  useEffect(() => {
+    if (!isLoaded) {
+      const timer = setTimeout(() => {
+        setIsLoaded(true);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoaded]);
 
   const handleAlertClick = () => {
     if (setActiveTab) {
@@ -33,6 +71,10 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
       setActiveTab(tabName);
     }
   };
+
+  if (!isLoaded) {
+    return <div>Loading dashboard...</div>;
+  }
 
   return (
     <div className="space-y-6 p-3">
@@ -59,8 +101,7 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
               </CardHeader>
               <CardContent>
                 <p className="text-2xl font-bold">
-                  {/* You could add dynamic user count here */}
-                  8
+                  {technicianCount}
                 </p>
                 <p className="text-xs text-muted-foreground">Active accounts</p>
               </CardContent>
@@ -79,8 +120,7 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
               </CardHeader>
               <CardContent>
                 <p className="text-2xl font-bold">
-                  {/* You could add dynamic property count here */}
-                  12
+                  {properties.length}
                 </p>
                 <p className="text-xs text-muted-foreground">Registered properties</p>
               </CardContent>
@@ -92,17 +132,16 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
             >
               <CardHeader className="pb-2">
                 <div className="flex justify-between items-center">
-                  <CardTitle className="text-lg font-medium">Maintenance</CardTitle>
+                  <CardTitle className="text-lg font-medium">Contractors</CardTitle>
                   <Settings className="h-5 w-5 text-purple-500" />
                 </div>
-                <CardDescription>System settings</CardDescription>
+                <CardDescription>External service providers</CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-2xl font-bold">
-                  {/* You could add something relevant here */}
-                  5
+                  {contractorCount}
                 </p>
-                <p className="text-xs text-muted-foreground">Configuration areas</p>
+                <p className="text-xs text-muted-foreground">Registered contractors</p>
               </CardContent>
             </Card>
 
@@ -119,9 +158,9 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
               </CardHeader>
               <CardContent>
                 <p className="text-2xl font-bold">
-                  {highPriorityJobs.length}
+                  {unassignedJobs.length}
                 </p>
-                <p className="text-xs text-muted-foreground">High priority items</p>
+                <p className="text-xs text-muted-foreground">Unassigned jobs</p>
               </CardContent>
             </Card>
 
@@ -137,10 +176,7 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
                 <CardDescription>View analytics</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-bold">
-                  {/* You could add something relevant here */}
-                  4
-                </p>
+                <p className="text-2xl font-bold">4</p>
                 <p className="text-xs text-muted-foreground">Report categories</p>
               </CardContent>
             </Card>
@@ -157,11 +193,60 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
                 <CardDescription>Communication center</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-bold">
-                  {/* You could add dynamic message count here */}
-                  12
-                </p>
+                <p className="text-2xl font-bold">12</p>
                 <p className="text-xs text-muted-foreground">New messages</p>
+              </CardContent>
+            </Card>
+
+            {/* Additional tabs for the second row */}
+            <Card 
+              className="bg-white hover:bg-indigo-50 transition-colors cursor-pointer border-indigo-100"
+              onClick={() => handleCardClick("compliance")}
+            >
+              <CardHeader className="pb-2">
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-lg font-medium">Compliance</CardTitle>
+                  <CheckCircle2 className="h-5 w-5 text-indigo-500" />
+                </div>
+                <CardDescription>Compliance Lists</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">3</p>
+                <p className="text-xs text-muted-foreground">Active lists</p>
+              </CardContent>
+            </Card>
+
+            <Card 
+              className="bg-white hover:bg-orange-50 transition-colors cursor-pointer border-orange-100"
+              onClick={() => handleCardClick("billing")}
+            >
+              <CardHeader className="pb-2">
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-lg font-medium">Billing</CardTitle>
+                  <FileText className="h-5 w-5 text-orange-500" />
+                </div>
+                <CardDescription>Subscription Plans</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">1</p>
+                <p className="text-xs text-muted-foreground">Active subscription</p>
+              </CardContent>
+            </Card>
+
+            <Card 
+              className="bg-white hover:bg-emerald-50 transition-colors cursor-pointer border-emerald-100"
+              onClick={() => handleCardClick("reporter-management")}
+            >
+              <CardHeader className="pb-2">
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-lg font-medium">Reporter</CardTitle>
+                  <Building className="h-5 w-5 text-emerald-500" />
+                </div>
+                <CardDescription>Reporter Management</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">2</p>
+                <p className="text-xs text-muted-foreground">Reporting stations</p>
               </CardContent>
             </Card>
           </div>

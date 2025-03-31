@@ -3,7 +3,7 @@ import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import ResetJobsButton from "@/components/admin/ResetJobsButton";
 import { Button } from "@/components/ui/button";
-import { Download, Upload, RefreshCw, AlertOctagon, AlertTriangle } from "lucide-react";
+import { Download, Upload, RefreshCw, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const DashboardActions = () => {
@@ -42,14 +42,20 @@ const DashboardActions = () => {
         <div className="grid grid-cols-1 gap-3">
           <div className="space-y-1">
             <h3 className="text-sm font-medium">Reset Test Data</h3>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground mb-2">
               This will delete all existing jobs and create fresh mock data for testing.
             </p>
-            <div className="mt-2 p-3 bg-red-50 border border-red-100 rounded-md">
-              <ResetJobsButton variant="destructive" className="w-full" />
-              <p className="text-xs text-red-500 mt-2 font-medium">
-                After reset, check the "Reported Jobs" tab to see unassigned jobs.
+            <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+              <div className="mb-2 flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 text-yellow-600" />
+                <p className="text-sm font-medium text-yellow-800">
+                  No jobs showing up?
+                </p>
+              </div>
+              <p className="text-xs text-yellow-700 mb-3">
+                Click the button below to generate new jobs, then visit the "Reported Jobs" tab.
               </p>
+              <ResetJobsButton variant="destructive" className="w-full mb-2" />
             </div>
           </div>
 
@@ -75,7 +81,7 @@ const DashboardActions = () => {
               onClick={handleSystemCheck} 
               className="w-full mt-1 flex items-center justify-center gap-1"
             >
-              <AlertTriangle className="h-3.5 w-3.5" />
+              <RefreshCw className="h-3.5 w-3.5" />
               Run System Check
             </Button>
           </div>

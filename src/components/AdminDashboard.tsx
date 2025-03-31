@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import AdminTab from "./AdminTab";
 import UserManagement from "./UserManagement";
@@ -30,12 +30,22 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
   const [showNewTaskDialog, setShowNewTaskDialog] = useState(false);
   const { users, properties } = useAppState();
   const highPriorityJobs = useHighPriorityJobsMonitor();
+  const [isInitialized, setIsInitialized] = useState(false);
   
   const currentUserId = "4";
 
   const technicians = users.filter(user => 
     user.role === "maintenance_tech" || user.role === "contractor"
   );
+
+  // Ensure the dashboard initializes correctly
+  useEffect(() => {
+    if (!isInitialized) {
+      // Force the Overview tab to be the active one on initial load
+      setActiveTab("overview");
+      setIsInitialized(true);
+    }
+  }, [isInitialized]);
 
   const handleAlertClick = () => {
     setActiveTab("reporter");
