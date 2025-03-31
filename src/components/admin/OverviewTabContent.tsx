@@ -9,6 +9,8 @@ import { adminTabs } from "./AdminTabsList";
 import DashboardHeader from "./dashboard/DashboardHeader";
 import { useState } from "react";
 import NewTaskDialog from "./tasks/NewTaskDialog";
+import { Button } from "@/components/ui/button";
+import { Columns2, Columns3, Columns4, LayoutGrid } from "lucide-react";
 
 interface OverviewTabContentProps {
   setActiveTab?: Dispatch<SetStateAction<string>>;
@@ -19,6 +21,7 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
   const { users, properties } = useAppState();
   const { jobCards: unassignedJobs } = useReporterJobs();
   const [showNewTaskDialog, setShowNewTaskDialog] = useState(false);
+  const [gridColumns, setGridColumns] = useState(4); // Default to 4 columns
 
   // Count users by role
   const technicianCount = users.filter(user => 
@@ -88,23 +91,23 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
   // Get background colors for cards
   const getCardStyles = (index: number) => {
     const colorClasses = [
-      "bg-white hover:bg-blue-50 border-blue-100",
-      "bg-white hover:bg-green-50 border-green-100",
-      "bg-white hover:bg-purple-50 border-purple-100",
-      "bg-white hover:bg-yellow-50 border-yellow-100",
-      "bg-white hover:bg-red-50 border-red-100",
-      "bg-white hover:bg-teal-50 border-teal-100",
-      "bg-white hover:bg-slate-50 border-slate-100",
-      "bg-white hover:bg-indigo-50 border-indigo-100",
-      "bg-white hover:bg-orange-50 border-orange-100",
-      "bg-white hover:bg-emerald-50 border-emerald-100",
-      "bg-white hover:bg-pink-50 border-pink-100",
-      "bg-white hover:bg-cyan-50 border-cyan-100",
-      "bg-white hover:bg-amber-50 border-amber-100",
-      "bg-white hover:bg-lime-50 border-lime-100",
-      "bg-white hover:bg-violet-50 border-violet-100",
-      "bg-white hover:bg-fuchsia-50 border-fuchsia-100",
-      "bg-white hover:bg-rose-50 border-rose-100"
+      "bg-white hover:bg-blue-50 border-blue-300",
+      "bg-white hover:bg-green-50 border-blue-300",
+      "bg-white hover:bg-purple-50 border-blue-300",
+      "bg-white hover:bg-yellow-50 border-blue-300",
+      "bg-white hover:bg-red-50 border-blue-300",
+      "bg-white hover:bg-teal-50 border-blue-300",
+      "bg-white hover:bg-slate-50 border-blue-300",
+      "bg-white hover:bg-indigo-50 border-blue-300",
+      "bg-white hover:bg-orange-50 border-blue-300",
+      "bg-white hover:bg-emerald-50 border-blue-300",
+      "bg-white hover:bg-pink-50 border-blue-300",
+      "bg-white hover:bg-cyan-50 border-blue-300",
+      "bg-white hover:bg-amber-50 border-blue-300",
+      "bg-white hover:bg-lime-50 border-blue-300",
+      "bg-white hover:bg-violet-50 border-blue-300",
+      "bg-white hover:bg-fuchsia-50 border-blue-300",
+      "bg-white hover:bg-rose-50 border-blue-300"
     ];
     return colorClasses[index % colorClasses.length];
   };
@@ -141,6 +144,23 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
     user.role === "maintenance_tech" || user.role === "contractor"
   );
 
+  // Handle grid column change
+  const handleGridChange = (cols: number) => {
+    setGridColumns(cols);
+  };
+
+  // Determine the grid class based on selected columns
+  const getGridClass = () => {
+    switch (gridColumns) {
+      case 2: return "grid-cols-1 sm:grid-cols-2";
+      case 3: return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
+      case 4: return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
+      case 5: return "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5";
+      case 6: return "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6";
+      default: return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
+    }
+  };
+
   return (
     <div className="space-y-6 p-3">
       <DashboardHeader 
@@ -149,9 +169,47 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
         onNewTaskClick={handleNewTaskClick}
       />
 
-      <h2 className="text-2xl font-bold mb-6">Admin Dashboard</h2>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold">Admin Dashboard</h2>
+        
+        <div className="flex items-center space-x-2 bg-gray-100 p-1 rounded-lg">
+          <span className="text-sm font-medium mr-2 text-gray-600">Layout:</span>
+          <Button 
+            size="sm" 
+            variant={gridColumns === 2 ? "default" : "ghost"} 
+            className="h-8 w-8 p-0" 
+            onClick={() => handleGridChange(2)}
+          >
+            <Columns2 className="h-4 w-4" />
+          </Button>
+          <Button 
+            size="sm" 
+            variant={gridColumns === 3 ? "default" : "ghost"} 
+            className="h-8 w-8 p-0" 
+            onClick={() => handleGridChange(3)}
+          >
+            <Columns3 className="h-4 w-4" />
+          </Button>
+          <Button 
+            size="sm" 
+            variant={gridColumns === 4 ? "default" : "ghost"} 
+            className="h-8 w-8 p-0" 
+            onClick={() => handleGridChange(4)}
+          >
+            <Columns4 className="h-4 w-4" />
+          </Button>
+          <Button 
+            size="sm" 
+            variant={gridColumns === 6 ? "default" : "ghost"} 
+            className="h-8 w-8 p-0" 
+            onClick={() => handleGridChange(6)}
+          >
+            <LayoutGrid className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className={`grid ${getGridClass()} gap-4`}>
         {filteredTabs.map((tab, index) => {
           const count = getTabCount(tab.id);
           const description = getCardDescription(tab.id);
@@ -161,7 +219,7 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
           return (
             <Card 
               key={tab.id}
-              className={`${bgColorClass} transition-colors cursor-pointer`}
+              className={`${bgColorClass} transition-colors cursor-pointer border-2`}
               onClick={() => handleCardClick(tab.id)}
             >
               <CardHeader className="pb-2">
