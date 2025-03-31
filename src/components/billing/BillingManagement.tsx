@@ -18,13 +18,6 @@ const BillingManagement = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col space-y-4">
-        <h2 className="text-2xl font-bold tracking-tight">Billing Management</h2>
-        <p className="text-muted-foreground">
-          Manage your subscription, payment methods, and billing history.
-        </p>
-      </div>
-
       <Tabs defaultValue="subscription" className="space-y-4">
         <TabsList>
           <TabsTrigger value="subscription">Subscription</TabsTrigger>
