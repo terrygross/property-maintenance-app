@@ -1,4 +1,3 @@
-
 // Utility functions for dashboard components
 
 import { useAppState } from "@/context/AppStateContext";
@@ -13,16 +12,8 @@ export const getTabCount = (tabId: string, users: any[], properties: any[], unas
   const technicianCount = countUsersByRole(users, "maintenance_tech");
   const contractorCount = countUsersByRole(users, "contractor");
   
-  // Get the reporterStations count from localStorage for accurate count
-  let reporterStationsCount = 3; // Default to 3 (2 base + 1 additional)
-  try {
-    const savedAdditionalStations = localStorage.getItem('additionalStations');
-    if (savedAdditionalStations) {
-      reporterStationsCount = 2 + parseInt(savedAdditionalStations, 10); // Base plan (2) + additional stations
-    }
-  } catch (error) {
-    console.error("Error loading reporter stations count:", error);
-  }
+  // Note: We no longer need to calculate reporterStationsCount here
+  // as we're now using the value directly from AppState in OverviewTabContent
   
   switch (tabId) {
     case "users": return technicianCount;
@@ -34,7 +25,7 @@ export const getTabCount = (tabId: string, users: any[], properties: any[], unas
     case "chat": return 12;
     case "compliance": return 3;
     case "billing": return 1;
-    case "reporter-management": return reporterStationsCount;
+    // reporter-management count is now handled in OverviewTabContent
     case "maintenance-jobcards": return 8;
     default: return null;
   }
@@ -52,7 +43,7 @@ export const getCardDescription = (tabId: string): string => {
     case "chat": return "New messages";
     case "compliance": return "Active lists";
     case "billing": return "Active subscription";
-    case "reporter-management": return "Active reporting stations";
+    case "reporter-management": return "Base (2) + Additional stations";
     case "jobs": return "Active jobs";
     case "maintenance-jobcards": return "Assigned job cards";
     case "settings": return "System configurations";

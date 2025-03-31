@@ -23,7 +23,7 @@ interface OverviewTabContentProps {
 
 const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
   const highPriorityJobs = useHighPriorityJobsMonitor();
-  const { users, properties } = useAppState();
+  const { users, properties, reporterStations } = useAppState();
   const { jobCards: unassignedJobs } = useReporterJobs();
   const [showNewTaskDialog, setShowNewTaskDialog] = useState(false);
   const [gridColumns, setGridColumns] = useState(4); // Default to 4 columns
@@ -75,7 +75,11 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
 
       <div className={`grid ${getGridClass(gridColumns)} gap-4`}>
         {filteredTabs.map((tab, index) => {
-          const count = getTabCount(tab.id, users, properties, unassignedJobs);
+          // For reporter-management card, directly use the reporterStations from AppState
+          const count = tab.id === "reporter-management" 
+            ? reporterStations 
+            : getTabCount(tab.id, users, properties, unassignedJobs);
+            
           const description = getCardDescription(tab.id);
           const bgColorClass = getCardStyles(index);
           const iconColorClass = getIconColor(index);
