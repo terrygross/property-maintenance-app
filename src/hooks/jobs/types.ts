@@ -9,8 +9,9 @@ export interface Job {
   location: string;
   priority: string;
   dueDate: Date;
-  accepted?: boolean;
   status?: string;
+  assignedTo?: string; // Add assignedTo property
+  accepted?: boolean;
   photos?: {
     before?: string;
     after?: string;
