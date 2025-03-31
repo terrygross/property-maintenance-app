@@ -7,6 +7,8 @@ import { useAppState } from "@/context/AppStateContext";
 import { useReporterJobs } from "@/hooks/useReporterJobs";
 import { adminTabs } from "./AdminTabsList";
 import DashboardHeader from "./dashboard/DashboardHeader";
+import { useState } from "react";
+import NewTaskDialog from "./tasks/NewTaskDialog";
 
 interface OverviewTabContentProps {
   setActiveTab?: Dispatch<SetStateAction<string>>;
@@ -16,6 +18,7 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
   const highPriorityJobs = useHighPriorityJobsMonitor();
   const { users, properties } = useAppState();
   const { jobCards: unassignedJobs } = useReporterJobs();
+  const [showNewTaskDialog, setShowNewTaskDialog] = useState(false);
 
   // Count users by role
   const technicianCount = users.filter(user => 
@@ -35,6 +38,10 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
     if (setActiveTab) {
       setActiveTab("reporter");
     }
+  };
+
+  const handleNewTaskClick = () => {
+    setShowNewTaskDialog(true);
   };
 
   // Get counts for various sections
@@ -129,11 +136,17 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
   // Remove 'overview' from the tabs since we're already on that page
   const filteredTabs = adminTabs.filter(tab => tab.id !== "overview");
 
+  // Get technicians for New Task dialog
+  const technicians = users.filter(user => 
+    user.role === "maintenance_tech" || user.role === "contractor"
+  );
+
   return (
     <div className="space-y-6 p-3">
       <DashboardHeader 
         highPriorityJobs={highPriorityJobs}
         onAlertClick={handleAlertClick}
+        onNewTaskClick={handleNewTaskClick}
       />
 
       <h2 className="text-2xl font-bold mb-6">Admin Dashboard</h2>
@@ -172,6 +185,14 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
           );
         })}
       </div>
+
+      {/* Add the NewTaskDialog */}
+      <NewTaskDialog
+        open={showNewTaskDialog}
+        onOpenChange={setShowNewTaskDialog}
+        technicians={technicians}
+        properties={properties}
+      />
     </div>
   );
 };
