@@ -34,7 +34,7 @@ const PropertyFormDialog = ({
 
   return isDesktop ? (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {selectedProperty ? "Edit Property" : "Add Property"}
@@ -55,7 +55,7 @@ const PropertyFormDialog = ({
             {selectedProperty ? "Edit Property" : "Add Property"}
           </DrawerTitle>
         </DrawerHeader>
-        <div className="px-4 pb-4">
+        <div className="px-4 pb-4 overflow-y-auto max-h-[70vh]">
           <PropertyForm
             property={selectedProperty}
             onSave={onSave}

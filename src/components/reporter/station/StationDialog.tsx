@@ -86,7 +86,7 @@ const StationDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent>
+      <DialogContent className="overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {selectedStation ? "Edit Reporter Station" : "Add Reporter Station"}

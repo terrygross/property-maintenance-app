@@ -40,7 +40,7 @@ const UserFormDialog = ({
         <DialogHeader>
           <DialogTitle>{selectedUser ? "Edit User" : "Add New User"}</DialogTitle>
         </DialogHeader>
-        <DialogContent>
+        <DialogContent className="overflow-y-auto max-h-[85vh]">
           <UserForm
             user={selectedUser}
             onSave={onSave}
@@ -57,13 +57,15 @@ const UserFormDialog = ({
       <DrawerHeader>
         <DrawerTitle>{selectedUser ? "Edit User" : "Add New User"}</DrawerTitle>
       </DrawerHeader>
-      <DrawerContent>
-        <UserForm
-          user={selectedUser}
-          onSave={onSave}
-          onCancel={onCancel}
-          defaultRole={defaultRole}
-        />
+      <DrawerContent className="overflow-y-auto">
+        <div className="px-4 pb-4">
+          <UserForm
+            user={selectedUser}
+            onSave={onSave}
+            onCancel={onCancel}
+            defaultRole={defaultRole}
+          />
+        </div>
       </DrawerContent>
     </Drawer>
   );
