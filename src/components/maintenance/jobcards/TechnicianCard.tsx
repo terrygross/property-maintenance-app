@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { User } from "@/types/user";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle, CheckCircle, Circle } from "lucide-react";
+import { AlertCircle, CheckCircle, Circle, Clock } from "lucide-react";
 import { getTechnicianJobs } from "../tech/jobs/utils/technicianUtils";
 
 interface JobCounts {
@@ -12,6 +12,8 @@ interface JobCounts {
   medium: number;
   low: number;
   completed: number;
+  inProgress: number;
+  assigned: number;
 }
 
 interface TechnicianCardProps {
@@ -20,23 +22,37 @@ interface TechnicianCardProps {
 }
 
 const TechnicianCard = ({ tech, onViewJobs }: TechnicianCardProps) => {
-  const [jobCounts, setJobCounts] = useState<JobCounts>({ high: 0, medium: 0, low: 0, completed: 0 });
+  const [jobCounts, setJobCounts] = useState<JobCounts>({
+    high: 0,
+    medium: 0,
+    low: 0,
+    completed: 0,
+    inProgress: 0,
+    assigned: 0
+  });
   
   useEffect(() => {
     // Get job counts for this technician
     const techJobs = getTechnicianJobs(tech.id);
     
-    // Count jobs by priority and completion status
+    // Count jobs by priority and status
     const counts = techJobs.reduce((acc: JobCounts, job: any) => {
-      // Count by priority for active jobs
-      if (job.status !== "completed") {
-        acc[job.priority as keyof Pick<JobCounts, 'high' | 'medium' | 'low'>] += 1;
-      } else {
-        // Count completed jobs
+      // Count by status
+      if (job.status === "in_progress") {
+        acc.inProgress += 1;
+      } else if (job.status === "assigned") {
+        acc.assigned += 1;
+      } else if (job.status === "completed") {
         acc.completed += 1;
       }
+      
+      // Count active jobs by priority (both assigned and in progress)
+      if (job.status !== "completed") {
+        acc[job.priority as keyof Pick<JobCounts, 'high' | 'medium' | 'low'>] += 1;
+      }
+      
       return acc;
-    }, { high: 0, medium: 0, low: 0, completed: 0 });
+    }, { high: 0, medium: 0, low: 0, completed: 0, inProgress: 0, assigned: 0 });
     
     setJobCounts(counts);
   }, [tech.id]);
@@ -61,7 +77,8 @@ const TechnicianCard = ({ tech, onViewJobs }: TechnicianCardProps) => {
         </div>
 
         <div className="flex flex-col items-end gap-2">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap justify-end">
+            {/* Priority badges */}
             {jobCounts.high > 0 && (
               <Badge variant="outline" className="bg-red-50 text-red-600 flex items-center gap-1">
                 <AlertCircle className="h-3 w-3" />
@@ -80,6 +97,14 @@ const TechnicianCard = ({ tech, onViewJobs }: TechnicianCardProps) => {
               <Badge variant="outline" className="bg-green-50 text-green-600 flex items-center gap-1">
                 <Circle className="h-3 w-3" />
                 {jobCounts.low}
+              </Badge>
+            )}
+            
+            {/* Status badges */}
+            {jobCounts.inProgress > 0 && (
+              <Badge variant="outline" className="bg-purple-50 text-purple-600 flex items-center gap-1">
+                <Clock className="h-3 w-3" />
+                {jobCounts.inProgress}
               </Badge>
             )}
             
