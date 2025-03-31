@@ -1,4 +1,3 @@
-
 import React from "react";
 import { NotificationSettings } from "@/hooks/settings/useSystemSettings";
 import { Input } from "@/components/ui/input";
@@ -81,7 +80,12 @@ const NotificationSettingsTab = ({ settings, updateSettings }: NotificationSetti
       ? currentDays.filter(d => d !== day)
       : [...currentDays, day];
     
-    handleNotificationScheduleChange("daysOfWeek", newDays);
+    updateSettings({
+      notificationSchedule: {
+        ...settings.notificationSchedule,
+        daysOfWeek: newDays
+      }
+    });
   };
 
   const addEscalationPath = () => {

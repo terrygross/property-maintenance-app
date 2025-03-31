@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { Plus, X, DragHandleHorizontal } from "lucide-react";
+import { Plus, X, GripHorizontal } from "lucide-react";
 import { 
   Table, 
   TableBody, 
@@ -302,7 +302,7 @@ const MaintenanceSettingsTab = ({ settings, updateSettings }: MaintenanceSetting
             <TableRow key={step.id}>
               <TableCell>
                 <div className="flex items-center">
-                  <DragHandleHorizontal className="h-5 w-5 text-muted-foreground mr-2" />
+                  <GripHorizontal className="h-5 w-5 text-muted-foreground mr-2" />
                   <Input
                     type="number"
                     min="1"
