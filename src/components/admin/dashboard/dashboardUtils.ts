@@ -1,3 +1,4 @@
+
 // Utility functions for dashboard components
 
 import { useAppState } from "@/context/AppStateContext";
@@ -43,7 +44,7 @@ export const getCardDescription = (tabId: string): string => {
     case "chat": return "New messages";
     case "compliance": return "Active lists";
     case "billing": return "Active subscription";
-    case "reporter-management": return "Base (2) + Additional stations";
+    case "reporter-management": return "Base (2) + (1) Additional station";
     case "jobs": return "Active jobs";
     case "maintenance-jobcards": return "Assigned job cards";
     case "settings": return "System configurations";

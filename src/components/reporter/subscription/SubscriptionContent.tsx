@@ -17,7 +17,7 @@ const SubscriptionContent = () => {
         <div className="space-y-1">
           <p className="text-sm font-medium">Current Plan: Basic</p>
           <p className="text-sm text-muted-foreground">
-            Your plan includes 2 base reporter stations + {additionalStations} additional purchased station{additionalStations !== 1 ? 's' : ''}.
+            Your plan includes 2 base reporter stations + ({additionalStations}) additional purchased station{additionalStations !== 1 ? 's' : ''}.
           </p>
         </div>
         <div className="space-y-1">

@@ -1,51 +1,55 @@
 
-import { Clipboard, UserCog } from "lucide-react";
-import StatsCard from "./StatsCard";
+import React from "react";
 import { useAppState } from "@/context/AppStateContext";
-import { useState, useEffect } from "react";
+import StatsCard from "./StatsCard";
+import { Users, AlertTriangle, History, CheckCircle } from "lucide-react";
 
 const StatsOverview = () => {
   const { reporterStations, additionalStations } = useAppState();
-  const [stationCount, setStationCount] = useState(0);
-
-  // Load stations from localStorage to get the actual count
-  useEffect(() => {
-    const STORAGE_KEY = 'reporterStations';
-    try {
-      const savedStations = localStorage.getItem(STORAGE_KEY);
-      if (savedStations) {
-        const stations = JSON.parse(savedStations);
-        setStationCount(stations.length);
-      }
-    } catch (error) {
-      console.error("Error loading stations from localStorage:", error);
-    }
-  }, []);
-
-  // Use the higher number between actual stations and subscription limit
-  const displayCount = Math.max(stationCount, reporterStations);
   
-  // Calculate description text to show base plan and additional stations
-  const description = `Basic plan (2) + ${additionalStations} additional station${additionalStations !== 1 ? 's' : ''}`;
+  const stats = [
+    {
+      title: "Reporter Stations",
+      value: reporterStations.toString(),
+      description: `Base (2) + (${additionalStations}) Additional`,
+      icon: Users,
+      color: "blue"
+    },
+    {
+      title: "Unprocessed Reports",
+      value: "5",
+      description: "Awaiting review",
+      icon: AlertTriangle,
+      color: "amber"
+    },
+    {
+      title: "Recently Assigned",
+      value: "12",
+      description: "Last 7 days",
+      icon: History,
+      color: "indigo"
+    },
+    {
+      title: "Completed Jobs",
+      value: "28",
+      description: "Last 30 days",
+      icon: CheckCircle,
+      color: "green"
+    }
+  ];
 
   return (
-    <div className="flex items-start">
-      <div className="grid gap-4 w-full">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <StatsCard
-            title="Total Reporter Stations"
-            value={displayCount}
-            description={description}
-            icon={Clipboard}
-          />
-          <StatsCard
-            title="Reporter Accounts"
-            value={2}
-            description="Active reporter user accounts"
-            icon={UserCog}
-          />
-        </div>
-      </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {stats.map((stat) => (
+        <StatsCard
+          key={stat.title}
+          title={stat.title}
+          value={stat.value}
+          description={stat.description}
+          icon={stat.icon}
+          color={stat.color}
+        />
+      ))}
     </div>
   );
 };

@@ -24,6 +24,12 @@ const DashboardCard = ({
   iconColorClass,
   onClick
 }: DashboardCardProps) => {
+  // Format dynamic description for reporter management card only
+  const formattedDescription = 
+    id === "reporter-management" && description.includes("Base") 
+      ? "Base (2) + (1) Additional station"
+      : description;
+
   return (
     <Card 
       key={id}
@@ -40,11 +46,11 @@ const DashboardCard = ({
         {count !== null && (
           <>
             <p className="text-2xl font-bold">{count}</p>
-            <p className="text-xs text-muted-foreground">{description}</p>
+            <p className="text-xs text-muted-foreground">{formattedDescription}</p>
           </>
         )}
         {count === null && (
-          <p className="text-sm text-muted-foreground">{description || "View & manage"}</p>
+          <p className="text-sm text-muted-foreground">{formattedDescription || "View & manage"}</p>
         )}
       </CardContent>
     </Card>
