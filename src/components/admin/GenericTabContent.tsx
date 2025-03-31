@@ -8,9 +8,15 @@ interface GenericTabContentProps {
   title: string;
   description: string;
   setActiveTab?: (tab: string) => void;
+  showBackButton?: boolean;
 }
 
-const GenericTabContent = ({ title, description, setActiveTab }: GenericTabContentProps) => {
+const GenericTabContent = ({ 
+  title, 
+  description, 
+  setActiveTab, 
+  showBackButton = true 
+}: GenericTabContentProps) => {
   const handleBackClick = () => {
     if (setActiveTab) {
       setActiveTab("overview");
@@ -20,7 +26,7 @@ const GenericTabContent = ({ title, description, setActiveTab }: GenericTabConte
   return (
     <div className="space-y-4">
       <div className="flex items-center mb-4">
-        {setActiveTab && (
+        {setActiveTab && showBackButton && (
           <Button 
             variant="ghost" 
             size="sm" 

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import AdminTab from "./AdminTab";
@@ -41,10 +40,8 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
     user.role === "maintenance_tech" || user.role === "contractor"
   );
 
-  // Ensure the dashboard initializes correctly
   useEffect(() => {
     if (!isInitialized) {
-      // Force the Overview tab to be the active one on initial load
       setActiveTab("overview");
       setIsInitialized(true);
     }
@@ -144,6 +141,7 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
             title="System Settings" 
             description="Configure global parameters for your maintenance system" 
             setActiveTab={setActiveTab}
+            showBackButton={false}
           />
         </TabsContent>
 
@@ -152,6 +150,7 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
             title="System Logs" 
             description="View system events, errors, and user actions" 
             setActiveTab={setActiveTab}
+            showBackButton={false}
           />
         </TabsContent>
 
@@ -178,6 +177,7 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
             title="Backup & Restore" 
             description="Backup and restore data from cloud storage" 
             setActiveTab={setActiveTab}
+            showBackButton={false}
           />
         </TabsContent>
 
@@ -186,6 +186,7 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
             title="Recycle Bin" 
             description="View and restore deleted items" 
             setActiveTab={setActiveTab}
+            showBackButton={false}
           />
         </TabsContent>
       </Tabs>
