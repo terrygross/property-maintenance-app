@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import AdminDashboard from "@/components/AdminDashboard";
 import { supabase } from "@/integrations/supabase/client";
@@ -112,14 +111,13 @@ const Admin = () => {
     <div className="min-h-screen bg-gray-50">
       <AdminDashboard />
       
-      {/* This alert is visible only in demo mode to explain the authentication process - made smaller */}
-      <div className="fixed bottom-4 right-4 max-w-[280px]">
-        <Alert variant="default" className="bg-yellow-50 border-yellow-200 p-3 text-xs shadow-md">
+      {/* This alert is visible only in demo mode to explain the authentication process - refined to be less intrusive */}
+      <div className="fixed bottom-4 right-4">
+        <Alert variant="default" className="bg-yellow-50 border-yellow-200 p-2 text-xs shadow-md max-w-fit">
           <AlertCircle className="h-3 w-3 text-yellow-600" />
           <AlertTitle className="text-xs font-medium">Demo Mode</AlertTitle>
           <AlertDescription className="text-xs">
-            In production, this admin dashboard would require authentication and proper role verification.
-            Only Admin and Maintenance Manager roles have access.
+            Auth required in production.
           </AlertDescription>
         </Alert>
       </div>
