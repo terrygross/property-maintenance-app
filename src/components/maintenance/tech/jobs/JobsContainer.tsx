@@ -3,7 +3,7 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import JobsList from "./JobsList";
 import EmptyJobsList from "./EmptyJobsList";
-import { TechJob } from "./types";
+import { Job } from "./JobCardTypes";
 import { useTechJobs } from "./TechJobsContext";
 import { getPriorityColor } from "./JobUtils";
 import JobsHeader from "./JobsHeader";
@@ -11,7 +11,7 @@ import { hasAdminAccess } from "@/types/user";
 import { useAppState } from "@/context/AppStateContext";
 
 interface JobsContainerProps {
-  jobs: TechJob[];
+  jobs: Job[];
   isAdmin?: boolean;
 }
 

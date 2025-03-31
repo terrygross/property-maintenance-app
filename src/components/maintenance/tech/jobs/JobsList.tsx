@@ -1,21 +1,6 @@
-
 import React from "react";
 import JobCard from "./JobCard";
-
-interface Job {
-  id: string;
-  title: string;
-  location: string;
-  priority: string;
-  dueDate: Date;
-  accepted?: boolean;
-  status?: string;
-  photos?: {
-    before?: string;
-    after?: string;
-    reporter?: string;
-  };
-}
+import { Job } from "./JobCardTypes";
 
 interface JobsListProps {
   jobs: Job[];

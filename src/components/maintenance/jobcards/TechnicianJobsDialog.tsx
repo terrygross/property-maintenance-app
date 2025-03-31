@@ -1,24 +1,9 @@
-
 import React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import JobCard from "../tech/jobs/JobCard";
 import { getPriorityColor } from "../tech/jobs/JobUtils";
-
-interface Job {
-  id: string;
-  title: string;
-  location: string;
-  priority: string;
-  dueDate: Date;
-  status?: string;
-  accepted?: boolean;
-  photos?: {
-    before?: string;
-    after?: string;
-    reporter?: string;
-  };
-}
+import { Job } from "../tech/jobs/JobCardTypes";
 
 interface TechnicianJobsDialogProps {
   isOpen: boolean;
