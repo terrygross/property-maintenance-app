@@ -21,6 +21,8 @@ import ComplianceLists from "./maintenance/compliance/ComplianceLists";
 import NewTaskDialog from "./admin/tasks/NewTaskDialog";
 import { useHighPriorityJobsMonitor } from "@/hooks/useHighPriorityJobsMonitor";
 import AdminTechnicianView from "./maintenance/tech/AdminTechnicianView";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
 interface AdminDashboardProps {
   userRole?: UserRole;
@@ -48,8 +50,24 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
     }
   }, [isInitialized]);
 
-  const handleAlertClick = () => {
-    setActiveTab("reporter");
+  const handleBackToOverview = () => {
+    setActiveTab("overview");
+  };
+
+  const BackToOverviewButton = () => {
+    if (activeTab === "overview") return null;
+    
+    return (
+      <Button 
+        variant="ghost" 
+        size="sm" 
+        onClick={handleBackToOverview}
+        className="mb-4"
+      >
+        <ArrowLeft className="h-4 w-4 mr-1" />
+        Back to Overview
+      </Button>
+    );
   };
 
   const handleNewTaskClick = () => {
@@ -59,7 +77,7 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
   return (
     <div className="container mx-auto p-4 md:p-6">
       <Tabs defaultValue="overview" className="w-full" value={activeTab} onValueChange={setActiveTab}>
-        <AdminTabsList />
+        {activeTab !== "overview" && <BackToOverviewButton />}
 
         <TabsContent value="overview" className="space-y-4">
           <OverviewTabContent setActiveTab={setActiveTab} />
@@ -125,6 +143,7 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
           <GenericTabContent 
             title="System Settings" 
             description="Configure global parameters for your maintenance system" 
+            setActiveTab={setActiveTab}
           />
         </TabsContent>
 
@@ -132,12 +151,13 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
           <GenericTabContent 
             title="System Logs" 
             description="View system events, errors, and user actions" 
+            setActiveTab={setActiveTab}
           />
         </TabsContent>
 
         <TabsContent value="reporter">
           <AdminTab title="Reported Jobs" description="View and assign reported maintenance issues">
-            <ReporterJobCards />
+            <ReporterJobCards setActiveTab={setActiveTab} />
           </AdminTab>
         </TabsContent>
         
@@ -157,6 +177,7 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
           <GenericTabContent 
             title="Backup & Restore" 
             description="Backup and restore data from cloud storage" 
+            setActiveTab={setActiveTab}
           />
         </TabsContent>
 
@@ -164,6 +185,7 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
           <GenericTabContent 
             title="Recycle Bin" 
             description="View and restore deleted items" 
+            setActiveTab={setActiveTab}
           />
         </TabsContent>
       </Tabs>
