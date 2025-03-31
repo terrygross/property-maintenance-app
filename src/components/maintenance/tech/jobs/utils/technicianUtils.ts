@@ -31,52 +31,7 @@ export const getTechnicianJobs = (techId: string): any[] => {
     console.error("Error getting technician jobs from localStorage:", error);
   }
   
-  // Get the technician's details
-  const tech = MOCK_USERS.find(user => user.id === techId);
-  console.log(`Technician details:`, tech);
-  
-  // Get active properties for realistic job assignments
-  const activeProperties = mockProperties
-    .filter(p => p.status === "active")
-    .map(p => p.name);
-  
-  // Use a default property if no active properties are found
-  const defaultProperty = activeProperties.length > 0 ? 
-    activeProperties[0] : "Sunset Apartments";
-  
-  // Fallback to mock data if no jobs in localStorage
-  // Generate some mock jobs for the technician
-  const mockJobs = [
-    { 
-      id: `${techId}-job1`, 
-      title: "Fix heating system", 
-      property: defaultProperty, 
-      priority: "high", 
-      reportDate: new Date().toISOString(),
-      status: "assigned",
-      assignedTo: techId,
-      accepted: false
-    },
-    { 
-      id: `${techId}-job2`, 
-      title: "Replace light fixtures", 
-      property: activeProperties.length > 1 ? activeProperties[1] : defaultProperty, 
-      priority: "medium",
-      reportDate: new Date().toISOString(),
-      status: "assigned",
-      assignedTo: techId
-    },
-    { 
-      id: `${techId}-job3`, 
-      title: "Inspect water damage", 
-      property: activeProperties.length > 2 ? activeProperties[2] : defaultProperty, 
-      priority: "low",
-      reportDate: new Date().toISOString(),
-      status: "assigned",
-      assignedTo: techId
-    }
-  ];
-  
-  console.log(`Returning mock jobs for technician ${techId} with valid property names:`, mockJobs);
-  return mockJobs;
+  // If no jobs found, return empty array
+  console.log(`No jobs found for technician ${techId}, returning empty array`);
+  return [];
 };

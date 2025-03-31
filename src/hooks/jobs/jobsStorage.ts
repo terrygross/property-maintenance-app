@@ -60,32 +60,6 @@ export const loadJobsFromStorage = (userId: string): Job[] => {
  * Get mock jobs for demonstration purposes (when no real jobs exist)
  */
 export const getMockJobs = (): Job[] => {
-  return [
-    {
-      id: "j1",
-      title: "Fix leaking pipe",
-      location: "Building A, Apt 101",
-      priority: "high",
-      dueDate: new Date(Date.now() + 86400000),
-      status: "assigned",
-      assignedTo: "1",
-      accepted: false,
-      photos: {
-        reporter: "https://placehold.co/600x400?text=Leaking+Pipe"
-      }
-    },
-    {
-      id: "j2",
-      title: "Replace broken window",
-      location: "Building B, Apt 205",
-      priority: "medium",
-      dueDate: new Date(Date.now() + 172800000),
-      status: "assigned",
-      assignedTo: "1",
-      accepted: true,
-      photos: {
-        reporter: "https://placehold.co/600x400?text=Broken+Window"
-      }
-    }
-  ];
+  // Return empty array - no more mock jobs
+  return [];
 };
