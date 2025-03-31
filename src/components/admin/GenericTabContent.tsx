@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import SystemSettings from "@/components/settings/SystemSettings";
 import SystemLogs from "@/components/admin/logs/SystemLogs";
+import RecycleBin from "@/components/admin/recycle-bin/RecycleBin";
 
 interface GenericTabContentProps {
   title: string;
@@ -19,9 +20,10 @@ const GenericTabContent = ({ title, description, setActiveTab }: GenericTabConte
     }
   };
 
-  // Check if this is the settings tab or logs tab
+  // Check which tab this is
   const isSettingsTab = title === "System Settings";
   const isLogsTab = title === "System Logs";
+  const isRecycleBinTab = title === "Recycle Bin";
 
   return (
     <div className="space-y-4">
@@ -37,7 +39,7 @@ const GenericTabContent = ({ title, description, setActiveTab }: GenericTabConte
             Back to Overview
           </Button>
         )}
-        {!isSettingsTab && !isLogsTab && (
+        {!isSettingsTab && !isLogsTab && !isRecycleBinTab && (
           <div>
             <h2 className="text-2xl font-bold">{title}</h2>
             <p className="text-muted-foreground">{description}</p>
@@ -49,6 +51,8 @@ const GenericTabContent = ({ title, description, setActiveTab }: GenericTabConte
         <SystemSettings />
       ) : isLogsTab ? (
         <SystemLogs />
+      ) : isRecycleBinTab ? (
+        <RecycleBin />
       ) : (
         <Card className="p-6">
           <div className="min-h-[200px] flex items-center justify-center">
