@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { TechJob } from "./types";
-import { updateLocalStorageJobs } from "./JobUtils";
+import { updateLocalStorageJobs } from "./utils/photoUtils";
 
 interface TechJobsContextProps {
   selectedJob: TechJob | null;
@@ -44,27 +44,35 @@ export const TechJobsProvider: React.FC<{
   };
 
   const handlePhotoCapture = (jobId: string, type: "before" | "after", imageUrl: string) => {
+    // Call parent handler
     onPhotoCapture(jobId, type, imageUrl);
     
+    // Update local state if the currently selected job is being updated
     if (selectedJob && selectedJob.id === jobId) {
-      setSelectedJob({
-        ...selectedJob,
-        photos: {
-          ...selectedJob.photos,
-          [type]: imageUrl
-        }
+      setSelectedJob(prevJob => {
+        if (!prevJob) return null;
+        return {
+          ...prevJob,
+          photos: {
+            ...(prevJob.photos || {}),
+            [type]: imageUrl
+          }
+        };
       });
     }
     
-    updateLocalStorageJobs(jobId, type, imageUrl);
+    // Update localStorage
+    const success = updateLocalStorageJobs(jobId, type, imageUrl);
     
-    // If this is an after photo and job is in_progress, let user know they can now complete the job
-    if (type === "after" && selectedJob?.status === "in_progress") {
-      toast({
-        title: "After photo added",
-        description: "You can now mark this job as complete.",
-        variant: "default",
-      });
+    if (success) {
+      // If this is an after photo and job is in_progress, let user know they can now complete the job
+      if (type === "after" && selectedJob?.status === "in_progress") {
+        toast({
+          title: "After photo added",
+          description: "You can now mark this job as complete.",
+          variant: "default",
+        });
+      }
     }
   };
 

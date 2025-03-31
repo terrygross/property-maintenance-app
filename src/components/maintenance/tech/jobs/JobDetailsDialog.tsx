@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import JobPhotoUpload from "../JobPhotoUpload";
+import JobPhotosViewer from "@/components/jobs/JobPhotosViewer";
 
 interface Job {
   id: string;
@@ -60,17 +61,15 @@ const JobDetailsDialog = ({
             </div>
           </div>
           
-          {selectedJob.photos?.reporter && (
+          {/* Use JobPhotosViewer for existing photos */}
+          {(selectedJob.photos?.reporter || selectedJob.photos?.before || selectedJob.photos?.after) && (
             <div className="border-t pt-4">
-              <h4 className="font-medium mb-2">Reporter Photo</h4>
-              <div className="rounded-md overflow-hidden border max-h-60 flex items-center justify-center bg-gray-50">
-                <img 
-                  src={selectedJob.photos.reporter} 
-                  alt="Reported issue" 
-                  className="max-w-full max-h-60 object-contain"
-                />
-              </div>
-              <p className="text-xs text-gray-500 mt-1">Photo uploaded by reporter</p>
+              <h4 className="font-medium mb-2">Current Photos</h4>
+              <JobPhotosViewer 
+                reporterPhoto={selectedJob.photos?.reporter} 
+                beforePhoto={selectedJob.photos?.before}
+                afterPhoto={selectedJob.photos?.after}
+              />
             </div>
           )}
           

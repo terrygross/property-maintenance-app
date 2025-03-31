@@ -1,94 +1,88 @@
 
 /**
- * Utilities for loading and updating jobs in localStorage
+ * Utility functions for loading and saving jobs
  */
 import { Job } from "./types";
 
 /**
- * Loads jobs for a specific technician from localStorage
+ * Load jobs from localStorage for a given user ID
  */
-export const loadJobsFromStorage = (currentUserId: string): Job[] => {
+export const loadJobsFromStorage = (userId: string): Job[] => {
   try {
+    // Try to load jobs from localStorage
     const savedJobs = localStorage.getItem('reporterJobs');
     if (savedJobs) {
       const parsedJobs = JSON.parse(savedJobs);
-      if (parsedJobs.length > 0) {
-        const techJobs = parsedJobs
-          .filter((job: any) => 
-            (job.status === "assigned" || job.status === "in_progress" || 
-            (job.status === "completed" && job.assignedTo === currentUserId)) &&
-            job.assignedTo === currentUserId // Filter specifically for this technician
-          )
-          .map((job: any) => ({
-            id: job.id,
-            title: job.title,
-            location: job.property || job.location,
-            priority: job.priority,
-            dueDate: new Date(job.dueDate || Date.now()),
-            photos: {
-              before: job.beforePhoto || "",
-              after: job.afterPhoto || "",
-              reporter: job.imageUrl || ""
-            },
-            accepted: job.accepted || false,
-            status: job.status || "assigned"
-          }));
+      
+      // Filter jobs assigned to this user
+      const userJobs = parsedJobs.filter((job: any) => 
+        job.assignedTo === userId
+      );
+      
+      if (userJobs.length > 0) {
+        console.log("Found jobs for user:", userJobs);
         
-        if (techJobs.length > 0) {
-          console.log(`Found ${techJobs.length} jobs for tech ID: ${currentUserId}`, techJobs);
-          return techJobs;
-        }
+        // Format jobs with proper structure
+        return userJobs.map((job: any) => {
+          // Ensure photos have the right structure
+          const photos = {
+            reporter: job.photos?.reporter || job.imageUrl || undefined,
+            before: job.photos?.before || job.beforePhoto || undefined,
+            after: job.photos?.after || job.afterPhoto || undefined
+          };
+          
+          return {
+            id: job.id,
+            title: job.title || job.description,
+            location: job.property || job.location,
+            priority: job.priority || "medium",
+            dueDate: new Date(job.dueDate || job.reportDate || Date.now()),
+            status: job.status || "assigned",
+            assignedTo: job.assignedTo,
+            accepted: job.accepted || false,
+            photos: photos
+          };
+        });
       }
     }
   } catch (error) {
-    console.error("Error loading tech jobs:", error);
+    console.error("Error loading jobs from localStorage:", error);
   }
   
+  // Return empty array if no jobs found or error
   return [];
 };
 
 /**
- * Returns mock jobs if no real jobs are found
+ * Get mock jobs for demonstration purposes (when no real jobs exist)
  */
 export const getMockJobs = (): Job[] => {
   return [
-    { 
-      id: "j1", 
-      title: "Fix heating system", 
-      location: "Building A", 
-      priority: "high", 
-      dueDate: new Date(2023, 11, 30),
-      photos: { before: "", after: "", reporter: "/images/broken-heater.jpg" },
+    {
+      id: "j1",
+      title: "Fix leaking pipe",
+      location: "Building A, Apt 101",
+      priority: "high",
+      dueDate: new Date(Date.now() + 86400000),
+      status: "assigned",
+      assignedTo: "1",
       accepted: false,
-      status: "assigned"
+      photos: {
+        reporter: "https://placehold.co/600x400?text=Leaking+Pipe"
+      }
     },
-    { 
-      id: "j2", 
-      title: "Replace light fixtures", 
-      location: "Building C", 
-      priority: "medium", 
-      dueDate: new Date(2023, 12, 5),
-      photos: { before: "", after: "", reporter: "/images/broken-light.jpg" },
-      status: "assigned"
-    },
-    { 
-      id: "j3", 
-      title: "Inspect water damage", 
-      location: "Building B", 
-      priority: "low", 
-      dueDate: new Date(2023, 12, 10),
-      photos: { before: "", after: "", reporter: "/images/water-damage.jpg" },
-      status: "assigned"
-    },
-    { 
-      id: "j4", 
-      title: "URGENT: Electrical hazard", 
-      location: "Main Building", 
-      priority: "high", 
-      dueDate: new Date(), // Today
-      photos: { before: "", after: "", reporter: "/images/electrical-hazard.jpg" },
-      accepted: false,
-      status: "assigned"
+    {
+      id: "j2",
+      title: "Replace broken window",
+      location: "Building B, Apt 205",
+      priority: "medium",
+      dueDate: new Date(Date.now() + 172800000),
+      status: "assigned",
+      assignedTo: "1",
+      accepted: true,
+      photos: {
+        reporter: "https://placehold.co/600x400?text=Broken+Window"
+      }
     }
   ];
 };

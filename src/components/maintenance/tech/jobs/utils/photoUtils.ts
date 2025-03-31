@@ -1,4 +1,3 @@
-
 /**
  * Utility functions related to job photos
  */
@@ -13,18 +12,35 @@ export const updateLocalStorageJobs = (jobId: string, type: "before" | "after", 
       const parsedJobs = JSON.parse(savedJobs);
       const updatedJobs = parsedJobs.map((job: any) => {
         if (job.id === jobId) {
+          // Create or update the photos object with the correct structure
           return {
             ...job,
+            photos: {
+              ...(job.photos || {}),
+              [type]: imageUrl,
+              // Preserve reporter photo if it exists
+              reporter: job.photos?.reporter || job.imageUrl || undefined
+            },
+            // Keep backward compatibility with old code
             [type === "before" ? "beforePhoto" : "afterPhoto"]: imageUrl
           };
         }
         return job;
       });
       localStorage.setItem('reporterJobs', JSON.stringify(updatedJobs));
+      
+      // Trigger a storage event to notify other components about the update
+      window.dispatchEvent(new Event('storage'));
+      // Dispatch a custom event to notify specifically about job updates
+      document.dispatchEvent(new Event('jobsUpdated'));
+      
+      console.log(`Updated ${type} photo for job ${jobId}`);
+      return true;
     }
   } catch (error) {
     console.error("Error updating job photos in localStorage:", error);
   }
+  return false;
 };
 
 /**
@@ -37,8 +53,9 @@ export const checkAfterPhotoForCompletion = (jobId: string): boolean => {
       const parsedJobs = JSON.parse(savedJobs);
       const job = parsedJobs.find((job: any) => job.id === jobId);
       
-      if (job && job.afterPhoto) {
-        return true;
+      if (job) {
+        // Check both photo structures (for backward compatibility)
+        return (job.photos?.after || job.afterPhoto) ? true : false;
       }
     }
   } catch (error) {

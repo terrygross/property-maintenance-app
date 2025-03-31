@@ -24,7 +24,7 @@ export const useJobUpdates = (initialJobs: Job[]) => {
           return {
             ...job,
             photos: {
-              ...job.photos,
+              ...(job.photos || {}),
               [type]: imageUrl
             }
           };
@@ -42,16 +42,18 @@ export const useJobUpdates = (initialJobs: Job[]) => {
     console.log(`Updated ${type} photo for job ${jobId}`);
     
     // Update localStorage
-    updateLocalStorageJobs(jobId, type, imageUrl);
+    const success = updateLocalStorageJobs(jobId, type, imageUrl);
     
     // If this is an after photo and job is in_progress, let user know they can now complete the job
-    const job = jobs.find(j => j.id === jobId);
-    if (type === "after" && job?.status === "in_progress") {
-      toast({
-        title: "After photo added",
-        description: "You can now mark this job as complete.",
-        variant: "default",
-      });
+    if (success && type === "after") {
+      const job = jobs.find(j => j.id === jobId);
+      if (job?.status === "in_progress") {
+        toast({
+          title: "After photo added",
+          description: "You can now mark this job as complete.",
+          variant: "default",
+        });
+      }
     }
   };
 
