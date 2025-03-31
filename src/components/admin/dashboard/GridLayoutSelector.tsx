@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Columns2, Columns3, Columns4, Grid3X3 } from "lucide-react";
+import { Columns2, Columns3, Columns4, LayoutGrid } from "lucide-react";
 
 interface GridLayoutSelectorProps {
   gridColumns: number;
@@ -17,7 +17,6 @@ const GridLayoutSelector = ({ gridColumns, onGridChange }: GridLayoutSelectorPro
         variant={gridColumns === 2 ? "default" : "ghost"} 
         className="h-8 w-8 p-0" 
         onClick={() => onGridChange(2)}
-        title="2 columns"
       >
         <Columns2 className="h-4 w-4" />
       </Button>
@@ -26,7 +25,6 @@ const GridLayoutSelector = ({ gridColumns, onGridChange }: GridLayoutSelectorPro
         variant={gridColumns === 3 ? "default" : "ghost"} 
         className="h-8 w-8 p-0" 
         onClick={() => onGridChange(3)}
-        title="3 columns"
       >
         <Columns3 className="h-4 w-4" />
       </Button>
@@ -35,7 +33,6 @@ const GridLayoutSelector = ({ gridColumns, onGridChange }: GridLayoutSelectorPro
         variant={gridColumns === 4 ? "default" : "ghost"} 
         className="h-8 w-8 p-0" 
         onClick={() => onGridChange(4)}
-        title="4 columns"
       >
         <Columns4 className="h-4 w-4" />
       </Button>
@@ -44,9 +41,8 @@ const GridLayoutSelector = ({ gridColumns, onGridChange }: GridLayoutSelectorPro
         variant={gridColumns === 6 ? "default" : "ghost"} 
         className="h-8 w-8 p-0" 
         onClick={() => onGridChange(6)}
-        title="6 columns"
       >
-        <Grid3X3 className="h-4 w-4" />
+        <LayoutGrid className="h-4 w-4" />
       </Button>
     </div>
   );

@@ -3,9 +3,6 @@ import React from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import SystemSettings from "@/components/settings/SystemSettings";
-import SystemLogs from "@/components/admin/logs/SystemLogs";
-import RecycleBin from "@/components/admin/recycle-bin/RecycleBin";
 
 interface GenericTabContentProps {
   title: string;
@@ -19,11 +16,6 @@ const GenericTabContent = ({ title, description, setActiveTab }: GenericTabConte
       setActiveTab("overview");
     }
   };
-
-  // Check which tab this is
-  const isSettingsTab = title === "System Settings";
-  const isLogsTab = title === "System Logs";
-  const isRecycleBinTab = title === "Recycle Bin";
 
   return (
     <div className="space-y-4">
@@ -39,27 +31,17 @@ const GenericTabContent = ({ title, description, setActiveTab }: GenericTabConte
             Back to Overview
           </Button>
         )}
-        {!isSettingsTab && !isLogsTab && !isRecycleBinTab && (
-          <div>
-            <h2 className="text-2xl font-bold">{title}</h2>
-            <p className="text-muted-foreground">{description}</p>
-          </div>
-        )}
+        <div>
+          <h2 className="text-2xl font-bold">{title}</h2>
+          <p className="text-muted-foreground">{description}</p>
+        </div>
       </div>
 
-      {isSettingsTab ? (
-        <SystemSettings />
-      ) : isLogsTab ? (
-        <SystemLogs />
-      ) : isRecycleBinTab ? (
-        <RecycleBin />
-      ) : (
-        <Card className="p-6">
-          <div className="min-h-[200px] flex items-center justify-center">
-            <p className="text-muted-foreground">This feature is coming soon.</p>
-          </div>
-        </Card>
-      )}
+      <Card className="p-6">
+        <div className="min-h-[200px] flex items-center justify-center">
+          <p className="text-muted-foreground">This feature is coming soon.</p>
+        </div>
+      </Card>
     </div>
   );
 };
