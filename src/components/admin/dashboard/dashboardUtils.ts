@@ -1,6 +1,8 @@
 
 // Utility functions for dashboard components
 
+import { useAppState } from "@/context/AppStateContext";
+
 // Count users by role
 export const countUsersByRole = (users: any[], role: string): number => {
   return users.filter(user => user.role === role).length;
@@ -10,6 +12,17 @@ export const countUsersByRole = (users: any[], role: string): number => {
 export const getTabCount = (tabId: string, users: any[], properties: any[], unassignedJobs: any[]): number | null => {
   const technicianCount = countUsersByRole(users, "maintenance_tech");
   const contractorCount = countUsersByRole(users, "contractor");
+  
+  // Get the reporterStations count from localStorage for accurate count
+  let reporterStationsCount = 3; // Default to 3 (2 base + 1 additional)
+  try {
+    const savedAdditionalStations = localStorage.getItem('additionalStations');
+    if (savedAdditionalStations) {
+      reporterStationsCount = 2 + parseInt(savedAdditionalStations, 10); // Base plan (2) + additional stations
+    }
+  } catch (error) {
+    console.error("Error loading reporter stations count:", error);
+  }
   
   switch (tabId) {
     case "users": return technicianCount;
@@ -21,7 +34,7 @@ export const getTabCount = (tabId: string, users: any[], properties: any[], unas
     case "chat": return 12;
     case "compliance": return 3;
     case "billing": return 1;
-    case "reporter-management": return 2;
+    case "reporter-management": return reporterStationsCount;
     case "maintenance-jobcards": return 8;
     default: return null;
   }
@@ -39,7 +52,7 @@ export const getCardDescription = (tabId: string): string => {
     case "chat": return "New messages";
     case "compliance": return "Active lists";
     case "billing": return "Active subscription";
-    case "reporter-management": return "Reporting stations";
+    case "reporter-management": return "Active reporting stations";
     case "jobs": return "Active jobs";
     case "maintenance-jobcards": return "Assigned job cards";
     case "settings": return "System configurations";

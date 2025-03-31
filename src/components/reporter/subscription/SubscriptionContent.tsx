@@ -1,7 +1,10 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAppState } from "@/context/AppStateContext";
 
 const SubscriptionContent = () => {
+  const { additionalStations } = useAppState();
+  
   return (
     <Card>
       <CardHeader>
@@ -14,7 +17,7 @@ const SubscriptionContent = () => {
         <div className="space-y-1">
           <p className="text-sm font-medium">Current Plan: Basic</p>
           <p className="text-sm text-muted-foreground">
-            Your plan allows for up to 2 reporter stations.
+            Your plan includes 2 base reporter stations + {additionalStations} additional purchased station{additionalStations !== 1 ? 's' : ''}.
           </p>
         </div>
         <div className="space-y-1">

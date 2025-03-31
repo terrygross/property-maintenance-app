@@ -5,7 +5,7 @@ import { useAppState } from "@/context/AppStateContext";
 import { useState, useEffect } from "react";
 
 const StatsOverview = () => {
-  const { reporterStations } = useAppState();
+  const { reporterStations, additionalStations } = useAppState();
   const [stationCount, setStationCount] = useState(0);
 
   // Load stations from localStorage to get the actual count
@@ -24,6 +24,9 @@ const StatsOverview = () => {
 
   // Use the higher number between actual stations and subscription limit
   const displayCount = Math.max(stationCount, reporterStations);
+  
+  // Calculate description text to show base plan and additional stations
+  const description = `Basic plan (2) + ${additionalStations} additional station${additionalStations !== 1 ? 's' : ''}`;
 
   return (
     <div className="flex items-start">
@@ -32,7 +35,7 @@ const StatsOverview = () => {
           <StatsCard
             title="Total Reporter Stations"
             value={displayCount}
-            description="Basic plan limit: 2 stations"
+            description={description}
             icon={Clipboard}
           />
           <StatsCard
