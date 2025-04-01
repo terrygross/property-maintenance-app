@@ -1,10 +1,44 @@
 
-import React from "react";
+import React, { useState } from "react";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 const LogIn = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Basic validation
+    if (!email || !password) {
+      toast({
+        title: "Error",
+        description: "Please fill in all fields",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Here you would typically make an API call to authenticate
+    // For now, we'll just show a success toast
+    toast({
+      title: "Success!",
+      description: "You have successfully logged in.",
+    });
+    
+    // Redirect to dashboard after successful login
+    navigate("/admin");
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <NavBar />
@@ -13,27 +47,25 @@ const LogIn = () => {
         <div className="max-w-md w-full p-8 bg-white rounded-lg shadow-md">
           <h1 className="text-2xl font-bold text-center mb-6">Log In</h1>
           
-          <form className="space-y-4">
+          <form className="space-y-4" onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email Address
-              </label>
-              <input
+              <Label htmlFor="email">Email Address</Label>
+              <Input
                 id="email"
                 type="email"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="john@example.com"
               />
             </div>
             
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <input
+              <Label htmlFor="password">Password</Label>
+              <Input
                 id="password"
                 type="password"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
             
@@ -42,6 +74,8 @@ const LogIn = () => {
                 <input
                   id="remember-me"
                   type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
                   className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
                 />
                 <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
