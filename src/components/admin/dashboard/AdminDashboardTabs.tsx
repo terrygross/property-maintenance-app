@@ -17,6 +17,11 @@ import ComplianceLists from "@/components/maintenance/compliance/ComplianceLists
 import AdminTechnicianView from "@/components/maintenance/tech/AdminTechnicianView";
 import { UserRole } from "@/types/user";
 import SystemSettings from "@/components/settings/SystemSettings";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import LeaveCalendar from "@/components/maintenance/jobcards/LeaveCalendar";
+import CallOutSchedule from "@/components/maintenance/jobcards/CallOutSchedule";
+import { useLeaveRequests } from "@/hooks/useLeaveRequests";
+import { hasAdminAccess } from "@/types/user";
 
 interface AdminDashboardTabsProps {
   activeTab: string;
@@ -31,11 +36,40 @@ const AdminDashboardTabs = ({
   userRole, 
   currentUserId 
 }: AdminDashboardTabsProps) => {
+  const { leaveRequests, handleLeaveAction } = useLeaveRequests();
+  const isAdmin = hasAdminAccess(userRole);
+
   return (
     <>
       <TabsContent value="users">
-        <AdminTab title="User Management" description="Add, edit, and manage system users and their permissions">
-          <UserManagement />
+        <AdminTab title="Staff Management" description="Manage users, leave calendar, and call-out schedules">
+          <Tabs defaultValue="user-management" className="w-full">
+            <TabsList className="mb-4">
+              <TabsTrigger value="user-management">User Management</TabsTrigger>
+              <TabsTrigger value="leave-calendar">Leave Calendar</TabsTrigger>
+              <TabsTrigger value="callout-schedule">Call-Out Schedule</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="user-management">
+              <UserManagement />
+            </TabsContent>
+            
+            <TabsContent value="leave-calendar">
+              <div className="card border rounded-lg p-6">
+                <LeaveCalendar 
+                  leaveRequests={leaveRequests} 
+                  onLeaveAction={handleLeaveAction} 
+                  isAdmin={isAdmin} 
+                />
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="callout-schedule">
+              <div className="card border rounded-lg p-6">
+                <CallOutSchedule />
+              </div>
+            </TabsContent>
+          </Tabs>
         </AdminTab>
       </TabsContent>
 
@@ -64,7 +98,7 @@ const AdminDashboardTabs = ({
       </TabsContent>
 
       <TabsContent value="maintenance-jobcards">
-        <AdminTab title="Maintenance Job Cards" description="View job cards, manage leave calendar, and schedule call-out rota">
+        <AdminTab title="Maintenance Job Cards" description="View job cards, manage, and schedule">
           <MaintenanceJobCards userRole={userRole} />
         </AdminTab>
       </TabsContent>

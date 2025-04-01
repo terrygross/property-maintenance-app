@@ -11,7 +11,7 @@ import {
 // Export the tabs data so it can be used in other components (like cards)
 export const adminTabs = [
   { id: "overview", label: "Overview", icon: FileSpreadsheet },
-  { id: "users", label: "Users", icon: Users },
+  { id: "users", label: "Staff Mgmt", icon: Users },
   { id: "properties", label: "Properties", icon: Building },
   { id: "maintenance", label: "Maintenance", icon: Settings },
   { id: "compliance", label: "Compliance", icon: CheckSquare },
