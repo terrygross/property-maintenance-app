@@ -84,7 +84,7 @@ const AdminDashboardTabs = ({
       </TabsContent>
 
       <TabsContent value="tech-view">
-        <AdminTab title="Maintenance Technician UI" description="View the interface as a maintenance technician">
+        <AdminTab title="Maintenance Technician UI" description="View and interact with the technician interface">
           <AdminTechnicianView />
         </AdminTab>
       </TabsContent>

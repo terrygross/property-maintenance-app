@@ -7,15 +7,18 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAppState } from "@/context/AppStateContext";
 import TechJobsTab from "./jobs/TechJobsTab";
 import { TechJob } from "./jobs/types";
 import { useToast } from "@/hooks/use-toast";
+import TechnicianInterfaceSimulation from "./TechnicianInterfaceSimulation";
 
 const AdminTechnicianView = () => {
   const { users } = useAppState();
   const [selectedTechId, setSelectedTechId] = useState<string>("");
   const [techJobs, setTechJobs] = useState<TechJob[]>([]);
+  const [activeTab, setActiveTab] = useState<string>("assigned-jobs");
   const { toast } = useToast();
 
   // Filter users to get only maintenance techs
@@ -167,12 +170,25 @@ const AdminTechnicianView = () => {
       </div>
 
       {selectedTechId ? (
-        <TechJobsTab 
-          assignedJobs={techJobs} 
-          onPhotoCapture={handlePhotoCapture}
-          onUpdateStatus={handleUpdateStatus}
-          isAdmin={true}
-        />
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="mb-4">
+            <TabsTrigger value="assigned-jobs">Assigned Jobs</TabsTrigger>
+            <TabsTrigger value="technician-ui">Technician Interface</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="assigned-jobs">
+            <TechJobsTab 
+              assignedJobs={techJobs} 
+              onPhotoCapture={handlePhotoCapture}
+              onUpdateStatus={handleUpdateStatus}
+              isAdmin={true}
+            />
+          </TabsContent>
+          
+          <TabsContent value="technician-ui">
+            <TechnicianInterfaceSimulation technicianId={selectedTechId} />
+          </TabsContent>
+        </Tabs>
       ) : (
         <div className="flex items-center justify-center h-64 border rounded-md bg-gray-50">
           <p className="text-muted-foreground">Select a technician to view their jobs</p>
