@@ -16,6 +16,7 @@ import BillingManagement from "@/components/billing/BillingManagement";
 import ComplianceLists from "@/components/maintenance/compliance/ComplianceLists";
 import AdminTechnicianView from "@/components/maintenance/tech/AdminTechnicianView";
 import { UserRole } from "@/types/user";
+import SystemSettings from "@/components/settings/SystemSettings";
 
 interface AdminDashboardTabsProps {
   activeTab: string;
@@ -89,12 +90,9 @@ const AdminDashboardTabs = ({
       </TabsContent>
 
       <TabsContent value="settings">
-        <GenericTabContent 
-          title="System Settings" 
-          description="Configure global parameters for your maintenance system" 
-          setActiveTab={setActiveTab}
-          showBackButton={false}
-        />
+        <AdminTab title="System Settings" description="Configure global parameters for your maintenance system">
+          <SystemSettings />
+        </AdminTab>
       </TabsContent>
 
       <TabsContent value="logs">
