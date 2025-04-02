@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -47,10 +46,9 @@ const ExpenseReports = () => {
   const [showReport, setShowReport] = useState(false);
   const [activeTab, setActiveTab] = useState("chart");
   
-  // Function to calculate date range based on selection
   const getDateRange = (): { start: Date, end: Date } => {
     const now = new Date();
-    const end = new Date(now);
+    let end = new Date(now);
     let start = new Date(now);
     
     switch (dateRange) {
@@ -82,7 +80,6 @@ const ExpenseReports = () => {
   const generateReport = () => {
     setIsGenerating(true);
     
-    // Check if we have custom date range and both dates
     if (dateRange === "custom" && (!startDate || !endDate)) {
       toast({
         title: "Date Range Required",
@@ -93,20 +90,16 @@ const ExpenseReports = () => {
       return;
     }
     
-    // Get date range
     const { start, end } = getDateRange();
     
-    // Load expenses from localStorage
     const savedExpenses = localStorage.getItem("expenses") || "[]";
     let expenses = JSON.parse(savedExpenses) as Expense[];
     
-    // Filter expenses by date range
     expenses = expenses.filter(expense => {
       const expenseDate = new Date(expense.date);
       return expenseDate >= start && expenseDate <= end;
     });
     
-    // Filter by property if selected
     if (propertyId !== "all") {
       expenses = expenses.filter(expense => 
         propertyId === "none" 
@@ -115,15 +108,12 @@ const ExpenseReports = () => {
       );
     }
     
-    // Filter by expense type if selected
     if (expenseType !== "all") {
       expenses = expenses.filter(expense => expense.type === expenseType);
     }
     
-    // Sort by date
     expenses.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     
-    // Set report data
     setReportData(expenses);
     setShowReport(true);
     setIsGenerating(false);
@@ -135,7 +125,6 @@ const ExpenseReports = () => {
       description: "Your report is being prepared for download.",
     });
     
-    // In a real app, this would generate and download a PDF or Excel file
     setTimeout(() => {
       toast({
         title: "Download Complete",
@@ -159,7 +148,6 @@ const ExpenseReports = () => {
       description: `Preparing to send report to ${emailTo}`,
     });
     
-    // In a real app, this would send an email with the report
     setTimeout(() => {
       toast({
         title: "Report Sent",
@@ -249,7 +237,7 @@ const ExpenseReports = () => {
                         {startDate ? format(startDate, "PPP") : "Select start date"}
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
+                    <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
                         mode="single"
                         selected={startDate}
@@ -275,7 +263,7 @@ const ExpenseReports = () => {
                         {endDate ? format(endDate, "PPP") : "Select end date"}
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
+                    <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
                         mode="single"
                         selected={endDate}
