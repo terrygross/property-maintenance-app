@@ -187,4 +187,4 @@ export function WorkflowRuleDialog({
       </DialogContent>
     </Dialog>
   );
-}
+};

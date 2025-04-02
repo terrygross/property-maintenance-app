@@ -82,20 +82,20 @@ const ExpenseHistory = () => {
       );
     }
     
-    if (selectedType) {
+    if (selectedType && selectedType !== "all-types") {
       filtered = filtered.filter(expense => expense.type === selectedType);
     }
     
-    if (selectedStatus) {
+    if (selectedStatus && selectedStatus !== "all-statuses") {
       filtered = filtered.filter(expense => expense.status === selectedStatus);
     }
     
     if (selectedProperty) {
-      filtered = filtered.filter(expense => 
-        selectedProperty === "none" 
-          ? expense.propertyId === null 
-          : expense.propertyId === selectedProperty
-      );
+      if (selectedProperty === "none") {
+        filtered = filtered.filter(expense => expense.propertyId === null);
+      } else if (selectedProperty !== "all-properties") {
+        filtered = filtered.filter(expense => expense.propertyId === selectedProperty);
+      }
     }
     
     setFilteredExpenses(filtered);

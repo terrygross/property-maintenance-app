@@ -149,7 +149,7 @@ const ExpenseEntryForm = () => {
               <SelectValue placeholder="Select property (if applicable)" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Not property-specific</SelectItem>
+              <SelectItem value="no-property">Not property-specific</SelectItem>
               {properties.map((property) => (
                 <SelectItem key={property.id} value={property.id}>
                   {property.name}
