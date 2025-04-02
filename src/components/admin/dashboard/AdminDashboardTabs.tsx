@@ -22,6 +22,7 @@ import LeaveCalendar from "@/components/maintenance/jobcards/LeaveCalendar";
 import CallOutSchedule from "@/components/maintenance/jobcards/CallOutSchedule";
 import { useLeaveRequests } from "@/hooks/useLeaveRequests";
 import { hasAdminAccess } from "@/types/user";
+import ExpensesContent from "@/components/reporter/expenses/ExpensesContent";
 
 interface AdminDashboardTabsProps {
   activeTab: string;
@@ -92,8 +93,21 @@ const AdminDashboardTabs = ({
       </TabsContent>
 
       <TabsContent value="reports">
-        <AdminTab title="Reports" description="Access detailed maintenance performance reports">
-          <Reports />
+        <AdminTab title="Accounting & Reports" description="Access financial tracking and performance reports">
+          <Tabs defaultValue="reports" className="w-full">
+            <TabsList className="mb-4">
+              <TabsTrigger value="reports">Performance Reports</TabsTrigger>
+              <TabsTrigger value="expenses">Expense Tracking</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="reports">
+              <Reports />
+            </TabsContent>
+            
+            <TabsContent value="expenses">
+              <ExpensesContent />
+            </TabsContent>
+          </Tabs>
         </AdminTab>
       </TabsContent>
 

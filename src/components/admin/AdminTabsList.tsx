@@ -20,7 +20,7 @@ export const adminTabs = [
   { id: "reporter", label: "Reported Jobs", icon: ClipboardList },
   { id: "reporter-management", label: "Reporter Mgmt", icon: ScrollText },
   { id: "jobs", label: "Jobs", icon: ClipboardList },
-  { id: "reports", label: "Reports", icon: BarChart },
+  { id: "reports", label: "Accounting & Reports", icon: BarChart },
   { id: "chat", label: "Chat", icon: MessageCircle },
   { id: "billing", label: "Billing", icon: Wallet },
   { id: "settings", label: "Settings", icon: Settings },

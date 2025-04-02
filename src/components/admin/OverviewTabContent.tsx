@@ -11,7 +11,6 @@ import GridLayoutSelector from "./dashboard/GridLayoutSelector";
 import DashboardCard from "./dashboard/DashboardCard";
 import { 
   getTabCount, 
-  getCardDescription, 
   getCardStyles, 
   getIconColor 
 } from "./dashboard/dashboardUtils";
@@ -20,6 +19,46 @@ import { getGridClass } from "./dashboard/gridHelpers";
 interface OverviewTabContentProps {
   setActiveTab?: Dispatch<SetStateAction<string>>;
 }
+
+// Custom function to get card descriptions
+const getCardDescription = (tabId: string): string => {
+  switch (tabId) {
+    case "users":
+      return "Staff members";
+    case "properties":
+      return "Managed properties";
+    case "maintenance":
+      return "Maintenance settings";
+    case "reporter":
+      return "Pending assignments";
+    case "reporter-management":
+      return "Reporter stations";
+    case "reports":
+      return "Financial tracking and reports";
+    case "jobs":
+      return "Active maintenance jobs";
+    case "tech-view":
+      return "Technician interface";
+    case "settings":
+      return "System configuration";
+    case "compliance":
+      return "Compliance lists";
+    case "maintenance-jobcards":
+      return "Scheduled work";
+    case "chat":
+      return "Team communication";
+    case "billing":
+      return "Subscription & payments";
+    case "logs":
+      return "System activity logs";
+    case "backup":
+      return "Data backup & restore";
+    case "recycle-bin":
+      return "Deleted items";
+    default:
+      return "";
+  }
+};
 
 const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
   const highPriorityJobs = useHighPriorityJobsMonitor();
