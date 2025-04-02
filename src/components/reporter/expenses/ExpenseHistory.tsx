@@ -91,7 +91,11 @@ const ExpenseHistory = () => {
     }
     
     if (selectedProperty) {
-      filtered = filtered.filter(expense => expense.propertyId === selectedProperty);
+      filtered = filtered.filter(expense => 
+        selectedProperty === "none" 
+          ? expense.propertyId === null 
+          : expense.propertyId === selectedProperty
+      );
     }
     
     setFilteredExpenses(filtered);
@@ -149,7 +153,7 @@ const ExpenseHistory = () => {
               <SelectValue placeholder="Expense Type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Types</SelectItem>
+              <SelectItem value="all-types">All Types</SelectItem>
               {EXPENSE_TYPES.map(type => (
                 <SelectItem key={type.id} value={type.id}>{type.name}</SelectItem>
               ))}
@@ -161,7 +165,7 @@ const ExpenseHistory = () => {
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Statuses</SelectItem>
+              <SelectItem value="all-statuses">All Statuses</SelectItem>
               <SelectItem value="pending">Pending</SelectItem>
               <SelectItem value="approved">Approved</SelectItem>
               <SelectItem value="rejected">Rejected</SelectItem>
@@ -173,8 +177,8 @@ const ExpenseHistory = () => {
               <SelectValue placeholder="Property" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Properties</SelectItem>
-              <SelectItem value="null">General</SelectItem>
+              <SelectItem value="all-properties">All Properties</SelectItem>
+              <SelectItem value="none">General</SelectItem>
               {properties.map(property => (
                 <SelectItem key={property.id} value={property.id}>{property.name}</SelectItem>
               ))}
