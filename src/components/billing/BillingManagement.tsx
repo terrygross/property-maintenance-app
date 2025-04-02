@@ -22,7 +22,7 @@ const BillingManagement = () => {
       <Tabs defaultValue="subscription" className="space-y-4">
         <TabsList>
           <TabsTrigger value="subscription">Subscription</TabsTrigger>
-          <TabsTrigger value="reporter-subscription">Reporter Subscription</TabsTrigger>
+          <TabsTrigger value="reporter-subscription">Accounting Subscription</TabsTrigger>
           <TabsTrigger value="payment-methods">Payment Methods</TabsTrigger>
           <TabsTrigger value="billing-history">Billing History</TabsTrigger>
         </TabsList>

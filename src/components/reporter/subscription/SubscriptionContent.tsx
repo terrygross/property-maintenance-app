@@ -33,9 +33,9 @@ const SubscriptionContent = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Subscription Settings</CardTitle>
+        <CardTitle>Accounting Subscription Settings</CardTitle>
         <CardDescription>
-          Manage your reporter subscription plan and settings
+          Manage your accounting subscription plan and settings
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -43,7 +43,7 @@ const SubscriptionContent = () => {
           <div className="space-y-1">
             <p className="text-sm font-medium">Current Plan: Basic</p>
             <p className="text-sm text-muted-foreground">
-              Your plan includes 2 base reporter stations + ({additionalStations}) additional purchased station{additionalStations !== 1 ? 's' : ''}.
+              Your plan includes 2 base accounting stations + ({additionalStations}) additional purchased station{additionalStations !== 1 ? 's' : ''}.
             </p>
           </div>
           <div className="space-y-1">
