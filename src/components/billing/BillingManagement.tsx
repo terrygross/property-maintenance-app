@@ -5,6 +5,7 @@ import SubscriptionTab from "./SubscriptionTab";
 import PaymentMethods from "./PaymentMethods";
 import BillingHistory from "./BillingHistory";
 import { useAppState } from "@/context/AppStateContext";
+import SubscriptionContent from "../reporter/subscription/SubscriptionContent";
 
 const BillingManagement = () => {
   const [currentPlan, setCurrentPlan] = useState("Basic");
@@ -21,6 +22,7 @@ const BillingManagement = () => {
       <Tabs defaultValue="subscription" className="space-y-4">
         <TabsList>
           <TabsTrigger value="subscription">Subscription</TabsTrigger>
+          <TabsTrigger value="reporter-subscription">Reporter Subscription</TabsTrigger>
           <TabsTrigger value="payment-methods">Payment Methods</TabsTrigger>
           <TabsTrigger value="billing-history">Billing History</TabsTrigger>
         </TabsList>
@@ -32,6 +34,10 @@ const BillingManagement = () => {
             stationCount={additionalStations}
             onCapacityUpdate={handleCapacityUpdate}
           />
+        </TabsContent>
+
+        <TabsContent value="reporter-subscription">
+          <SubscriptionContent />
         </TabsContent>
 
         <TabsContent value="payment-methods">
