@@ -56,7 +56,7 @@ const TaskBasicFields = ({
                 </SelectItem>
               ))
             ) : (
-              <SelectItem value="No active properties" disabled>
+              <SelectItem value="no-active-properties" disabled>
                 No active properties available
               </SelectItem>
             )}
