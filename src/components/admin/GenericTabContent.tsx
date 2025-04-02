@@ -3,6 +3,7 @@ import React from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import SystemLogs from "./logs/SystemLogs";
 
 interface GenericTabContentProps {
   title: string;
@@ -22,6 +23,9 @@ const GenericTabContent = ({
       setActiveTab("overview");
     }
   };
+
+  // Determine if we should render system logs based on the title
+  const isSystemLogs = title === "System Logs";
 
   return (
     <div className="space-y-4">
@@ -43,11 +47,17 @@ const GenericTabContent = ({
         </div>
       </div>
 
-      <Card className="p-6">
-        <div className="min-h-[200px] flex items-center justify-center">
-          <p className="text-muted-foreground">This feature is coming soon.</p>
-        </div>
-      </Card>
+      {isSystemLogs ? (
+        <Card className="p-6">
+          <SystemLogs />
+        </Card>
+      ) : (
+        <Card className="p-6">
+          <div className="min-h-[200px] flex items-center justify-center">
+            <p className="text-muted-foreground">This feature is coming soon.</p>
+          </div>
+        </Card>
+      )}
     </div>
   );
 };
