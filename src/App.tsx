@@ -16,6 +16,7 @@ import Features from "./pages/Features";
 import Pricing from "./pages/Pricing";
 import Contact from "./pages/Contact";
 import Demo from "./pages/Demo";
+import MyBoard from "./pages/MyBoard";
 import { AppStateProvider } from "./context/AppStateContext";
 import { NotificationProvider } from "./context/NotificationContext";
 
@@ -41,6 +42,7 @@ const App = () => (
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/demo" element={<Demo />} />
+                <Route path="/my-board" element={<MyBoard />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

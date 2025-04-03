@@ -1,145 +1,142 @@
 
-import React, { useState } from "react";
-import { Dispatch, SetStateAction } from "react";
-import { useHighPriorityJobsMonitor } from "@/hooks/useHighPriorityJobsMonitor";
-import { useAppState } from "@/context/AppStateContext";
-import { useReporterJobs } from "@/hooks/useReporterJobs";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { adminTabs } from "./AdminTabsList";
 import DashboardHeader from "./dashboard/DashboardHeader";
-import NewTaskDialog from "./tasks/NewTaskDialog";
-import GridLayoutSelector from "./dashboard/GridLayoutSelector";
 import DashboardCard from "./dashboard/DashboardCard";
-import { 
-  getTabCount, 
-  getCardStyles, 
-  getIconColor 
-} from "./dashboard/dashboardUtils";
-import { getGridClass } from "./dashboard/gridHelpers";
+import { useHighPriorityJobsMonitor } from "@/hooks/useHighPriorityJobsMonitor";
+import NewTaskDialog from "./tasks/NewTaskDialog";
+import { useAppState } from "@/context/AppStateContext";
+import GridLayoutSelector from "./dashboard/GridLayoutSelector";
+import { DashboardActions } from "./dashboard/DashboardActions";
+import { getCardBgColor, getCardIconColor } from "./dashboard/dashboardUtils";
+import { gridConfigs, useGridLayout } from "./dashboard/gridHelpers";
+import { ComplianceProvider } from "@/context/ComplianceContext";
+import ComplianceBoardCard from "../compliance/ComplianceBoardCard";
 
 interface OverviewTabContentProps {
-  setActiveTab?: Dispatch<SetStateAction<string>>;
+  setActiveTab: (tab: string) => void;
 }
 
-// Custom function to get card descriptions
-const getCardDescription = (tabId: string): string => {
-  switch (tabId) {
-    case "users":
-      return "Staff members";
-    case "properties":
-      return "Managed properties";
-    case "maintenance":
-      return "Maintenance settings";
-    case "reporter":
-      return "Pending assignments";
-    case "reporter-management":
-      return "Reporter stations";
-    case "reports":
-      return "Financial tracking and reports";
-    case "jobs":
-      return "Active maintenance jobs";
-    case "tech-view":
-      return "Technician interface";
-    case "settings":
-      return "System configuration";
-    case "compliance":
-      return "Compliance lists";
-    case "maintenance-jobcards":
-      return "Scheduled work";
-    case "chat":
-      return "Team communication";
-    case "billing":
-      return "Subscription & payments";
-    case "logs":
-      return "System activity logs";
-    case "backup":
-      return "Data backup & restore";
-    case "recycle-bin":
-      return "Deleted items";
-    default:
-      return "";
-  }
-};
-
 const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
+  const navigate = useNavigate();
   const highPriorityJobs = useHighPriorityJobsMonitor();
-  const { users, properties, reporterStations } = useAppState();
-  const { jobCards: unassignedJobs } = useReporterJobs();
   const [showNewTaskDialog, setShowNewTaskDialog] = useState(false);
-  const [gridColumns, setGridColumns] = useState(4); // Default to 4 columns
+  const { users, properties } = useAppState();
+  const { gridLayout, setGridLayout } = useGridLayout();
 
-  // Remove 'overview' from the tabs since we're already on that page
-  const filteredTabs = adminTabs.filter(tab => tab.id !== "overview");
-
-  // Get technicians for New Task dialog
-  const technicians = users.filter(user => 
-    user.role === "maintenance_tech" || user.role === "contractor"
-  );
-
-  const handleCardClick = (tabName: string) => {
-    if (setActiveTab) {
-      setActiveTab(tabName);
-    }
+  const handleCardClick = (tabId: string) => {
+    setActiveTab(tabId);
   };
 
   const handleAlertClick = () => {
-    if (setActiveTab) {
-      setActiveTab("reporter");
-    }
+    setActiveTab("maintenance-jobcards");
   };
 
   const handleNewTaskClick = () => {
     setShowNewTaskDialog(true);
   };
 
-  // Handle grid column change
-  const handleGridChange = (cols: number) => {
-    setGridColumns(cols);
-  };
+  // Sample counts (replace with actual data in a real implementation)
+  const reportedCount = 12;
+  const propertiesCount = properties.length;
+  const staffCount = users.filter(u => u.role === "maintenance_tech" || u.role === "contractor").length;
+  const jobsCount = 28;
+  const maintenanceSettingsCount = null;
+  const techUiCount = null;
+  const reportsCount = null;
+  const chatCount = null;
+  const complianceCount = 15;
+  const billingCount = null;
+  const settingsCount = null;
+  const logsCount = null;
+  const backupCount = null;
+  const recycleCount = null;
+  const reporterManagementCount = 3;
+
+  const technicians = users.filter(user => 
+    user.role === "maintenance_tech" || user.role === "contractor"
+  );
 
   return (
-    <div className="space-y-6 p-3">
+    <div className="space-y-6">
       <DashboardHeader 
         highPriorityJobs={highPriorityJobs}
         onAlertClick={handleAlertClick}
         onNewTaskClick={handleNewTaskClick}
       />
 
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Admin Dashboard</h2>
-        <GridLayoutSelector 
-          gridColumns={gridColumns} 
-          onGridChange={handleGridChange} 
-        />
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-2xl font-bold">Quick Access</h2>
+        <DashboardActions>
+          <GridLayoutSelector 
+            gridLayout={gridLayout} 
+            setGridLayout={setGridLayout}
+            gridConfigs={gridConfigs}
+          />
+        </DashboardActions>
       </div>
 
-      <div className={`grid ${getGridClass(gridColumns)} gap-4`}>
-        {filteredTabs.map((tab, index) => {
-          // For reporter-management card, directly use the reporterStations from AppState
-          const count = tab.id === "reporter-management" 
-            ? reporterStations 
-            : getTabCount(tab.id, users, properties, unassignedJobs);
-            
-          const description = getCardDescription(tab.id);
-          const bgColorClass = getCardStyles(index);
-          const iconColorClass = getIconColor(index);
+      <div className={gridLayout}>
+        {adminTabs.map((tab) => {
+          if (tab.id === "overview") return null;
+
+          let count = null;
+          
+          switch (tab.id) {
+            case "users": count = staffCount; break;
+            case "properties": count = propertiesCount; break;
+            case "maintenance": count = maintenanceSettingsCount; break;
+            case "compliance": count = complianceCount; break;
+            case "maintenance-jobcards": count = jobsCount; break;
+            case "tech-view": count = techUiCount; break;
+            case "reporter": count = reportedCount; break;
+            case "reporter-management": count = reporterManagementCount; break;
+            case "jobs": count = jobsCount; break;
+            case "reports": count = reportsCount; break;
+            case "chat": count = chatCount; break;
+            case "billing": count = billingCount; break;
+            case "settings": count = settingsCount; break;
+            case "logs": count = logsCount; break;
+            case "backup": count = backupCount; break;
+            case "recycle-bin": count = recycleCount; break;
+            default: count = null;
+          }
+
+          let description;
+          
+          if (tab.id === "reporter-management") {
+            description = `Base (2) + (${reporterManagementCount - 2}) Additional station`;
+          } else if (tab.id === "maintenance-jobcards") {
+            description = "View all job cards";
+          } else if (tab.id === "reporter") {
+            description = "Reported maintenance issues";
+          } else if (tab.id === "users") {
+            description = "Staff members";
+          } else if (tab.id === "properties") {
+            description = "Managed properties";
+          }
 
           return (
-            <DashboardCard
+            <DashboardCard 
               key={tab.id}
               id={tab.id}
               label={tab.label}
               icon={tab.icon}
               count={count}
-              description={description}
-              bgColorClass={bgColorClass}
-              iconColorClass={iconColorClass}
+              description={description || "View & manage"}
+              bgColorClass={getCardBgColor(tab.id)}
+              iconColorClass={getCardIconColor(tab.id)}
               onClick={() => handleCardClick(tab.id)}
             />
           );
         })}
+        
+        <ComplianceProvider>
+          <ComplianceBoardCard />
+        </ComplianceProvider>
       </div>
 
-      {/* Add the NewTaskDialog */}
       <NewTaskDialog
         open={showNewTaskDialog}
         onOpenChange={setShowNewTaskDialog}
