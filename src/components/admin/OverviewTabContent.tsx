@@ -8,9 +8,9 @@ import { useHighPriorityJobsMonitor } from "@/hooks/useHighPriorityJobsMonitor";
 import NewTaskDialog from "./tasks/NewTaskDialog";
 import { useAppState } from "@/context/AppStateContext";
 import GridLayoutSelector from "./dashboard/GridLayoutSelector";
-import { DashboardActions } from "./dashboard/DashboardActions";
-import { getCardBgColor, getCardIconColor } from "./dashboard/dashboardUtils";
-import { gridConfigs, useGridLayout } from "./dashboard/gridHelpers";
+import DashboardActions from "./dashboard/DashboardActions";
+import { getCardStyles, getIconColor } from "./dashboard/dashboardUtils";
+import { getGridClass } from "./dashboard/gridHelpers";
 import { ComplianceProvider } from "@/context/ComplianceContext";
 import ComplianceBoardCard from "../compliance/ComplianceBoardCard";
 
@@ -23,7 +23,8 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
   const highPriorityJobs = useHighPriorityJobsMonitor();
   const [showNewTaskDialog, setShowNewTaskDialog] = useState(false);
   const { users, properties } = useAppState();
-  const { gridLayout, setGridLayout } = useGridLayout();
+  const [gridColumns, setGridColumns] = useState(4); // Default to 4 columns
+  const gridLayout = getGridClass(gridColumns);
 
   const handleCardClick = (tabId: string) => {
     setActiveTab(tabId);
@@ -68,17 +69,16 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
 
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-2xl font-bold">Quick Access</h2>
-        <DashboardActions>
+        <div>
           <GridLayoutSelector 
-            gridLayout={gridLayout} 
-            setGridLayout={setGridLayout}
-            gridConfigs={gridConfigs}
+            gridColumns={gridColumns} 
+            onGridChange={setGridColumns}
           />
-        </DashboardActions>
+        </div>
       </div>
 
       <div className={gridLayout}>
-        {adminTabs.map((tab) => {
+        {adminTabs.map((tab, index) => {
           if (tab.id === "overview") return null;
 
           let count = null;
@@ -125,8 +125,8 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
               icon={tab.icon}
               count={count}
               description={description || "View & manage"}
-              bgColorClass={getCardBgColor(tab.id)}
-              iconColorClass={getCardIconColor(tab.id)}
+              bgColorClass={getCardStyles(index)}
+              iconColorClass={getIconColor(index)}
               onClick={() => handleCardClick(tab.id)}
             />
           );

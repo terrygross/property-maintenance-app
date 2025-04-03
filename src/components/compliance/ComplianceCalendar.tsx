@@ -4,7 +4,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { useCompliance } from "@/context/ComplianceContext";
+import { useCompliance, AlertLevel } from "@/context/ComplianceContext";
 import TaskList from "./TaskList";
 import TaskForm from "./TaskForm";
 import ComplianceDashboard from "./ComplianceDashboard";
@@ -81,7 +81,7 @@ const ComplianceCalendar = () => {
       );
     }
     
-    return day.getDate();
+    return <span>{day.getDate()}</span>;
   };
 
   return (

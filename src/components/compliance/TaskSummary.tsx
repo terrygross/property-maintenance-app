@@ -2,7 +2,7 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Calendar, Clock } from "lucide-react";
+import { PlusCircle, Clock } from "lucide-react";
 import { useCompliance } from "@/context/ComplianceContext";
 import TaskDetails from "./TaskDetails";
 
