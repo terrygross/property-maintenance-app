@@ -24,7 +24,7 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
   const [showNewTaskDialog, setShowNewTaskDialog] = useState(false);
   const { users, properties } = useAppState();
   const [gridColumns, setGridColumns] = useState(4); // Default to 4 columns
-  const gridLayout = getGridClass(gridColumns);
+  const gridClassName = getGridClass(gridColumns);
 
   const handleCardClick = (tabId: string) => {
     setActiveTab(tabId);
@@ -77,7 +77,7 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
         </div>
       </div>
 
-      <div className={gridLayout}>
+      <div className={gridClassName}>
         {adminTabs.map((tab, index) => {
           if (tab.id === "overview") return null;
 
