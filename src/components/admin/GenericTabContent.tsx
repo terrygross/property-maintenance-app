@@ -3,7 +3,7 @@ import React from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import SystemLogs from "./logs/SystemLogs";
+import { FileText } from "lucide-react";
 
 interface GenericTabContentProps {
   title: string;
@@ -29,7 +29,12 @@ const GenericTabContent = ({
   const renderContent = () => {
     switch (contentType) {
       case "logs":
-        return <SystemLogs />;
+        return (
+          <div className="min-h-[200px] flex flex-col items-center justify-center">
+            <FileText className="h-12 w-12 text-muted-foreground mb-4" />
+            <p className="text-muted-foreground">System logs feature is coming soon.</p>
+          </div>
+        );
       case "backup":
       case "recycle-bin":
       case "default":
