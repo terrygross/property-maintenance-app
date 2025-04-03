@@ -10,13 +10,15 @@ interface GenericTabContentProps {
   description: string;
   setActiveTab?: (tab: string) => void;
   showBackButton?: boolean;
+  contentType?: "logs" | "backup" | "recycle-bin" | "default";
 }
 
 const GenericTabContent = ({ 
   title, 
   description, 
   setActiveTab, 
-  showBackButton = true 
+  showBackButton = true,
+  contentType = "default"
 }: GenericTabContentProps) => {
   const handleBackClick = () => {
     if (setActiveTab) {
@@ -24,8 +26,21 @@ const GenericTabContent = ({
     }
   };
 
-  // Determine if we should render system logs based on the title
-  const isSystemLogs = title === "System Logs";
+  const renderContent = () => {
+    switch (contentType) {
+      case "logs":
+        return <SystemLogs />;
+      case "backup":
+      case "recycle-bin":
+      case "default":
+      default:
+        return (
+          <div className="min-h-[200px] flex items-center justify-center">
+            <p className="text-muted-foreground">This feature is coming soon.</p>
+          </div>
+        );
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -47,17 +62,9 @@ const GenericTabContent = ({
         </div>
       </div>
 
-      {isSystemLogs ? (
-        <Card className="p-6">
-          <SystemLogs />
-        </Card>
-      ) : (
-        <Card className="p-6">
-          <div className="min-h-[200px] flex items-center justify-center">
-            <p className="text-muted-foreground">This feature is coming soon.</p>
-          </div>
-        </Card>
-      )}
+      <Card className="p-6">
+        {renderContent()}
+      </Card>
     </div>
   );
 };

@@ -1,4 +1,3 @@
-
 import React from "react";
 import { TabsContent } from "@/components/ui/tabs";
 import AdminTab from "@/components/AdminTab";
@@ -149,6 +148,7 @@ const AdminDashboardTabs = ({
           description="View system events, errors, and user actions" 
           setActiveTab={setActiveTab}
           showBackButton={false}
+          contentType="logs"
         />
       </TabsContent>
 
@@ -176,6 +176,7 @@ const AdminDashboardTabs = ({
           description="Backup and restore data from cloud storage" 
           setActiveTab={setActiveTab}
           showBackButton={false}
+          contentType="backup"
         />
       </TabsContent>
 
@@ -185,6 +186,7 @@ const AdminDashboardTabs = ({
           description="View and restore deleted items" 
           setActiveTab={setActiveTab}
           showBackButton={false}
+          contentType="recycle-bin"
         />
       </TabsContent>
     </>
