@@ -8,6 +8,7 @@ import PriorityDialog from "./PriorityDialog";
 import PhotoBadges from "./PhotoBadges";
 import JobActionButtons from "./JobActionButtons";
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const JobCard = ({ 
   job, 
@@ -23,6 +24,7 @@ const JobCard = ({
   const isAccepted = job.accepted;
   const status = job.status || "assigned";
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [showPriorityDialog, setShowPriorityDialog] = useState(false);
   const [selectedPriority, setSelectedPriority] = useState(job.priority);
   
@@ -38,14 +40,14 @@ const JobCard = ({
   };
   
   return (
-    <div key={job.id} className={`border rounded-lg p-4 ${isHighPriority && !isAccepted ? 'border-red-500 bg-red-50' : ''}`}>
-      <div className="flex items-start justify-between">
+    <div key={job.id} className={`border rounded-lg p-3 md:p-4 ${isHighPriority && !isAccepted ? 'border-red-500 bg-red-50' : ''}`}>
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between">
         <div className="flex-grow">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 mb-2">
             {isHighPriority && !isAccepted && <AlertCircle className="h-4 w-4 text-red-600 animate-pulse" />}
             {isHighPriority && isAccepted && <CheckCircle className="h-4 w-4 text-green-600" />}
             <h3 className="font-medium">{job.title}</h3>
-            <Badge className={getPriorityColor(job.priority)}>
+            <Badge className={`${getPriorityColor(job.priority)} text-xs`}>
               {job.priority.charAt(0).toUpperCase() + job.priority.slice(1)}
             </Badge>
             {isAdmin && (
@@ -70,27 +72,29 @@ const JobCard = ({
           />
         </div>
         
-        {job.photos?.reporter && (
-          <div className="hidden md:block w-16 h-16 rounded-md overflow-hidden border bg-gray-50 mr-4 cursor-pointer" 
-               onClick={() => onViewReporterImage(job)}>
-            <img 
-              src={job.photos.reporter} 
-              alt="Reporter photo" 
-              className="w-full h-full object-cover"
-            />
-          </div>
-        )}
-        
-        <JobActionButtons 
-          job={job}
-          isHighPriority={isHighPriority}
-          isAccepted={isAccepted}
-          status={status}
-          onAcceptJob={onAcceptJob}
-          onUpdateStatus={onUpdateStatus}
-          onViewDetails={onViewDetails}
-          isAdmin={isAdmin}
-        />
+        <div className="flex items-center mt-3 md:mt-0">
+          {job.photos?.reporter && !isMobile && (
+            <div className="hidden md:block w-16 h-16 rounded-md overflow-hidden border bg-gray-50 mr-4 cursor-pointer" 
+                 onClick={() => onViewReporterImage(job)}>
+              <img 
+                src={job.photos.reporter} 
+                alt="Reporter photo" 
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
+          
+          <JobActionButtons 
+            job={job}
+            isHighPriority={isHighPriority}
+            isAccepted={isAccepted}
+            status={status}
+            onAcceptJob={onAcceptJob}
+            onUpdateStatus={onUpdateStatus}
+            onViewDetails={onViewDetails}
+            isAdmin={isAdmin}
+          />
+        </div>
       </div>
       
       {/* Priority dialog */}
