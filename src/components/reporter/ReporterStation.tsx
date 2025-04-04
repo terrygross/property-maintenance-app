@@ -28,6 +28,9 @@ const ReporterStation = ({ stationId }: ReporterStationProps) => {
           // Fallback if station not found
           setStationProperty(properties.length > 0 ? properties[0].id : "");
         }
+      } else {
+        // Fallback if no stations are found
+        setStationProperty(properties.length > 0 ? properties[0].id : "");
       }
     } catch (error) {
       console.error("Error finding station property:", error);
@@ -37,7 +40,8 @@ const ReporterStation = ({ stationId }: ReporterStationProps) => {
   }, [stationId, properties]);
 
   // Get the current property name for display
-  const propertyName = properties.find(p => p.id === stationProperty)?.name || "Select a Property";
+  const currentProperty = properties.find(p => p.id === stationProperty);
+  const propertyName = currentProperty ? currentProperty.name : "Select a Property";
 
   return (
     <Card className="w-full max-w-2xl mx-auto">

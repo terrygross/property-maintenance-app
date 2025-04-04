@@ -27,6 +27,16 @@ interface ReporterFormProps {
   propertyName: string;
 }
 
+// Export this interface for form field components
+export interface ReporterFormValues {
+  reporterName: string;
+  propertyId: string;
+  location: string;
+  description: string;
+  highPriority: boolean;
+  imageUrl?: string;
+}
+
 const ReporterForm = ({ stationId, stationProperty, propertyName }: ReporterFormProps) => {
   const { properties } = useAppState();
   const { toast } = useToast();
@@ -107,7 +117,7 @@ const ReporterForm = ({ stationId, stationProperty, propertyName }: ReporterForm
     }
   };
 
-  const handleCaptureImage = (imageData: string) => {
+  const handleImageChange = (imageData: string) => {
     setCapturedImage(imageData);
     setShowCamera(false);
   };
@@ -115,7 +125,10 @@ const ReporterForm = ({ stationId, stationProperty, propertyName }: ReporterForm
   return (
     <>
       {showCamera ? (
-        <ReporterImageCapture onCapture={handleCaptureImage} onCancel={() => setShowCamera(false)} />
+        <ReporterImageCapture 
+          imageUrl={capturedImage || ""} 
+          onImageChange={handleImageChange} 
+        />
       ) : (
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">

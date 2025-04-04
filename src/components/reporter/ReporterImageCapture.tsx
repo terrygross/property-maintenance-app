@@ -3,7 +3,7 @@ import { useState, useRef } from "react";
 import { Camera, Upload, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-interface ReporterImageCaptureProps {
+export interface ReporterImageCaptureProps {
   imageUrl: string;
   onImageChange: (url: string) => void;
 }
