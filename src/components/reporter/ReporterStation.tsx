@@ -37,7 +37,7 @@ const ReporterStation = ({ stationId }: ReporterStationProps) => {
   }, [stationId, properties]);
 
   // Get the current property name for display
-  const propertyName = properties.find(p => p.id === stationProperty)?.name || "Unknown Property";
+  const propertyName = properties.find(p => p.id === stationProperty)?.name || "Select a Property";
 
   return (
     <Card className="w-full max-w-2xl mx-auto">

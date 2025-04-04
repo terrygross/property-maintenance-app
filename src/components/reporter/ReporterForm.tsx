@@ -1,24 +1,25 @@
 
-import { useEffect, useState } from "react";
-import { Form } from "@/components/ui/form";
-import { useForm } from "react-hook-form";
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  SelectGroup,
+  SelectLabel
+} from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Switch } from "@/components/ui/switch";
+import { Camera } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import ReporterImageCapture from "./ReporterImageCapture";
 import { useAppState } from "@/context/AppStateContext";
-import { useToast } from "@/hooks/use-toast";
-import ReporterNameField from "./form-fields/ReporterNameField";
-import PropertyField from "./form-fields/PropertyField";
-import LocationField from "./form-fields/LocationField";
-import DescriptionField from "./form-fields/DescriptionField";
-import SubmitButton from "./form-fields/SubmitButton";
-import HighPriorityField from "./form-fields/HighPriorityField";
-
-export interface ReporterFormValues {
-  reporterName: string;
-  propertyId: string;
-  location: string;
-  description: string;
-  highPriority: boolean;
-}
 
 interface ReporterFormProps {
   stationId: string;
@@ -27,120 +28,202 @@ interface ReporterFormProps {
 }
 
 const ReporterForm = ({ stationId, stationProperty, propertyName }: ReporterFormProps) => {
-  const [imageUrl, setImageUrl] = useState<string>("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const { properties } = useAppState();
   const { toast } = useToast();
-
-  const form = useForm<ReporterFormValues>({
-    defaultValues: {
-      reporterName: "",
-      propertyId: "",
-      location: "",
-      description: "",
-      highPriority: false
-    }
-  });
-
-  // Update form values when stationProperty changes
+  
+  // Form fields
+  const [name, setName] = useState("");
+  const [location, setLocation] = useState("");
+  const [issue, setIssue] = useState("");
+  const [isHighPriority, setIsHighPriority] = useState(false);
+  const [showCamera, setShowCamera] = useState(false);
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [selectedProperty, setSelectedProperty] = useState(stationProperty);
+  
+  // Reset form when the station changes
   useEffect(() => {
-    if (stationProperty) {
-      form.setValue("propertyId", stationProperty);
-    }
-  }, [stationProperty, form]);
+    setSelectedProperty(stationProperty);
+  }, [stationProperty]);
 
-  const handleSubmit = (values: ReporterFormValues) => {
-    setIsSubmitting(true);
-    
-    // Ensure an image was captured
-    if (!imageUrl) {
-      toast({
-        title: "Image Required",
-        description: "Please take a photo of the issue before submitting.",
-        variant: "destructive"
-      });
-      setIsSubmitting(false);
-      return;
-    }
+  // Get current property name for display
+  const currentPropertyName = properties.find(p => p.id === selectedProperty)?.name || propertyName;
 
-    // Get property name for the toast message
-    const propertyName = properties.find(p => p.id === values.propertyId)?.name || "selected property";
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     
-    // Create the job report data
-    const reportData = {
-      id: `job${Date.now()}`,
-      title: `Maintenance Request - ${values.reporterName}`,
-      description: values.description,
-      property: propertyName,
-      location: values.location,
-      reportDate: new Date().toISOString().split("T")[0],
-      priority: values.highPriority ? "high" : "medium", // Set priority based on checkbox
+    // Create timestamp
+    const timestamp = new Date().toISOString();
+    const reportDate = timestamp.split("T")[0];
+    
+    // Generate unique ID
+    const id = `job-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    
+    // Create job object
+    const jobData = {
+      id,
+      title: `Maintenance Request - ${currentPropertyName}`,
+      description: issue,
+      property: currentPropertyName,
+      location: location,
+      reportDate,
+      priority: isHighPriority ? "high" : "medium",
       status: "unassigned",
-      stationId: stationId,
-      imageUrl: imageUrl,
-      timestamp: new Date().toISOString(),
-      highPriority: values.highPriority,
-      alertsSent: values.highPriority ? 1 : 0, // Track number of alerts sent for high priority jobs
-      lastAlertTime: values.highPriority ? new Date().toISOString() : null, // Track when the last alert was sent
-      alertShown: false // Flag to track if alert has been shown to technician
+      reportedBy: name,
+      imageUrl: capturedImage,
+      timestamp
     };
     
-    // Get existing reports or initialize empty array
-    let existingReports = [];
-    try {
-      const savedReports = localStorage.getItem('reporterJobs');
-      if (savedReports) {
-        existingReports = JSON.parse(savedReports);
-      }
-    } catch (error) {
-      console.error("Error parsing saved reports:", error);
-    }
-    
-    // Add new report to the beginning of the array
-    const updatedReports = [reportData, ...existingReports];
-    
     // Save to localStorage
-    localStorage.setItem('reporterJobs', JSON.stringify(updatedReports));
-    
-    // Log for debugging
-    console.log("Saved report job:", reportData);
-    
-    // Show appropriate toast message based on priority
-    const priorityMessage = values.highPriority ? 
-      "HIGH PRIORITY - Notifications have been sent to maintenance team." : 
-      "";
-    
-    // Reset form
-    form.reset();
-    form.setValue("propertyId", stationProperty); // Keep the property ID
-    setImageUrl("");
-    setIsSubmitting(false);
-    
-    toast({
-      title: "Report Submitted",
-      description: `Your maintenance report for ${propertyName} has been submitted successfully. ${priorityMessage}`,
-      variant: values.highPriority ? "destructive" : "default"
-    });
+    try {
+      const existingJobs = localStorage.getItem('reporterJobs');
+      const jobs = existingJobs ? JSON.parse(existingJobs) : [];
+      jobs.push(jobData);
+      localStorage.setItem('reporterJobs', JSON.stringify(jobs));
+      
+      // Trigger custom event to refresh jobs list in other components
+      const event = new Event('jobsUpdated');
+      document.dispatchEvent(event);
+      
+      // Show success message
+      toast({
+        title: "Maintenance request submitted",
+        description: "Your request has been recorded and will be addressed soon.",
+      });
+      
+      // Reset form
+      setName("");
+      setLocation("");
+      setIssue("");
+      setIsHighPriority(false);
+      setCapturedImage(null);
+      setShowCamera(false);
+    } catch (error) {
+      console.error("Error saving job:", error);
+      toast({
+        title: "Error",
+        description: "There was a problem submitting your request. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCaptureImage = (imageData: string) => {
+    setCapturedImage(imageData);
+    setShowCamera(false);
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-        <ReporterImageCapture imageUrl={imageUrl} onImageChange={setImageUrl} />
-        
-        <ReporterNameField form={form} />
-        
-        <PropertyField form={form} propertyName={propertyName} />
-        
-        <LocationField form={form} />
-        
-        <DescriptionField form={form} />
-        
-        <HighPriorityField form={form} />
-        
-        <SubmitButton isSubmitting={isSubmitting} />
-      </form>
-    </Form>
+    <>
+      {showCamera ? (
+        <ReporterImageCapture onCapture={handleCaptureImage} onCancel={() => setShowCamera(false)} />
+      ) : (
+        <form onSubmit={handleSubmit}>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Your Name</Label>
+              <Input
+                id="name"
+                placeholder="Enter your name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="property">Property</Label>
+              <Select value={selectedProperty} onValueChange={setSelectedProperty}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder={currentPropertyName} />
+                </SelectTrigger>
+                <SelectContent>
+                  <ScrollArea className="h-[200px]">
+                    <SelectGroup>
+                      <SelectLabel>Properties</SelectLabel>
+                      {properties.map((property) => (
+                        <SelectItem key={property.id} value={property.id}>
+                          {property.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </ScrollArea>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="location">Location in Property</Label>
+              <Input
+                id="location"
+                placeholder="e.g., Apartment 2B, Main Lobby, etc."
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="issue">Describe the Issue</Label>
+              <Textarea
+                id="issue"
+                placeholder="Please describe the maintenance issue in detail"
+                rows={4}
+                value={issue}
+                onChange={(e) => setIssue(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="priority"
+                checked={isHighPriority}
+                onCheckedChange={setIsHighPriority}
+              />
+              <Label htmlFor="priority">This is a high-priority issue</Label>
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Add a Photo</Label>
+              {capturedImage ? (
+                <Card className="overflow-hidden">
+                  <CardContent className="p-0">
+                    <div className="relative">
+                      <img 
+                        src={capturedImage} 
+                        alt="Captured" 
+                        className="w-full h-auto" 
+                      />
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        className="absolute bottom-2 right-2"
+                        onClick={() => setShowCamera(true)}
+                      >
+                        Retake
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full h-32 flex flex-col items-center justify-center gap-2"
+                  onClick={() => setShowCamera(true)}
+                >
+                  <Camera className="h-6 w-6" />
+                  <span>Take Photo</span>
+                </Button>
+              )}
+            </div>
+            
+            <Button type="submit" className="w-full">Submit Maintenance Request</Button>
+          </div>
+        </form>
+      )}
+    </>
   );
 };
 
