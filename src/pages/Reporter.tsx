@@ -6,9 +6,10 @@ import ReporterStation from "@/components/reporter/ReporterStation";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Building, Key, Info } from "lucide-react";
+import { Building, Key, Info, Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAppState } from "@/context/AppStateContext";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 // Storage key for reporter stations - must match the one in useStationManagement
 const STORAGE_KEY = 'reporterStations';
@@ -18,6 +19,7 @@ const Reporter = () => {
   const [stationId, setStationId] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
   const { properties } = useAppState();
   
@@ -38,7 +40,8 @@ const Reporter = () => {
               stationId: station.stationId,
               password: station.password,
               propertyId: station.propertyId,
-              name: property ? property.name : "Unknown Property"
+              name: station.companyName || "Station " + station.stationId,
+              propertyName: property ? property.name : "Unknown Property"
             };
           });
           setStations(formattedStations);
@@ -53,6 +56,12 @@ const Reporter = () => {
     
     loadStations();
   }, [properties]);
+
+  // Filter stations based on search query
+  const filteredStations = stations.filter(station => 
+    station.stationId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    station.propertyName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   // Station login validation
   const handleLogin = (e: React.FormEvent) => {
@@ -113,11 +122,26 @@ const Reporter = () => {
                     <div className="text-sm text-blue-700">
                       <p className="font-medium">Available Stations</p>
                       <p>Your system includes these reporter stations:</p>
-                      <ul className="list-disc pl-5 mt-1">
-                        {stations.map(station => (
-                          <li key={station.id}>{station.stationId} ({station.name})</li>
-                        ))}
-                      </ul>
+                      {stations.length > 5 && (
+                        <div className="mb-2 mt-1">
+                          <div className="relative">
+                            <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
+                            <Input
+                              placeholder="Search stations..."
+                              value={searchQuery}
+                              onChange={(e) => setSearchQuery(e.target.value)}
+                              className="pl-8"
+                            />
+                          </div>
+                        </div>
+                      )}
+                      <ScrollArea className={stations.length > 5 ? "h-[150px] pr-4 mt-2" : ""}>
+                        <ul className="list-disc pl-5 mt-1">
+                          {filteredStations.map(station => (
+                            <li key={station.id}>{station.stationId} ({station.propertyName})</li>
+                          ))}
+                        </ul>
+                      </ScrollArea>
                     </div>
                   </div>
                 )}
