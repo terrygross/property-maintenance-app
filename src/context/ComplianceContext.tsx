@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 
@@ -30,6 +29,7 @@ interface ComplianceContextType {
   completeTask: (id: string) => void;
   getUpcomingTasks: () => ComplianceTask[];
   getAlertCount: () => { green: number; amber: number; red: number };
+  updateTaskCategories: (categories: string[]) => void;
 }
 
 const ComplianceContext = createContext<ComplianceContextType | undefined>(undefined);
@@ -202,6 +202,10 @@ export const ComplianceProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     );
   };
 
+  const updateTaskCategories = (categories: string[]) => {
+    console.log("Task categories updated:", categories);
+  };
+
   const value = {
     tasks,
     addTask,
@@ -211,7 +215,8 @@ export const ComplianceProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     confirmTask,
     completeTask,
     getUpcomingTasks,
-    getAlertCount
+    getAlertCount,
+    updateTaskCategories
   };
 
   return (

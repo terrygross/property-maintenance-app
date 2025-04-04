@@ -1,9 +1,10 @@
 
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { User } from "@/types/user";
 import { Property } from "@/types/property";
 import { MOCK_USERS } from "@/data/mockUsers";
 import { mockProperties } from "@/data/mockProperties";
+import { useStationState } from "./useStationState";
 
 export interface MaintenanceCategory {
   id: number;
@@ -23,6 +24,10 @@ export interface AppStateContextType {
   maintenanceCategories: MaintenanceCategory[];
   setMaintenanceCategories: React.Dispatch<React.SetStateAction<MaintenanceCategory[]>>;
   currentUser?: User;
+  // Add these new properties to fix the type errors
+  reporterStations: number;
+  additionalStations: number;
+  updateAdditionalStations: (count: number) => void;
 }
 
 const initialMaintenanceCategories: MaintenanceCategory[] = [
@@ -49,6 +54,9 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   
   // Set a default current user (e.g., the admin)
   const [currentUser] = useState<User | undefined>(MOCK_USERS.find(user => user.role === "admin"));
+
+  // Use the custom hook to get station state
+  const { reporterStations, additionalStations, updateAdditionalStations } = useStationState();
 
   const addUser = (user: User) => {
     setUsers(prev => [...prev, user]);
@@ -86,7 +94,11 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       deleteProperty,
       maintenanceCategories,
       setMaintenanceCategories,
-      currentUser
+      currentUser,
+      // Add these new properties to the context provider
+      reporterStations,
+      additionalStations,
+      updateAdditionalStations
     }}>
       {children}
     </AppStateContext.Provider>
