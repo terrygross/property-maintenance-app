@@ -21,18 +21,22 @@ export const useStationManagement = () => {
         const parsed = JSON.parse(savedStations);
         
         // Validate that property IDs still exist in the current properties
-        // Filter out stations with invalid property IDs
-        const validStations = parsed.filter((station: ReporterStation) => 
-          properties.some(p => p.id === station.propertyId)
-        );
-        
-        // If we filtered out any stations, update localStorage
-        if (validStations.length !== parsed.length) {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(validStations));
-          console.log("Removed stations with invalid property IDs");
+        // Filter out stations with invalid property IDs if properties are available
+        if (properties && properties.length > 0) {
+          const validStations = parsed.filter((station: ReporterStation) => 
+            properties.some(p => p.id === station.propertyId)
+          );
+          
+          // If we filtered out any stations, update localStorage
+          if (validStations.length !== parsed.length) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(validStations));
+            console.log("Removed stations with invalid property IDs");
+          }
+          
+          return validStations;
         }
         
-        return validStations;
+        return parsed;
       } catch (error) {
         console.error("Error parsing saved stations:", error);
         return [];

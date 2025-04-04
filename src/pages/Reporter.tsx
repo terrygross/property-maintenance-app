@@ -56,6 +56,10 @@ const Reporter = () => {
             };
           });
           setStations(formattedStations);
+          
+          // Log for debugging
+          console.log("Properties:", properties);
+          console.log("Formatted stations:", formattedStations);
         } catch (error) {
           console.error("Error parsing saved stations:", error);
           setStations([]);
