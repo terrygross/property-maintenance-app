@@ -42,19 +42,28 @@ const Reporter = () => {
       if (savedStations) {
         try {
           const parsedStations = JSON.parse(savedStations);
+          
           // Map stations to the format we need for validation and display
           const formattedStations = parsedStations.map((station: any) => {
             // Find the property for this station to get its name
             const property = properties.find(p => p.id === station.propertyId);
+            
+            // For debugging
+            if (!property) {
+              console.log(`No property found for station ${station.stationId} with propertyId ${station.propertyId}`);
+              console.log("Available property IDs:", properties.map(p => p.id));
+            }
+            
             return {
               id: station.id,
               stationId: station.stationId,
               password: station.password,
               propertyId: station.propertyId,
               name: station.companyName || "Station " + station.stationId,
-              propertyName: property ? property.name : "Unknown Property"
+              propertyName: property ? property.name : `Property ID ${station.propertyId} (Not Found)`
             };
           });
+          
           setStations(formattedStations);
           
           // Log for debugging

@@ -20,19 +20,23 @@ export const useStationManagement = () => {
         // Parse saved stations
         const parsed = JSON.parse(savedStations);
         
-        // Validate that property IDs still exist in the current properties
-        // Filter out stations with invalid property IDs if properties are available
+        // Check if properties are loaded
         if (properties && properties.length > 0) {
-          const validStations = parsed.filter((station: ReporterStation) => 
-            properties.some(p => p.id === station.propertyId)
-          );
+          // Validate that property IDs still exist in the current properties
+          const validStations = parsed.map((station: ReporterStation) => {
+            // If the property doesn't exist, assign the first available property
+            if (!properties.some(p => p.id === station.propertyId)) {
+              console.log(`Station ${station.stationId} had invalid property ID ${station.propertyId}, assigning to ${properties[0].id}`);
+              return {
+                ...station,
+                propertyId: properties[0].id
+              };
+            }
+            return station;
+          });
           
-          // If we filtered out any stations, update localStorage
-          if (validStations.length !== parsed.length) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(validStations));
-            console.log("Removed stations with invalid property IDs");
-          }
-          
+          // Save corrected stations back to localStorage
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(validStations));
           return validStations;
         }
         
@@ -57,16 +61,25 @@ export const useStationManagement = () => {
   useEffect(() => {
     if (properties.length > 0 && stations.length > 0) {
       // Check if any stations reference non-existent properties
-      const validStations = stations.filter(station => 
-        properties.some(p => p.id === station.propertyId)
-      );
+      const updatedStations = stations.map(station => {
+        if (!properties.some(p => p.id === station.propertyId)) {
+          // If property doesn't exist, assign to first available property
+          console.log(`Updating station ${station.stationId} to use property ${properties[0].id}`);
+          return {
+            ...station,
+            propertyId: properties[0].id
+          };
+        }
+        return station;
+      });
       
-      // If we filtered out any stations, update state
-      if (validStations.length !== stations.length) {
-        setStations(validStations);
+      // If we updated any stations, save the changes
+      const hasChanges = JSON.stringify(updatedStations) !== JSON.stringify(stations);
+      if (hasChanges) {
+        setStations(updatedStations);
         toast({
           title: "Station Data Updated",
-          description: "Some stations were removed because they referenced deleted properties.",
+          description: "Some stations were updated to reference valid properties.",
           variant: "destructive"
         });
       }

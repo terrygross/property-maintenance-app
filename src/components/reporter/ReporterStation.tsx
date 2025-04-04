@@ -24,11 +24,14 @@ const ReporterStation = ({ stationId }: ReporterStationProps) => {
         const station = stations.find((s: any) => s.stationId === stationId);
         if (station) {
           setStationProperty(station.propertyId);
+          console.log(`Found station with property ID: ${station.propertyId}`);
         } else {
+          console.error(`Station with ID ${stationId} not found`);
           // Fallback if station not found
           setStationProperty(properties.length > 0 ? properties[0].id : "");
         }
       } else {
+        console.error("No stations found in localStorage");
         // Fallback if no stations are found
         setStationProperty(properties.length > 0 ? properties[0].id : "");
       }
@@ -41,7 +44,10 @@ const ReporterStation = ({ stationId }: ReporterStationProps) => {
 
   // Get the current property name for display
   const currentProperty = properties.find(p => p.id === stationProperty);
-  const propertyName = currentProperty ? currentProperty.name : "Select a Property";
+  const propertyName = currentProperty ? currentProperty.name : "Unknown Property";
+
+  console.log("ReporterStation - Current property:", propertyName, "ID:", stationProperty);
+  console.log("Available properties:", properties.map(p => ({ id: p.id, name: p.name })));
 
   return (
     <Card className="w-full max-w-2xl mx-auto">
