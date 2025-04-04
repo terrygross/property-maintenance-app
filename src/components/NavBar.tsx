@@ -24,9 +24,11 @@ const NavBar = () => {
               <Link to="/contact" className="text-gray-700 hover:text-primary">
                 Contact
               </Link>
-              <Link to="/reporter" className="text-gray-700 hover:text-primary">
-                Reporter
-              </Link>
+              <Button variant="secondary" size="sm" asChild>
+                <Link to="/reporter" className="font-medium">
+                  Reporter Station
+                </Link>
+              </Button>
             </div>
           </div>
           <div className="flex items-center space-x-4">

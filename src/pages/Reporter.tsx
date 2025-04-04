@@ -42,8 +42,9 @@ const Reporter = () => {
       if (savedStations) {
         try {
           const parsedStations = JSON.parse(savedStations);
-          // Map stations to the format we need for validation
+          // Map stations to the format we need for validation and display
           const formattedStations = parsedStations.map((station: any) => {
+            // Find the property for this station to get its name
             const property = properties.find(p => p.id === station.propertyId);
             return {
               id: station.id,
