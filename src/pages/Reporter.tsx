@@ -14,6 +14,16 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 // Storage key for reporter stations - must match the one in useStationManagement
 const STORAGE_KEY = 'reporterStations';
 
+// Define a proper type for our station objects
+interface StationWithProperty {
+  id: string;
+  stationId: string;
+  password: string;
+  name: string;
+  propertyId: string;
+  propertyName: string;
+}
+
 const Reporter = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [stationId, setStationId] = useState("");
@@ -23,8 +33,8 @@ const Reporter = () => {
   const { toast } = useToast();
   const { properties } = useAppState();
   
-  // Get stations from localStorage
-  const [stations, setStations] = useState<Array<{id: string, stationId: string, password: string, name: string, propertyId: string}>>([]);
+  // Get stations from localStorage with proper typing
+  const [stations, setStations] = useState<StationWithProperty[]>([]);
   
   useEffect(() => {
     const loadStations = () => {
