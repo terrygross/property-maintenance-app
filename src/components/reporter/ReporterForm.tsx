@@ -48,11 +48,11 @@ const ReporterForm = ({ stationId, stationProperty, propertyName }: ReporterForm
   const [isHighPriority, setIsHighPriority] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
-  const [selectedProperty, setSelectedProperty] = useState(stationProperty);
+  const [selectedProperty, setSelectedProperty] = useState(stationProperty || "default");
   
   // Reset form when the station changes
   useEffect(() => {
-    setSelectedProperty(stationProperty);
+    setSelectedProperty(stationProperty || "default");
   }, [stationProperty]);
 
   // Get current property name for display

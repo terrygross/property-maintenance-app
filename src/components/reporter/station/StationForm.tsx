@@ -100,11 +100,17 @@ const StationForm = ({ defaultValues, onChange, properties, isEditing }: Station
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {properties.map(property => (
-                    <SelectItem key={property.id} value={property.id}>
-                      {property.name}
+                  {properties.length > 0 ? (
+                    properties.map(property => (
+                      <SelectItem key={property.id} value={property.id}>
+                        {property.name}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="no-properties">
+                      No properties available
                     </SelectItem>
-                  ))}
+                  )}
                 </SelectContent>
               </Select>
               <FormMessage />

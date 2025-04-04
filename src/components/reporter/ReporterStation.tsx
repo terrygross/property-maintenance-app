@@ -23,8 +23,17 @@ const ReporterStation = ({ stationId }: ReporterStationProps) => {
         const stations = JSON.parse(savedStations);
         const station = stations.find((s: any) => s.stationId === stationId);
         if (station) {
-          setStationProperty(station.propertyId);
-          console.log(`Found station with property ID: ${station.propertyId}`);
+          console.log(`Found station with ID ${stationId} and property ID: ${station.propertyId}`);
+          
+          // Check if the property ID is valid (exists in the properties list)
+          const propertyExists = properties.some(p => p.id === station.propertyId);
+          if (propertyExists) {
+            setStationProperty(station.propertyId);
+          } else {
+            console.warn(`Property ID ${station.propertyId} not found in properties list. Using first available property.`);
+            // Fallback to first property if the property ID doesn't exist
+            setStationProperty(properties.length > 0 ? properties[0].id : "");
+          }
         } else {
           console.error(`Station with ID ${stationId} not found`);
           // Fallback if station not found
@@ -44,7 +53,7 @@ const ReporterStation = ({ stationId }: ReporterStationProps) => {
 
   // Get the current property name for display
   const currentProperty = properties.find(p => p.id === stationProperty);
-  const propertyName = currentProperty ? currentProperty.name : "Unknown Property";
+  const propertyName = currentProperty ? currentProperty.name : "Select Property";
 
   console.log("ReporterStation - Current property:", propertyName, "ID:", stationProperty);
   console.log("Available properties:", properties.map(p => ({ id: p.id, name: p.name })));

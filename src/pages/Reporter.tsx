@@ -60,7 +60,7 @@ const Reporter = () => {
               password: station.password,
               propertyId: station.propertyId,
               name: station.companyName || "Station " + station.stationId,
-              propertyName: property ? property.name : `Property ID ${station.propertyId} (Not Found)`
+              propertyName: property ? property.name : `Unknown Property (ID: ${station.propertyId})`
             };
           });
           

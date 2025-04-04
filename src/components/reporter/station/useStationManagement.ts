@@ -25,7 +25,7 @@ export const useStationManagement = () => {
           // Validate that property IDs still exist in the current properties
           const validStations = parsed.map((station: ReporterStation) => {
             // If the property doesn't exist, assign the first available property
-            if (!properties.some(p => p.id === station.propertyId)) {
+            if (!properties.some(p => p.id === station.propertyId) && properties.length > 0) {
               console.log(`Station ${station.stationId} had invalid property ID ${station.propertyId}, assigning to ${properties[0].id}`);
               return {
                 ...station,
@@ -82,6 +82,9 @@ export const useStationManagement = () => {
           description: "Some stations were updated to reference valid properties.",
           variant: "destructive"
         });
+        
+        // Also update the localStorage directly to ensure it's in sync
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedStations));
       }
     }
   }, [properties, stations, toast]);
@@ -103,48 +106,95 @@ export const useStationManagement = () => {
     // Validate that the propertyId exists in the current properties
     const propertyExists = properties.some(p => p.id === data.propertyId);
     
-    if (!propertyExists) {
+    if (!propertyExists && properties.length > 0) {
+      // If the selected property doesn't exist but we have properties, assign to the first one
+      const updatedData = {
+        ...data,
+        propertyId: properties[0].id
+      };
+      
+      toast({
+        title: "Property Reassigned",
+        description: "The selected property was invalid. Assigned to a valid property instead.",
+        variant: "destructive"
+      });
+      
+      if (selectedStation) {
+        // Update existing station
+        const updatedStations = stations.map((station) =>
+          station.id === selectedStation.id
+            ? {
+                ...station,
+                stationId: updatedData.stationId,
+                companyName: updatedData.companyName,
+                propertyId: updatedData.propertyId,
+                password: updatedData.password || station.password,
+              }
+            : station
+        );
+        setStations(updatedStations);
+        toast({
+          title: "Station Updated",
+          description: `Reporter station ${updatedData.stationId} has been updated.`
+        });
+      } else {
+        // Add new station
+        const newStation: ReporterStation = {
+          id: String(Date.now()),
+          stationId: updatedData.stationId,
+          companyName: updatedData.companyName,
+          propertyId: updatedData.propertyId,
+          password: updatedData.password,
+          createdAt: new Date().toISOString().split("T")[0],
+        };
+        setStations([...stations, newStation]);
+        toast({
+          title: "Station Created",
+          description: `New reporter station ${updatedData.stationId} has been created.`
+        });
+      }
+    } else if (!propertyExists) {
       toast({
         title: "Invalid Property",
-        description: "The selected property does not exist.",
+        description: "The selected property does not exist and no alternative properties are available.",
         variant: "destructive"
       });
       return;
-    }
-
-    if (selectedStation) {
-      // Update existing station
-      const updatedStations = stations.map((station) =>
-        station.id === selectedStation.id
-          ? {
-              ...station,
-              stationId: data.stationId,
-              companyName: data.companyName,
-              propertyId: data.propertyId,
-              password: data.password || station.password,
-            }
-          : station
-      );
-      setStations(updatedStations);
-      toast({
-        title: "Station Updated",
-        description: `Reporter station ${data.stationId} has been updated.`
-      });
     } else {
-      // Add new station
-      const newStation: ReporterStation = {
-        id: String(Date.now()),
-        stationId: data.stationId,
-        companyName: data.companyName,
-        propertyId: data.propertyId,
-        password: data.password,
-        createdAt: new Date().toISOString().split("T")[0],
-      };
-      setStations([...stations, newStation]);
-      toast({
-        title: "Station Created",
-        description: `New reporter station ${data.stationId} has been created.`
-      });
+      if (selectedStation) {
+        // Update existing station
+        const updatedStations = stations.map((station) =>
+          station.id === selectedStation.id
+            ? {
+                ...station,
+                stationId: data.stationId,
+                companyName: data.companyName,
+                propertyId: data.propertyId,
+                password: data.password || station.password,
+              }
+            : station
+        );
+        setStations(updatedStations);
+        toast({
+          title: "Station Updated",
+          description: `Reporter station ${data.stationId} has been updated.`
+        });
+      } else {
+        // Add new station
+        const newStation: ReporterStation = {
+          id: String(Date.now()),
+          stationId: data.stationId,
+          companyName: data.companyName,
+          propertyId: data.propertyId,
+          password: data.password,
+          createdAt: new Date().toISOString().split("T")[0],
+        };
+        setStations([...stations, newStation]);
+        toast({
+          title: "Station Created",
+          description: `New reporter station ${data.stationId} has been created.`
+        });
+      }
     }
     
     handleCloseDialog();
