@@ -4,6 +4,7 @@ import MaintenanceCategories from "./MaintenanceCategories";
 import SLASettings from "./SLASettings";
 import Contractors from "./ServiceProviders";
 import WorkflowRules from "./workflow-rules";
+import { ComplianceProvider } from "@/context/ComplianceContext";
 
 const MaintenanceConfig = () => {
   return (
@@ -21,7 +22,9 @@ const MaintenanceConfig = () => {
         </TabsContent>
         
         <TabsContent value="categories">
-          <MaintenanceCategories />
+          <ComplianceProvider>
+            <MaintenanceCategories />
+          </ComplianceProvider>
         </TabsContent>
         
         <TabsContent value="sla">
