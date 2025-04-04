@@ -32,6 +32,7 @@ export const useHighPriorityJobsMonitor = () => {
               assignedTo: job.assignedTo,
               dueDate: new Date(job.dueDate || Date.now()),
               accepted: job.accepted || false,
+              alertShown: job.alertShown || false,
               photos: {
                 before: job.beforePhoto || "",
                 after: job.afterPhoto || "",
@@ -50,12 +51,21 @@ export const useHighPriorityJobsMonitor = () => {
     monitorHighPriorityJobs();
     
     // Set up periodic checks
-    const interval = setInterval(monitorHighPriorityJobs, 10000);
+    const interval = setInterval(monitorHighPriorityJobs, 5000);
+    
+    // Listen for storage events to update jobs when they change
+    const handleStorageChange = () => {
+      monitorHighPriorityJobs();
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
     
     // Clean up on unmount
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
   return highPriorityJobs;
 };
-

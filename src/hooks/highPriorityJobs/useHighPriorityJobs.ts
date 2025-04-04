@@ -45,10 +45,19 @@ export const useHighPriorityJobs = (userId: string): UseHighPriorityJobsReturn =
     // Set up periodic checks
     const interval = setInterval(checkHighPriorityJobs, 10000);
     
-    // Cleanup interval on unmount
-    return () => clearInterval(interval);
+    // Listen for storage events to update jobs when they change
+    const handleStorageChange = () => {
+      checkHighPriorityJobs();
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Cleanup interval and event listener on unmount
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, [toast, userId]);
 
   return { highPriorityJobs };
 };
-
