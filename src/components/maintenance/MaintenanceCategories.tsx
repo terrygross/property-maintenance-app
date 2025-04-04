@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,19 +20,12 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-
-// Mock data
-const initialCategories = [
-  { id: 1, name: "Plumbing", description: "Water and drainage issues" },
-  { id: 2, name: "Electrical", description: "Power and lighting issues" },
-  { id: 3, name: "HVAC", description: "Heating, ventilation, and air conditioning" },
-  { id: 4, name: "Structural", description: "Building structural issues" },
-];
+import { useAppState, MaintenanceCategory } from "@/context/AppStateContext";
 
 const MaintenanceCategories = () => {
-  const [categories, setCategories] = useState(initialCategories);
+  const { maintenanceCategories, setMaintenanceCategories } = useAppState();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [currentCategory, setCurrentCategory] = useState<any>(null);
+  const [currentCategory, setCurrentCategory] = useState<Partial<MaintenanceCategory> | null>(null);
   const { toast } = useToast();
 
   const openAddDialog = () => {
@@ -40,13 +33,13 @@ const MaintenanceCategories = () => {
     setIsDialogOpen(true);
   };
 
-  const openEditDialog = (category: any) => {
+  const openEditDialog = (category: MaintenanceCategory) => {
     setCurrentCategory({ ...category });
     setIsDialogOpen(true);
   };
 
   const handleSave = () => {
-    if (!currentCategory.name.trim()) {
+    if (!currentCategory?.name?.trim()) {
       toast({
         title: "Error",
         description: "Category name is required",
@@ -57,9 +50,9 @@ const MaintenanceCategories = () => {
 
     if (currentCategory.id) {
       // Edit existing category
-      setCategories(
-        categories.map((c) =>
-          c.id === currentCategory.id ? currentCategory : c
+      setMaintenanceCategories(
+        maintenanceCategories.map((c) =>
+          c.id === currentCategory.id ? currentCategory as MaintenanceCategory : c
         )
       );
       toast({
@@ -70,9 +63,9 @@ const MaintenanceCategories = () => {
       // Add new category
       const newCategory = {
         ...currentCategory,
-        id: Math.max(0, ...categories.map((c) => c.id)) + 1,
-      };
-      setCategories([...categories, newCategory]);
+        id: Math.max(0, ...maintenanceCategories.map((c) => c.id)) + 1,
+      } as MaintenanceCategory;
+      setMaintenanceCategories([...maintenanceCategories, newCategory]);
       toast({
         title: "Success",
         description: "Category added successfully",
@@ -83,7 +76,7 @@ const MaintenanceCategories = () => {
 
   const handleDelete = (id: number) => {
     if (confirm("Are you sure you want to delete this category?")) {
-      setCategories(categories.filter((c) => c.id !== id));
+      setMaintenanceCategories(maintenanceCategories.filter((c) => c.id !== id));
       toast({
         title: "Success",
         description: "Category deleted successfully",
@@ -94,7 +87,7 @@ const MaintenanceCategories = () => {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-lg font-medium">Maintenance Categories</h2>
+        <h2 className="text-lg font-medium">Maintenance & Compliance Categories</h2>
         <Button onClick={openAddDialog}>
           <Plus className="h-4 w-4 mr-2" />
           Add Category
@@ -110,7 +103,7 @@ const MaintenanceCategories = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {categories.map((category) => (
+          {maintenanceCategories.map((category) => (
             <TableRow key={category.id}>
               <TableCell className="font-medium">{category.name}</TableCell>
               <TableCell>{category.description}</TableCell>

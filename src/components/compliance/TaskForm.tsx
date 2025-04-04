@@ -30,22 +30,30 @@ import { Calendar as CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCompliance } from "@/context/ComplianceContext";
 import { toast } from "sonner";
+import { useAppState } from "@/context/AppStateContext";
 
 interface TaskFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-const categories = ["Safety", "Legal", "Maintenance", "Inspection", "Insurance", "Training", "Administrative", "Other"];
+// Default categories in case none are found in app state
+const defaultCategories = ["Safety", "Legal", "Maintenance", "Inspection", "Insurance", "Training", "Administrative", "Other"];
 
 const TaskForm = ({ open, onOpenChange }: TaskFormProps) => {
   const { addTask } = useCompliance();
+  const { maintenanceCategories } = useAppState();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [date, setDate] = useState<Date>();
   const [recurrence, setRecurrence] = useState("none");
   const [assignedTo, setAssignedTo] = useState("");
+  
+  // Use maintenance categories from app state if available, fallback to default categories
+  const categories = maintenanceCategories?.length 
+    ? maintenanceCategories.map(cat => cat.name)
+    : defaultCategories;
   
   const handleSubmit = () => {
     if (!title || !category || !date) {

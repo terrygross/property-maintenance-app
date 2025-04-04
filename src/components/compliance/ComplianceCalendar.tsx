@@ -9,10 +9,11 @@ import TaskList from "./TaskList";
 import TaskForm from "./TaskForm";
 import ComplianceDashboard from "./ComplianceDashboard";
 import TaskSummary from "./TaskSummary";
+import { format } from "date-fns";
 
 const ComplianceCalendar = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
-  const [view, setView] = useState<"calendar" | "list" | "dashboard">("dashboard");
+  const [view, setView] = useState<"calendar" | "list" | "dashboard" | "year">("dashboard");
   const [showAddTask, setShowAddTask] = useState(false);
   
   const { getTasksByMonth } = useCompliance();
@@ -84,6 +85,12 @@ const ComplianceCalendar = () => {
     return <span>{day.getDate()}</span>;
   };
 
+  // Create an array of months for the year view
+  const getYearMonths = () => {
+    const currentYear = date ? date.getFullYear() : new Date().getFullYear();
+    return Array.from({ length: 12 }, (_, i) => new Date(currentYear, i, 1));
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -98,6 +105,7 @@ const ComplianceCalendar = () => {
           <TabsList>
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
             <TabsTrigger value="calendar">Calendar</TabsTrigger>
+            <TabsTrigger value="year">Year View</TabsTrigger>
             <TabsTrigger value="list">Task List</TabsTrigger>
           </TabsList>
         </div>
@@ -128,6 +136,60 @@ const ComplianceCalendar = () => {
             <div>
               <TaskSummary date={date} onAddTask={() => setShowAddTask(true)} />
             </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="year" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <CardTitle>12-Month Overview</CardTitle>
+                <div className="flex items-center gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setDate(new Date(date ? date.getFullYear() - 1 : new Date().getFullYear() - 1, 0, 1))}
+                  >
+                    Previous Year
+                  </Button>
+                  <span className="font-bold">
+                    {date ? date.getFullYear() : new Date().getFullYear()}
+                  </span>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setDate(new Date(date ? date.getFullYear() + 1 : new Date().getFullYear() + 1, 0, 1))}
+                  >
+                    Next Year
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {getYearMonths().map((month, index) => (
+                  <div key={index} className="flex flex-col">
+                    <h3 className="text-sm font-medium mb-2">
+                      {format(month, "MMMM yyyy")}
+                    </h3>
+                    <Calendar
+                      mode="single"
+                      month={month}
+                      selected={date}
+                      onSelect={setDate}
+                      className="rounded-md border p-1 scale-90 origin-top-left"
+                      components={{
+                        DayContent: ({ date }) => renderDay(date)
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+          
+          <div className="mt-4">
+            <TaskSummary date={date} onAddTask={() => setShowAddTask(true)} />
           </div>
         </TabsContent>
 

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle, Clock } from "lucide-react";
 import { useCompliance } from "@/context/ComplianceContext";
 import TaskDetails from "./TaskDetails";
+import { format } from "date-fns";
 
 interface TaskSummaryProps {
   date?: Date;
@@ -75,14 +76,6 @@ const TaskSummary = ({ date, onAddTask }: TaskSummaryProps) => {
       )}
     </>
   );
-};
-
-const format = (date: Date, formatStr: string) => {
-  return date.toLocaleDateString('en-US', {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric'
-  });
 };
 
 const getStatusText = (status: string) => {

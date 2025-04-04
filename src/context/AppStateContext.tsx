@@ -1,50 +1,98 @@
 
-import React, { createContext, useContext, ReactNode, useState } from 'react';
-import { AppState } from './types';
-import { usePropertyState } from './usePropertyState';
-import { useUserState } from './useUserState';
-import { useStationState } from './useStationState';
-import { User } from '@/types/user';
+import React, { createContext, useContext, useState } from "react";
+import { User } from "@/types/user";
+import { Property } from "@/types/property";
+import { mockUsers } from "@/data/mockUsers";
+import { mockProperties } from "@/data/mockProperties";
+
+export interface MaintenanceCategory {
+  id: number;
+  name: string;
+  description: string;
+}
+
+export interface AppStateContextType {
+  users: User[];
+  addUser: (user: User) => void;
+  updateUser: (user: User) => void;
+  deleteUser: (id: string) => void;
+  properties: Property[];
+  addProperty: (property: Property) => void;
+  updateProperty: (property: Property) => void;
+  deleteProperty: (id: string) => void;
+  maintenanceCategories: MaintenanceCategory[];
+  setMaintenanceCategories: React.Dispatch<React.SetStateAction<MaintenanceCategory[]>>;
+}
+
+const initialMaintenanceCategories: MaintenanceCategory[] = [
+  { id: 1, name: "Plumbing", description: "Water and drainage issues" },
+  { id: 2, name: "Electrical", description: "Power and lighting issues" },
+  { id: 3, name: "HVAC", description: "Heating, ventilation, and air conditioning" },
+  { id: 4, name: "Structural", description: "Building structural issues" },
+  { id: 5, name: "Safety", description: "Safety and security issues" },
+  { id: 6, name: "Legal", description: "Legal compliance requirements" },
+  { id: 7, name: "Inspection", description: "Regular inspection tasks" },
+  { id: 8, name: "Insurance", description: "Insurance related requirements" },
+  { id: 9, name: "Training", description: "Staff training requirements" },
+  { id: 10, name: "Administrative", description: "Administrative tasks" },
+];
 
 // Create the context
-const AppStateContext = createContext<AppState | undefined>(undefined);
+const AppStateContext = createContext<AppStateContextType | undefined>(undefined);
 
-// Provider component
-export const AppStateProvider = ({ children }: { children: ReactNode }) => {
-  const propertyState = usePropertyState();
-  const userState = useUserState();
-  const stationState = useStationState();
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-  
-  // For demo purposes, set a default user if none exists
-  // In a real app, this would come from authentication
-  React.useEffect(() => {
-    if (userState.users.length > 0 && !currentUser) {
-      // Default to the first user for demo purposes
-      setCurrentUser(userState.users[0]);
-    }
-  }, [userState.users, currentUser]);
-  
-  // Combine all state pieces into a single value object
-  const value: AppState = {
-    ...propertyState,
-    ...userState,
-    ...stationState,
-    currentUser
+// Create a provider component
+export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [users, setUsers] = useState<User[]>(mockUsers);
+  const [properties, setProperties] = useState<Property[]>(mockProperties);
+  const [maintenanceCategories, setMaintenanceCategories] = useState<MaintenanceCategory[]>(initialMaintenanceCategories);
+
+  const addUser = (user: User) => {
+    setUsers(prev => [...prev, user]);
+  };
+
+  const updateUser = (updatedUser: User) => {
+    setUsers(prev => prev.map(user => user.id === updatedUser.id ? updatedUser : user));
+  };
+
+  const deleteUser = (id: string) => {
+    setUsers(prev => prev.filter(user => user.id !== id));
+  };
+
+  const addProperty = (property: Property) => {
+    setProperties(prev => [...prev, property]);
+  };
+
+  const updateProperty = (updatedProperty: Property) => {
+    setProperties(prev => prev.map(property => property.id === updatedProperty.id ? updatedProperty : property));
+  };
+
+  const deleteProperty = (id: string) => {
+    setProperties(prev => prev.filter(property => property.id !== id));
   };
 
   return (
-    <AppStateContext.Provider value={value}>
+    <AppStateContext.Provider value={{ 
+      users, 
+      addUser, 
+      updateUser, 
+      deleteUser, 
+      properties, 
+      addProperty, 
+      updateProperty, 
+      deleteProperty,
+      maintenanceCategories,
+      setMaintenanceCategories
+    }}>
       {children}
     </AppStateContext.Provider>
   );
 };
 
-// Custom hook for using the app state
+// Custom hook to use the app state context
 export const useAppState = () => {
   const context = useContext(AppStateContext);
   if (context === undefined) {
-    throw new Error('useAppState must be used within an AppStateProvider');
+    throw new Error("useAppState must be used within an AppStateProvider");
   }
   return context;
 };
