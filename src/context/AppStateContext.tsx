@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState } from "react";
 import { User } from "@/types/user";
 import { Property } from "@/types/property";
-import { mockUsers } from "@/data/mockUsers";
+import { MOCK_USERS } from "@/data/mockUsers";
 import { mockProperties } from "@/data/mockProperties";
 
 export interface MaintenanceCategory {
@@ -22,6 +22,7 @@ export interface AppStateContextType {
   deleteProperty: (id: string) => void;
   maintenanceCategories: MaintenanceCategory[];
   setMaintenanceCategories: React.Dispatch<React.SetStateAction<MaintenanceCategory[]>>;
+  currentUser?: User;
 }
 
 const initialMaintenanceCategories: MaintenanceCategory[] = [
@@ -42,9 +43,12 @@ const AppStateContext = createContext<AppStateContextType | undefined>(undefined
 
 // Create a provider component
 export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [users, setUsers] = useState<User[]>(mockUsers);
+  const [users, setUsers] = useState<User[]>(MOCK_USERS);
   const [properties, setProperties] = useState<Property[]>(mockProperties);
   const [maintenanceCategories, setMaintenanceCategories] = useState<MaintenanceCategory[]>(initialMaintenanceCategories);
+  
+  // Set a default current user (e.g., the admin)
+  const [currentUser] = useState<User | undefined>(MOCK_USERS.find(user => user.role === "admin"));
 
   const addUser = (user: User) => {
     setUsers(prev => [...prev, user]);
@@ -81,7 +85,8 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       updateProperty, 
       deleteProperty,
       maintenanceCategories,
-      setMaintenanceCategories
+      setMaintenanceCategories,
+      currentUser
     }}>
       {children}
     </AppStateContext.Provider>

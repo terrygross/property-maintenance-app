@@ -29,7 +29,7 @@ const JobsContainer: React.FC<JobsContainerProps> = ({ jobs, isAdmin = false }) 
 
   return (
     <Card>
-      <JobsHeader jobCount={jobs.length} isAdmin={hasAdmin} />
+      <JobsHeader jobCount={jobs.length} isAdmin={hasAdmin} userId={currentUser?.id} />
       <CardContent>
         {jobs.length === 0 ? (
           <EmptyJobsList />

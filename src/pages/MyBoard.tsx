@@ -6,9 +6,13 @@ import { ComplianceProvider } from "@/context/ComplianceContext";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import ChatDrawer from "@/components/chat/ChatDrawer";
+import { useAppState } from "@/context/AppStateContext";
 
 const MyBoard = () => {
   const navigate = useNavigate();
+  const { currentUser } = useAppState();
+  const currentUserId = currentUser?.id || "4"; // Default to admin if no current user
 
   const handleBackToOverview = () => {
     navigate("/admin");
@@ -32,6 +36,7 @@ const MyBoard = () => {
           <ComplianceCalendar />
         </ComplianceProvider>
       </div>
+      <ChatDrawer currentUserId={currentUserId} />
     </div>
   );
 };

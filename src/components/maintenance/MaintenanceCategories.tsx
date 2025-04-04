@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,9 +21,11 @@ import {
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAppState, MaintenanceCategory } from "@/context/AppStateContext";
+import { useCompliance } from "@/context/ComplianceContext";
 
 const MaintenanceCategories = () => {
   const { maintenanceCategories, setMaintenanceCategories } = useAppState();
+  const { updateTaskCategories } = useCompliance();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentCategory, setCurrentCategory] = useState<Partial<MaintenanceCategory> | null>(null);
   const { toast } = useToast();
@@ -50,11 +52,14 @@ const MaintenanceCategories = () => {
 
     if (currentCategory.id) {
       // Edit existing category
-      setMaintenanceCategories(
-        maintenanceCategories.map((c) =>
-          c.id === currentCategory.id ? currentCategory as MaintenanceCategory : c
-        )
+      const updatedCategories = maintenanceCategories.map((c) =>
+        c.id === currentCategory.id ? currentCategory as MaintenanceCategory : c
       );
+      setMaintenanceCategories(updatedCategories);
+      
+      // Update task categories in the compliance context
+      updateTaskCategories(updatedCategories.map(c => c.name));
+      
       toast({
         title: "Success",
         description: "Category updated successfully",
@@ -65,7 +70,13 @@ const MaintenanceCategories = () => {
         ...currentCategory,
         id: Math.max(0, ...maintenanceCategories.map((c) => c.id)) + 1,
       } as MaintenanceCategory;
-      setMaintenanceCategories([...maintenanceCategories, newCategory]);
+      
+      const updatedCategories = [...maintenanceCategories, newCategory];
+      setMaintenanceCategories(updatedCategories);
+      
+      // Update task categories in the compliance context
+      updateTaskCategories(updatedCategories.map(c => c.name));
+      
       toast({
         title: "Success",
         description: "Category added successfully",
@@ -76,7 +87,12 @@ const MaintenanceCategories = () => {
 
   const handleDelete = (id: number) => {
     if (confirm("Are you sure you want to delete this category?")) {
-      setMaintenanceCategories(maintenanceCategories.filter((c) => c.id !== id));
+      const updatedCategories = maintenanceCategories.filter((c) => c.id !== id);
+      setMaintenanceCategories(updatedCategories);
+      
+      // Update task categories in the compliance context
+      updateTaskCategories(updatedCategories.map(c => c.name));
+      
       toast({
         title: "Success",
         description: "Category deleted successfully",
