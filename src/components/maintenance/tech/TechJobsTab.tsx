@@ -17,6 +17,7 @@ interface Job {
     after?: string;
     reporter?: string;
   };
+  comments?: string[];
 }
 
 interface TechJobsTabContainerProps {
@@ -24,13 +25,15 @@ interface TechJobsTabContainerProps {
   onPhotoCapture: (jobId: string, type: "before" | "after", imageUrl: string) => void;
   onAcceptJob?: (jobId: string) => void;
   onUpdateStatus?: (jobId: string, status: string) => void;
+  onAddComment?: (jobId: string, comment: string) => void;
 }
 
 const TechJobsTabContainer = ({ 
   assignedJobs, 
   onPhotoCapture, 
   onAcceptJob, 
-  onUpdateStatus 
+  onUpdateStatus,
+  onAddComment
 }: TechJobsTabContainerProps) => {
   const { toast } = useToast();
 
@@ -60,6 +63,7 @@ const TechJobsTabContainer = ({
       onPhotoCapture={onPhotoCapture}
       onAcceptJob={onAcceptJob}
       onUpdateStatus={onUpdateStatus}
+      onAddComment={onAddComment}
     />
   );
 };
