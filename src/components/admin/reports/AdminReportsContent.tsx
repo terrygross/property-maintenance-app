@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { UserRole } from "@/types/user";
+import { UserRole, hasAdminAccess } from "@/types/user";
 import Reports from "@/components/maintenance/Reports";
 import ExpenseReports from "@/components/reporter/expenses/ExpenseReports";
 import ReportChartTabs from "@/components/reporter/ReportChartTabs";
@@ -20,7 +20,8 @@ const AdminReportsContent: React.FC<AdminReportsContentProps> = ({ userRole = "a
   const { additionalStations } = useAppState();
   
   // Check if user has access to expense reporting
-  const hasExpenseAccess = userRole === "admin" || additionalStations >= 2;
+  // Use the hasAdminAccess helper function instead of directly comparing with "admin"
+  const hasExpenseAccess = hasAdminAccess(userRole) || additionalStations >= 2;
   
   return (
     <div className="space-y-4">
@@ -38,7 +39,7 @@ const AdminReportsContent: React.FC<AdminReportsContentProps> = ({ userRole = "a
           <TabsTrigger value="expenses" disabled={!hasExpenseAccess}>
             <div className="flex items-center gap-2">
               Expense Reports
-              {!hasExpenseAccess && userRole !== "admin" && <LockIcon className="h-3 w-3" />}
+              {!hasExpenseAccess && !hasAdminAccess(userRole) && <LockIcon className="h-3 w-3" />}
             </div>
           </TabsTrigger>
         </TabsList>
