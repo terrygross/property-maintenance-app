@@ -8,6 +8,7 @@ import { UserRole } from "@/types/user";
 import OverviewTabContent from "./admin/OverviewTabContent";
 import BackToOverviewButton from "./admin/dashboard/BackToOverviewButton";
 import AdminDashboardTabs from "./admin/dashboard/AdminDashboardTabs";
+import DashboardHeader from "./admin/dashboard/DashboardHeader";
 
 interface AdminDashboardProps {
   userRole?: UserRole;
@@ -40,9 +41,22 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
   const handleNewTaskClick = () => {
     setShowNewTaskDialog(true);
   };
+  
+  const handleAlertClick = () => {
+    // Navigate to jobs tab which will show high priority jobs
+    setActiveTab("jobs");
+  };
 
   return (
     <div className="container mx-auto p-4 md:p-6">
+      {activeTab === "overview" && (
+        <DashboardHeader 
+          highPriorityJobs={highPriorityJobs} 
+          onAlertClick={handleAlertClick}
+          onNewTaskClick={handleNewTaskClick}
+        />
+      )}
+      
       <Tabs defaultValue="overview" className="w-full" value={activeTab} onValueChange={setActiveTab}>
         <BackToOverviewButton activeTab={activeTab} onBackClick={handleBackToOverview} />
 

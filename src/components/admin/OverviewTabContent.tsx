@@ -3,7 +3,8 @@ import React from "react";
 import { Grid } from "@/components/ui/grid";
 import AdminCard from "./AdminCard";
 import { adminTabs } from "./AdminTabsList";
-import { ArchiveRestore } from "lucide-react";
+import { ArchiveRestore, CalendarCheck } from "lucide-react";
+import ComplianceBoardCard from "../compliance/ComplianceBoardCard";
 
 interface OverviewTabContentProps {
   setActiveTab?: (tab: string) => void;
@@ -12,7 +13,7 @@ interface OverviewTabContentProps {
 const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold">Dashboard</h1>
+      <h1 className="text-2xl font-bold">Admin Dashboard</h1>
       <p className="text-muted-foreground">Welcome to your property maintenance management system.</p>
 
       <Grid numItemsSm={2} numItemsMd={3} numItemsLg={4} className="gap-4">
@@ -33,6 +34,9 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
           icon={<ArchiveRestore className="h-5 w-5" />}
           onClick={() => setActiveTab && setActiveTab("backup")}
         />
+        
+        {/* Add back the My Board card */}
+        <ComplianceBoardCard />
       </Grid>
     </div>
   );

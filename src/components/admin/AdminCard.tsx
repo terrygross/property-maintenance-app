@@ -12,7 +12,7 @@ interface AdminCardProps {
   buttonAction?: () => void;
   isLink?: boolean;
   linkTo?: string;
-  onClick?: () => void; // Added this prop for direct card clicks
+  onClick?: () => void; // Add onClick prop for direct card clicks
 }
 
 const AdminCard = ({ 
@@ -25,8 +25,17 @@ const AdminCard = ({
   linkTo,
   onClick 
 }: AdminCardProps) => {
+  const handleCardClick = () => {
+    if (onClick) {
+      onClick();
+    }
+  };
+
   return (
-    <Card className="h-full flex flex-col" onClick={onClick}>
+    <Card 
+      className={`h-full flex flex-col ${onClick ? 'cursor-pointer hover:shadow-md transition-all' : ''}`} 
+      onClick={handleCardClick}
+    >
       <CardHeader className="p-4 pb-2">
         <div className="flex items-center gap-3">
           <div className="rounded-full bg-primary/10 p-2 text-primary">
@@ -43,7 +52,10 @@ const AdminCard = ({
               <Link to={linkTo}>{buttonText}</Link>
             </Button>
           ) : buttonAction ? (
-            <Button size="sm" className="w-full text-xs" onClick={buttonAction}>
+            <Button size="sm" className="w-full text-xs" onClick={(e) => {
+              e.stopPropagation(); // Prevent card onClick from firing
+              buttonAction();
+            }}>
               {buttonText}
             </Button>
           ) : null}
