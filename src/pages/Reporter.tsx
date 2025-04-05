@@ -84,7 +84,8 @@ const Reporter = () => {
   // Filter stations based on search query
   const filteredStations = stations.filter(station => 
     station.stationId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    station.propertyName.toLowerCase().includes(searchQuery.toLowerCase())
+    station.propertyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    station.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Station login validation
@@ -92,26 +93,23 @@ const Reporter = () => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulate API call with timeout
-    setTimeout(() => {
-      // Validate against our available stations
-      const station = stations.find(s => s.stationId === stationId && s.password === password);
-      
-      if (station) {
-        setIsAuthenticated(true);
-        toast({
-          title: "Login successful",
-          description: `Reporter station ${stationId} authenticated successfully.`,
-        });
-      } else {
-        toast({
-          title: "Authentication failed",
-          description: "Invalid station ID or password.",
-          variant: "destructive",
-        });
-      }
+    // Validate against our available stations
+    const station = stations.find(s => s.stationId === stationId && s.password === password);
+    
+    if (station) {
+      setIsAuthenticated(true);
+      toast({
+        title: "Login successful",
+        description: `Reporter station ${stationId} authenticated successfully.`,
+      });
+    } else {
+      toast({
+        title: "Authentication failed",
+        description: "Invalid station ID or password.",
+        variant: "destructive",
+      });
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -146,6 +144,7 @@ const Reporter = () => {
                     <div className="text-sm text-blue-700">
                       <p className="font-medium">Available Stations</p>
                       <p>Your system includes these reporter stations:</p>
+                      
                       {stations.length > 5 && (
                         <div className="mb-2 mt-1">
                           <div className="relative">
@@ -159,6 +158,7 @@ const Reporter = () => {
                           </div>
                         </div>
                       )}
+                      
                       <ScrollArea className={stations.length > 5 ? "h-[150px] pr-4 mt-2" : ""}>
                         <ul className="list-disc pl-5 mt-1">
                           {filteredStations.map(station => (

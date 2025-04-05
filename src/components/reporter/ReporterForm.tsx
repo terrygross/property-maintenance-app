@@ -5,21 +5,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  SelectGroup,
-  SelectLabel
-} from "@/components/ui/select";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
 import { Camera } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ReporterImageCapture from "./ReporterImageCapture";
 import { useAppState } from "@/context/AppStateContext";
+import PropertyField from "./form-fields/PropertyField";
 
 interface ReporterFormProps {
   stationId: string;
@@ -48,16 +39,7 @@ const ReporterForm = ({ stationId, stationProperty, propertyName }: ReporterForm
   const [isHighPriority, setIsHighPriority] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
-  const [selectedProperty, setSelectedProperty] = useState(stationProperty || "default");
   
-  // Reset form when the station changes
-  useEffect(() => {
-    setSelectedProperty(stationProperty || "default");
-  }, [stationProperty]);
-
-  // Get current property name for display
-  const currentPropertyName = properties.find(p => p.id === selectedProperty)?.name || propertyName;
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -71,9 +53,9 @@ const ReporterForm = ({ stationId, stationProperty, propertyName }: ReporterForm
     // Create job object
     const jobData = {
       id,
-      title: `Maintenance Request - ${currentPropertyName}`,
+      title: `Maintenance Request - ${propertyName}`,
       description: issue,
-      property: currentPropertyName,
+      property: propertyName,
       location: location,
       reportDate,
       priority: isHighPriority ? "high" : "medium",
@@ -145,23 +127,12 @@ const ReporterForm = ({ stationId, stationProperty, propertyName }: ReporterForm
             
             <div className="space-y-2">
               <Label htmlFor="property">Property</Label>
-              <Select value={selectedProperty} onValueChange={setSelectedProperty}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder={currentPropertyName} />
-                </SelectTrigger>
-                <SelectContent>
-                  <ScrollArea className="h-[200px]">
-                    <SelectGroup>
-                      <SelectLabel>Properties</SelectLabel>
-                      {properties.map((property) => (
-                        <SelectItem key={property.id} value={property.id}>
-                          {property.name}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </ScrollArea>
-                </SelectContent>
-              </Select>
+              <Input
+                id="property"
+                value={propertyName}
+                readOnly
+                className="bg-gray-100 border border-gray-300 px-4 py-2 rounded cursor-not-allowed"
+              />
             </div>
             
             <div className="space-y-2">
