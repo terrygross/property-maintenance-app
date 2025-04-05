@@ -5,7 +5,7 @@ import {
   Users, Settings, Building, ClipboardList, BarChart, 
   MessageCircle, Wallet, CheckSquare, FileText, 
   RotateCcw, Trash, FileSpreadsheet, Wrench, 
-  CalendarClock, ScrollText
+  CalendarClock, ScrollText, Archive
 } from "lucide-react";
 
 // Export the tabs data so it can be used in other components (like cards)
@@ -24,8 +24,8 @@ export const adminTabs = [
   { id: "chat", label: "Chat", icon: MessageCircle },
   { id: "billing", label: "Billing", icon: Wallet },
   { id: "settings", label: "Settings", icon: Settings },
+  { id: "backup", label: "Backup & Restore", icon: Archive },
   { id: "logs", label: "Logs", icon: FileText },
-  { id: "backup", label: "Backup", icon: RotateCcw },
   { id: "recycle-bin", label: "Recycle Bin", icon: Trash }
 ];
 

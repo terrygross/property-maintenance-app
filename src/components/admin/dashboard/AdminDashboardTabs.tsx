@@ -1,196 +1,134 @@
+
 import React from "react";
 import { TabsContent } from "@/components/ui/tabs";
-import AdminTab from "@/components/AdminTab";
-import UserManagement from "@/components/UserManagement";
 import PropertyManagement from "@/components/PropertyManagement";
-import MaintenanceConfig from "@/components/maintenance/MaintenanceConfig";
-import Reports from "@/components/maintenance/Reports";
-import ReporterJobCards from "@/components/reporter/ReporterJobCards";
+import UserManagement from "@/components/UserManagement";
+import JobsSystemActions from "@/components/jobs/JobsSystemActions";
 import JobsList from "@/components/jobs/JobsList";
-import GenericTabContent from "@/components/admin/GenericTabContent";
-import MaintenanceJobCards from "@/components/maintenance/jobcards/MaintenanceJobCards";
-import ChatInterface from "@/components/chat/ChatInterface";
-import ReporterManagement from "@/components/reporter/ReporterManagement";
+import ReporterJobCards from "@/components/reporter/ReporterJobCards";
+import ComplianceDashboard from "@/components/compliance/ComplianceDashboard";
 import BillingManagement from "@/components/billing/BillingManagement";
+import SystemSettings from "@/components/settings/SystemSettings";
+import AdminTabsList from "../AdminTabsList";
+import GenericTabContent from "../GenericTabContent";
+import MaintenanceJobCards from "@/components/maintenance/jobcards/MaintenanceJobCards";
+import MaintenanceConfig from "@/components/maintenance/MaintenanceConfig";
 import ComplianceLists from "@/components/maintenance/compliance/ComplianceLists";
 import AdminTechnicianView from "@/components/maintenance/tech/AdminTechnicianView";
+import ReporterManagement from "@/components/reporter/ReporterManagement";
 import { UserRole } from "@/types/user";
-import SystemSettings from "@/components/settings/SystemSettings";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import LeaveCalendar from "@/components/maintenance/jobcards/LeaveCalendar";
-import CallOutSchedule from "@/components/maintenance/jobcards/CallOutSchedule";
-import { useLeaveRequests } from "@/hooks/useLeaveRequests";
-import { hasAdminAccess } from "@/types/user";
-import ExpensesContent from "@/components/reporter/expenses/ExpensesContent";
+import BackupRestore from "@/pages/BackupRestore";
 
 interface AdminDashboardTabsProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
-  userRole: UserRole;
-  currentUserId: string;
+  userRole?: UserRole;
+  currentUserId?: string;
 }
 
-const AdminDashboardTabs = ({ 
+const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({ 
   activeTab, 
-  setActiveTab, 
-  userRole, 
-  currentUserId 
-}: AdminDashboardTabsProps) => {
-  const { leaveRequests, handleLeaveAction } = useLeaveRequests();
-  const isAdmin = hasAdminAccess(userRole);
-
-  return (
-    <>
-      <TabsContent value="users">
-        <AdminTab title="Staff Management" description="Manage users, leave calendar, and call-out schedules">
-          <Tabs defaultValue="user-management" className="w-full">
-            <TabsList className="mb-4">
-              <TabsTrigger value="user-management">User Management</TabsTrigger>
-              <TabsTrigger value="leave-calendar">Leave Calendar</TabsTrigger>
-              <TabsTrigger value="callout-schedule">Call-Out Schedule</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="user-management">
-              <UserManagement />
-            </TabsContent>
-            
-            <TabsContent value="leave-calendar">
-              <div className="card border rounded-lg p-6">
-                <LeaveCalendar 
-                  leaveRequests={leaveRequests} 
-                  onLeaveAction={handleLeaveAction} 
-                  isAdmin={isAdmin} 
-                />
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="callout-schedule">
-              <div className="card border rounded-lg p-6">
-                <CallOutSchedule />
-              </div>
-            </TabsContent>
-          </Tabs>
-        </AdminTab>
-      </TabsContent>
-
-      <TabsContent value="properties">
-        <AdminTab title="Property Management" description="Manage your property database">
+  setActiveTab,
+  userRole = "admin",
+  currentUserId = "1"
+}) => {
+  if (activeTab !== "overview") {
+    return (
+      <>
+        <AdminTabsList />
+        
+        <TabsContent value="users">
+          <UserManagement />
+        </TabsContent>
+        
+        <TabsContent value="properties">
           <PropertyManagement />
-        </AdminTab>
-      </TabsContent>
-
-      <TabsContent value="maintenance">
-        <AdminTab title="Maintenance Settings" description="Configure maintenance system parameters">
+        </TabsContent>
+        
+        <TabsContent value="maintenance">
           <MaintenanceConfig />
-        </AdminTab>
-      </TabsContent>
-
-      <TabsContent value="compliance">
-        <AdminTab title="Compliance Lists" description="Manage property compliance lists and assign them to technicians">
+        </TabsContent>
+        
+        <TabsContent value="compliance">
           <ComplianceLists />
-        </AdminTab>
-      </TabsContent>
+        </TabsContent>
 
-      <TabsContent value="reports">
-        <AdminTab title="Accounting & Reports" description="Access financial tracking and performance reports">
-          <Tabs defaultValue="reports" className="w-full">
-            <TabsList className="mb-4">
-              <TabsTrigger value="reports">Performance Reports</TabsTrigger>
-              <TabsTrigger value="expenses">Expense Tracking</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="reports">
-              <Reports />
-            </TabsContent>
-            
-            <TabsContent value="expenses">
-              <ExpensesContent />
-            </TabsContent>
-          </Tabs>
-        </AdminTab>
-      </TabsContent>
-
-      <TabsContent value="maintenance-jobcards">
-        <AdminTab title="Maintenance Job Cards" description="View job cards, manage, and schedule">
-          <MaintenanceJobCards userRole={userRole} />
-        </AdminTab>
-      </TabsContent>
-
-      <TabsContent value="chat">
-        <AdminTab title="Team Chat" description="Communicate with all staff members in real-time">
-          <div className="h-[600px]">
-            <ChatInterface currentUserId={currentUserId} />
-          </div>
-        </AdminTab>
-      </TabsContent>
-
-      <TabsContent value="billing">
-        <AdminTab title="Billing Management" description="Manage subscription plans, payments, and additional capacity">
-          <BillingManagement />
-        </AdminTab>
-      </TabsContent>
-
-      <TabsContent value="tech-view">
-        <AdminTab title="Maintenance Technician UI" description="View and interact with the technician interface">
+        <TabsContent value="maintenance-jobcards">
+          <MaintenanceJobCards />
+        </TabsContent>
+        
+        <TabsContent value="tech-view">
           <AdminTechnicianView />
-        </AdminTab>
-      </TabsContent>
-
-      <TabsContent value="settings">
-        <AdminTab title="System Settings" description="Configure global parameters for your maintenance system">
-          <SystemSettings />
-        </AdminTab>
-      </TabsContent>
-
-      <TabsContent value="logs">
-        <GenericTabContent 
-          title="System Logs" 
-          description="View system events, errors, and user actions" 
-          setActiveTab={setActiveTab}
-          showBackButton={false}
-          contentType="logs"
-        />
-      </TabsContent>
-
-      <TabsContent value="reporter">
-        <AdminTab title="Reported Jobs" description="View and assign reported maintenance issues">
-          <ReporterJobCards setActiveTab={setActiveTab} />
-        </AdminTab>
-      </TabsContent>
-      
-      <TabsContent value="reporter-management">
-        <AdminTab title="Reporter Management" description="Manage reporter accounts and access based on your subscription">
+        </TabsContent>
+        
+        <TabsContent value="reporter">
+          <ReporterJobCards />
+        </TabsContent>
+        
+        <TabsContent value="reporter-management">
           <ReporterManagement />
-        </AdminTab>
-      </TabsContent>
+        </TabsContent>
+        
+        <TabsContent value="jobs">
+          <div className="space-y-4">
+            <JobsSystemActions 
+              jobs={[]} 
+              setJobs={() => {}} 
+            />
+            <JobsList />
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="reports">
+          <GenericTabContent 
+            title="Reports & Analytics"
+            description="View detailed reports and analytics for your properties" 
+            setActiveTab={setActiveTab}
+          />
+        </TabsContent>
+        
+        <TabsContent value="chat">
+          <GenericTabContent 
+            title="Chat Management"
+            description="Configure chat settings and view chat history" 
+            setActiveTab={setActiveTab}
+          />
+        </TabsContent>
+        
+        <TabsContent value="billing">
+          <BillingManagement />
+        </TabsContent>
+        
+        <TabsContent value="settings">
+          <SystemSettings />
+        </TabsContent>
 
-      <TabsContent value="jobs">
-        <AdminTab title="Jobs" description="Manage assigned maintenance jobs">
-          <JobsList />
-        </AdminTab>
-      </TabsContent>
-
-      <TabsContent value="backup">
-        <GenericTabContent 
-          title="Backup & Restore" 
-          description="Backup and restore data from cloud storage" 
-          setActiveTab={setActiveTab}
-          showBackButton={false}
-          contentType="backup"
-        />
-      </TabsContent>
-
-      <TabsContent value="recycle-bin">
-        <GenericTabContent 
-          title="Recycle Bin" 
-          description="View and restore deleted items" 
-          setActiveTab={setActiveTab}
-          showBackButton={false}
-          contentType="recycle-bin"
-        />
-      </TabsContent>
-    </>
-  );
+        <TabsContent value="backup">
+          <BackupRestore />
+        </TabsContent>
+        
+        <TabsContent value="logs">
+          <GenericTabContent 
+            title="System Logs"
+            description="View system activity logs" 
+            setActiveTab={setActiveTab}
+            contentType="logs"
+          />
+        </TabsContent>
+        
+        <TabsContent value="recycle-bin">
+          <GenericTabContent 
+            title="Recycle Bin"
+            description="Recover deleted items" 
+            setActiveTab={setActiveTab}
+            contentType="recycle-bin"
+          />
+        </TabsContent>
+      </>
+    );
+  }
+  
+  return null;
 };
 
 export default AdminDashboardTabs;
