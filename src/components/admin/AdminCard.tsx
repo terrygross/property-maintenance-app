@@ -6,17 +6,27 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 
 interface AdminCardProps {
   title: string;
-  description: string;
+  description?: string;
   icon: React.ReactNode;
-  buttonText: string;
+  buttonText?: string;
   buttonAction?: () => void;
   isLink?: boolean;
   linkTo?: string;
+  onClick?: () => void; // Added this prop for direct card clicks
 }
 
-const AdminCard = ({ title, description, icon, buttonText, buttonAction, isLink, linkTo }: AdminCardProps) => {
+const AdminCard = ({ 
+  title, 
+  description = "", 
+  icon, 
+  buttonText = "Manage", 
+  buttonAction, 
+  isLink, 
+  linkTo,
+  onClick 
+}: AdminCardProps) => {
   return (
-    <Card className="h-full flex flex-col">
+    <Card className="h-full flex flex-col" onClick={onClick}>
       <CardHeader className="p-4 pb-2">
         <div className="flex items-center gap-3">
           <div className="rounded-full bg-primary/10 p-2 text-primary">
@@ -24,19 +34,21 @@ const AdminCard = ({ title, description, icon, buttonText, buttonAction, isLink,
           </div>
           <CardTitle className="text-base font-medium">{title}</CardTitle>
         </div>
-        <CardDescription className="text-xs mt-2">{description}</CardDescription>
+        {description && <CardDescription className="text-xs mt-2">{description}</CardDescription>}
       </CardHeader>
-      <CardFooter className="p-4 pt-2 mt-auto">
-        {isLink && linkTo ? (
-          <Button asChild size="sm" className="w-full text-xs">
-            <Link to={linkTo}>{buttonText}</Link>
-          </Button>
-        ) : (
-          <Button size="sm" className="w-full text-xs" onClick={buttonAction}>
-            {buttonText}
-          </Button>
-        )}
-      </CardFooter>
+      {(buttonText || buttonAction || isLink) && (
+        <CardFooter className="p-4 pt-2 mt-auto">
+          {isLink && linkTo ? (
+            <Button asChild size="sm" className="w-full text-xs">
+              <Link to={linkTo}>{buttonText}</Link>
+            </Button>
+          ) : buttonAction ? (
+            <Button size="sm" className="w-full text-xs" onClick={buttonAction}>
+              {buttonText}
+            </Button>
+          ) : null}
+        </CardFooter>
+      )}
     </Card>
   );
 };
