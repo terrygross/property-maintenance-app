@@ -17,10 +17,10 @@ export const useReporterJobs = () => {
           
           console.log("All jobs in storage:", parsedJobs.length);
           
-          // Show all jobs that are unassigned or don't have a status
-          // FIXED: The filter was incorrectly checking only for 'unassigned' status
+          // Filter out jobs that are completed or already assigned to technicians
           const unassignedJobs = parsedJobs.filter((job: any) => 
-            !job.assignedTo || job.status === "unassigned" || !job.status
+            (!job.assignedTo || job.status === "unassigned" || !job.status) &&
+            job.status !== "completed"
           );
           
           console.log("Filtered unassigned jobs:", unassignedJobs.length);

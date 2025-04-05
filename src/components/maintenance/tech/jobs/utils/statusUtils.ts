@@ -24,6 +24,10 @@ export const updateJobAcceptance = (jobId: string) => {
         return job;
       });
       localStorage.setItem('reporterJobs', JSON.stringify(updatedJobs));
+      
+      // Dispatch events to notify all components
+      document.dispatchEvent(new Event('jobsUpdated'));
+      window.dispatchEvent(new Event('storage'));
       return true;
     }
   } catch (error) {
@@ -61,7 +65,8 @@ export const updateJobStatus = (jobId: string, status: string): boolean => {
       });
       localStorage.setItem('reporterJobs', JSON.stringify(updatedJobs));
       
-      // Dispatch a storage event to notify other components
+      // Dispatch events to notify all components
+      document.dispatchEvent(new Event('jobsUpdated'));
       window.dispatchEvent(new Event('storage'));
       
       return true;

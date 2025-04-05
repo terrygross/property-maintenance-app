@@ -1,15 +1,12 @@
-
-import {
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormDescription,
-  FormMessage,
-} from "@/components/ui/form";
+import { FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { useThemeContext } from "@/components/settings/tabs/theme/ThemeContext";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useFormContext } from "react-hook-form";
-import { type ThemeFormValues } from "../themeFormSchema";
+import { ThemeColors } from "@/lib/types";
+import ColorItem from "../ColorItem";
+import PickerToggle from "../PickerToggle";
 
 export function ColorSection() {
   const { control } = useFormContext<ThemeFormValues>();

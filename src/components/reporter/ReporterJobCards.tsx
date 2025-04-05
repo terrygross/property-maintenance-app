@@ -21,7 +21,8 @@ const ReporterJobCards = ({ setActiveTab }: ReporterJobCardsProps) => {
     <div className="space-y-6">
       <div className="flex justify-between items-start mb-4">
         <div>
-          <h2 className="text-2xl font-bold">Reported Jobs</h2>
+          <h2 className="text-2xl font-bold">Maintenance Requests</h2>
+          <p className="text-muted-foreground">Unassigned maintenance requests ready for processing</p>
         </div>
         <div className="w-64">
           <DashboardActions compact={true} />

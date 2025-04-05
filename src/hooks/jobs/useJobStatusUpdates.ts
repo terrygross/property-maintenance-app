@@ -54,6 +54,9 @@ export const useJobStatusUpdates = (initialJobs: Job[]) => {
       // Dispatch a custom event to notify other components about job updates
       const event = new Event('jobsUpdated');
       document.dispatchEvent(event);
+      
+      // Force a refresh of localStorage to ensure all components get updated
+      window.dispatchEvent(new Event('storage'));
     } else if (status === "completed") {
       toast({
         title: "After photo required",
