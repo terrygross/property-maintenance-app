@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SubscriptionTab from "./SubscriptionTab";
 import PaymentMethods from "./PaymentMethods";
@@ -11,6 +11,23 @@ const BillingManagement = () => {
   const [currentPlan, setCurrentPlan] = useState("Basic");
   const { additionalStations, updateAdditionalStations } = useAppState();
   const [techCount, setTechCount] = useState(0);
+  const [userRole, setUserRole] = useState<string>("user");
+
+  // Simulate checking user role - in a real app, this would come from auth context
+  useEffect(() => {
+    // Check if user is admin (in dev environment)
+    const checkRole = async () => {
+      // In development, we assume admin role for testing
+      if (process.env.NODE_ENV === "development") {
+        setUserRole("admin");
+      } else {
+        // In production, this would fetch the role from the backend
+        // setUserRole from actual auth state
+      }
+    };
+    
+    checkRole();
+  }, []);
 
   const handleCapacityUpdate = (techs: number, stations: number) => {
     setTechCount(techs);
@@ -37,7 +54,7 @@ const BillingManagement = () => {
         </TabsContent>
 
         <TabsContent value="reporter-subscription">
-          <SubscriptionContent />
+          <SubscriptionContent isAdmin={userRole === "admin"} />
         </TabsContent>
 
         <TabsContent value="payment-methods">

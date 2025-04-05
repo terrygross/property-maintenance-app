@@ -2,14 +2,20 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { useAppState } from "@/context/AppStateContext";
 import { Button } from "@/components/ui/button";
-import { Check, CreditCard, BarChart4, Wallet } from "lucide-react";
+import { Check, CreditCard, BarChart4, Wallet, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
-const SubscriptionContent = () => {
+interface SubscriptionContentProps {
+  isAdmin?: boolean;
+}
+
+const SubscriptionContent = ({ isAdmin = false }: SubscriptionContentProps) => {
   const { additionalStations, updateAdditionalStations } = useAppState();
   const { toast } = useToast();
   
-  const hasExpensesModule = additionalStations >= 2;
+  // Admin always has access, otherwise check if they have purchased it
+  const hasExpensesModule = isAdmin || additionalStations >= 2;
   
   const handlePurchaseExpensesModule = () => {
     if (additionalStations < 2) {
@@ -37,6 +43,14 @@ const SubscriptionContent = () => {
         <CardDescription>
           Manage your accounting subscription plan and settings
         </CardDescription>
+        {isAdmin && (
+          <Alert variant="default" className="bg-blue-50 border-blue-200 mt-2">
+            <Shield className="h-4 w-4 text-blue-600" />
+            <AlertDescription className="text-sm">
+              Admin override: You have full access to all accounting features for development purposes.
+            </AlertDescription>
+          </Alert>
+        )}
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-4">
@@ -99,7 +113,7 @@ const SubscriptionContent = () => {
               <CardFooter className="bg-slate-50 border-t">
                 {hasExpensesModule ? (
                   <div className="text-sm text-green-600 font-medium">
-                    ✓ Active
+                    {isAdmin ? "✓ Active (Admin Access)" : "✓ Active"}
                   </div>
                 ) : (
                   <Button onClick={handlePurchaseExpensesModule} className="w-full">

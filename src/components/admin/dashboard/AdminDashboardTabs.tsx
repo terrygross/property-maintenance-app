@@ -1,3 +1,4 @@
+
 import React from "react";
 import { TabsContent } from "@/components/ui/tabs";
 import PropertyManagement from "@/components/PropertyManagement";
@@ -16,6 +17,8 @@ import AdminTechnicianView from "@/components/maintenance/tech/AdminTechnicianVi
 import ReporterManagement from "@/components/reporter/ReporterManagement";
 import { UserRole } from "@/types/user";
 import BackupRestore from "@/pages/BackupRestore";
+import Reports from "@/components/maintenance/Reports";
+import AdminReportsContent from "@/components/admin/reports/AdminReportsContent";
 
 interface AdminDashboardTabsProps {
   activeTab: string;
@@ -78,11 +81,7 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({
         </TabsContent>
         
         <TabsContent value="reports">
-          <GenericTabContent 
-            title="Reports & Analytics"
-            description="View detailed reports and analytics for your properties" 
-            setActiveTab={setActiveTab}
-          />
+          <AdminReportsContent userRole={userRole} />
         </TabsContent>
         
         <TabsContent value="chat">
