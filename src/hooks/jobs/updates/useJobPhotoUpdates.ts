@@ -40,14 +40,17 @@ export const useJobPhotoUpdates = (setJobs: React.Dispatch<React.SetStateAction<
       
       // If this is an after photo and job is in_progress, let user know they can now complete the job
       if (type === "after") {
-        const job = prev => prev.find(j => j.id === jobId);
-        if (job?.status === "in_progress") {
-          toast({
-            title: "After photo added",
-            description: "You can now mark this job as complete.",
-            variant: "default",
-          });
-        }
+        setJobs(prev => {
+          const job = prev.find(j => j.id === jobId);
+          if (job?.status === "in_progress") {
+            toast({
+              title: "After photo added",
+              description: "You can now mark this job as complete.",
+              variant: "default",
+            });
+          }
+          return prev;
+        });
       }
     }
   };
