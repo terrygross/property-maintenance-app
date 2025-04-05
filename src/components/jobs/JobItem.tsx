@@ -2,126 +2,98 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Mail, ImageIcon, Check } from "lucide-react";
-import { getPriorityColor, getStatusBadge, Job } from "./jobsListUtils";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useAppState } from "@/context/AppStateContext";
+import { Eye, CheckCircle, AlertTriangle, ShieldAlert } from "lucide-react";
+import { Job } from "./jobsListUtils";
 
 interface JobItemProps {
   job: Job;
-  onViewDetails: (job: Job) => void;
-  onMarkComplete?: (jobId: string) => void;
+  onViewDetails: () => void;
+  onMarkComplete?: () => void;
+  isAdmin?: boolean;
 }
 
-const JobItem: React.FC<JobItemProps> = ({ job, onViewDetails, onMarkComplete }) => {
-  const isCompleted = job.status === "completed";
-  const hasAfterPhoto = Boolean(job.photos?.after);
-  const { users } = useAppState();
-  
-  // Find the assigned technician if there is one
-  const assignedTech = job.assignedTo ? users.find(user => user.id === job.assignedTo) : null;
-  
-  const handleMarkComplete = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (onMarkComplete) {
-      onMarkComplete(job.id);
+const JobItem: React.FC<JobItemProps> = ({ 
+  job, 
+  onViewDetails, 
+  onMarkComplete,
+  isAdmin = false
+}) => {
+  // Get priority color class for badge
+  const getPriorityColor = (priority: string) => {
+    switch(priority.toLowerCase()) {
+      case 'high': return 'bg-red-500 text-white';
+      case 'medium': return 'bg-yellow-500 text-white';
+      case 'low': 
+      default: return 'bg-blue-500 text-white';
     }
   };
 
+  // Format date to local string
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString();
+  };
+
+  // Check if job can be marked complete
+  const canMarkComplete = job.status !== 'completed' && 
+                         (job.photos?.after || isAdmin) && 
+                         onMarkComplete;
+
   return (
-    <div className="border rounded-lg p-4">
-      <div className="flex items-start justify-between h-full">
-        <div className="flex-grow">
-          <div className="flex items-center gap-2">
-            <h3 className="font-medium">{job.title}</h3>
-            <span className={`text-xs px-2 py-1 rounded-full text-white ${getPriorityColor(job.priority)}`}>
-              {job.priority}
-            </span>
-            <span className={`text-xs px-2 py-1 rounded-full ${getStatusBadge(job.status)}`}>
-              {job.status}
-            </span>
-          </div>
+    <div className="border rounded-md p-4">
+      <div className="flex justify-between">
+        <div>
+          <h3 className="font-medium">{job.title}</h3>
           <p className="text-sm text-muted-foreground">{job.location}</p>
-          <div className="text-xs mt-1 flex items-center">
-            <span>Assigned to: </span>
-            {assignedTech && (
-              <span className="flex items-center ml-1">
-                <Avatar className="h-5 w-5 mr-1">
-                  <AvatarImage src={assignedTech.photo_url} alt={`${assignedTech.first_name} ${assignedTech.last_name}`} />
-                  <AvatarFallback>{assignedTech.first_name?.[0]}{assignedTech.last_name?.[0]}</AvatarFallback>
-                </Avatar>
-                {job.assignedTo ? `${assignedTech.first_name} ${assignedTech.last_name}` : "Unassigned"}
-              </span>
-            )}
-            {!assignedTech && job.assignedTo && <span className="ml-1">{job.assignedTo}</span>}
-          </div>
-          <p className="text-xs">Due: {job.dueDate.toLocaleDateString()}</p>
-          
-          {/* Email status badge for contractors */}
-          {job.techRole === "contractor" && (
-            <div className="mt-2">
-              <Badge 
-                variant={job.emailSent ? "outline" : "secondary"} 
-                className="flex items-center gap-1 text-xs"
-              >
-                <Mail className="h-3 w-3" />
-                {job.emailSent ? "Email Sent" : "Email Pending"}
-              </Badge>
-            </div>
-          )}
-          
-          {/* Photo badges */}
-          <div className="mt-2 flex flex-wrap gap-2">
-            {job.photos?.reporter && (
-              <Badge variant="outline" className="bg-purple-50 flex items-center gap-1">
-                <ImageIcon className="h-3 w-3" />
-                Reporter Photo
-              </Badge>
-            )}
-            {job.photos?.before && (
-              <Badge variant="outline" className="bg-blue-50 flex items-center gap-1">
-                <ImageIcon className="h-3 w-3" />
-                Before Photo
-              </Badge>
-            )}
-            {job.photos?.after && (
-              <Badge variant="outline" className="bg-green-50 flex items-center gap-1">
-                <ImageIcon className="h-3 w-3" />
-                After Photo
-              </Badge>
-            )}
-          </div>
-          
-          <div className="mt-3 flex gap-2">
-            <Button size="sm" variant="outline" onClick={() => onViewDetails(job)}>
-              View Details
-            </Button>
-            
-            {!isCompleted && hasAfterPhoto && onMarkComplete && (
-              <Button 
-                size="sm" 
-                variant="outline" 
-                className="bg-green-50 hover:bg-green-100"
-                onClick={handleMarkComplete}
-              >
-                <Check className="h-4 w-4 mr-1" />
-                Mark Complete
-              </Button>
-            )}
-          </div>
         </div>
+        <Badge className={getPriorityColor(job.priority)}>
+          {job.priority.charAt(0).toUpperCase() + job.priority.slice(1)}
+        </Badge>
+      </div>
+      
+      <div className="mt-2 text-sm">
+        <span className="text-muted-foreground mr-2">Due:</span>
+        <span>{formatDate(job.dueDate)}</span>
+      </div>
+      
+      {job.status !== 'completed' && !job.photos?.after && (
+        <div className="mt-2 flex items-center gap-1 text-muted-foreground text-xs">
+          {isAdmin ? (
+            <ShieldAlert className="h-3 w-3 text-amber-500" />
+          ) : (
+            <AlertTriangle className="h-3 w-3 text-yellow-500" /> 
+          )}
+          {isAdmin ? "Admin can override" : "Needs after photo"}
+        </div>
+      )}
+
+      {job.status === 'completed' && (
+        <div className="mt-2 flex items-center gap-1 text-muted-foreground text-xs">
+          <CheckCircle className="h-3 w-3 text-green-500" /> 
+          Completed
+        </div>
+      )}
+      
+      <div className="mt-4 flex gap-2 justify-end">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="flex items-center gap-1"
+          onClick={onViewDetails}
+        >
+          <Eye className="h-4 w-4" />
+          View
+        </Button>
         
-        {/* Reporter photo thumbnail */}
-        {job.photos?.reporter && (
-          <div className="flex items-center justify-center ml-4 h-full">
-            <div className="h-32 w-32 rounded-md overflow-hidden border flex-shrink-0">
-              <img 
-                src={job.photos.reporter} 
-                alt="Reporter" 
-                className="h-full w-full object-cover"
-              />
-            </div>
-          </div>
+        {canMarkComplete && (
+          <Button 
+            variant="outline"
+            size="sm"
+            className={isAdmin && !job.photos?.after ? "flex items-center gap-1 bg-amber-50 hover:bg-amber-100" : "flex items-center gap-1 bg-green-50 hover:bg-green-100"}
+            onClick={onMarkComplete}
+          >
+            <CheckCircle className="h-4 w-4" />
+            {isAdmin && !job.photos?.after ? "Admin Complete" : "Complete"}
+          </Button>
         )}
       </div>
     </div>

@@ -6,6 +6,8 @@ import { Job } from "./jobsListUtils";
 import { updateJobStatus } from "@/components/maintenance/tech/jobs/JobUtils";
 import JobsTabs from "./JobsTabs";
 import { useJobsData } from "@/hooks/jobs/useJobsData";
+import { useAppState } from "@/context/AppStateContext";
+import { hasAdminAccess } from "@/types/user";
 
 const JobsList = () => {
   const [showJobDetails, setShowJobDetails] = useState(false);
@@ -13,6 +15,8 @@ const JobsList = () => {
   const [activeTab, setActiveTab] = useState("ongoing");
   const { toast } = useToast();
   const { jobs, setJobs } = useJobsData();
+  const { currentUser } = useAppState();
+  const isAdmin = currentUser ? hasAdminAccess(currentUser.role) : false;
 
   const handleViewDetails = (job: Job) => {
     setSelectedJob(job);
@@ -22,7 +26,8 @@ const JobsList = () => {
   const handleMarkComplete = (jobId: string) => {
     const job = jobs.find(j => j.id === jobId);
     
-    if (!job?.photos?.after) {
+    // Check if user is admin or if the job has an after photo
+    if (!job?.photos?.after && !isAdmin) {
       toast({
         title: "After photo required",
         description: "This job cannot be marked as complete until the technician uploads an 'after' photo.",
@@ -44,8 +49,15 @@ const JobsList = () => {
       
       toast({
         title: "Job completed",
-        description: "The job has been marked as complete.",
+        description: isAdmin && !job?.photos?.after 
+          ? "Job completed by admin override." 
+          : "The job has been marked as complete.",
       });
+
+      // Dispatch events to notify other components
+      const event = new Event('jobsUpdated');
+      document.dispatchEvent(event);
+      window.dispatchEvent(new Event('storage'));
     }
   };
 
@@ -63,6 +75,7 @@ const JobsList = () => {
         onMarkComplete={handleMarkComplete}
         jobs={jobs}
         setJobs={setJobs}
+        isAdmin={isAdmin}
       />
 
       <JobDetailsDialog 
@@ -70,6 +83,7 @@ const JobsList = () => {
         onOpenChange={setShowJobDetails} 
         job={selectedJob}
         onMarkComplete={handleMarkComplete}
+        isAdmin={isAdmin}
       />
     </>
   );

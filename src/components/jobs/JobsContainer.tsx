@@ -8,29 +8,36 @@ interface JobsContainerProps {
   jobs: Job[];
   onViewDetails: (job: Job) => void;
   onMarkComplete?: (jobId: string) => void;
+  isAdmin?: boolean;
 }
 
-const JobsContainer = ({ jobs, onViewDetails, onMarkComplete }: JobsContainerProps) => {
+const JobsContainer: React.FC<JobsContainerProps> = ({ 
+  jobs, 
+  onViewDetails, 
+  onMarkComplete,
+  isAdmin = false
+}) => {
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-xl font-semibold">
+    <Card className="mb-6">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg">
           {jobs.length} {jobs.length === 1 ? 'Job' : 'Jobs'}
         </CardTitle>
       </CardHeader>
       <CardContent>
         {jobs.length === 0 ? (
-          <div className="text-center py-10 text-muted-foreground">
-            No jobs found in this category
+          <div className="py-8 text-center text-muted-foreground">
+            No jobs found
           </div>
         ) : (
           <div className="space-y-4">
             {jobs.map((job) => (
-              <JobItem 
-                key={job.id} 
-                job={job} 
-                onViewDetails={onViewDetails}
-                onMarkComplete={onMarkComplete}
+              <JobItem
+                key={job.id}
+                job={job}
+                onViewDetails={() => onViewDetails(job)}
+                onMarkComplete={onMarkComplete ? () => onMarkComplete(job.id) : undefined}
+                isAdmin={isAdmin}
               />
             ))}
           </div>

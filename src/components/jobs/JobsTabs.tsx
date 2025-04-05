@@ -15,6 +15,7 @@ interface JobsTabsProps {
   onMarkComplete: (jobId: string) => void;
   jobs: Job[];
   setJobs: React.Dispatch<React.SetStateAction<Job[]>>;
+  isAdmin?: boolean;
 }
 
 const JobsTabs = ({
@@ -25,7 +26,8 @@ const JobsTabs = ({
   onViewDetails,
   onMarkComplete,
   jobs,
-  setJobs
+  setJobs,
+  isAdmin = false
 }: JobsTabsProps) => {
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -45,6 +47,7 @@ const JobsTabs = ({
           jobs={ongoingJobs} 
           onViewDetails={onViewDetails}
           onMarkComplete={onMarkComplete}
+          isAdmin={isAdmin}
         />
       </TabsContent>
 
@@ -57,6 +60,7 @@ const JobsTabs = ({
         <JobsContainer 
           jobs={completedJobs} 
           onViewDetails={onViewDetails}
+          isAdmin={isAdmin}
         />
       </TabsContent>
     </Tabs>

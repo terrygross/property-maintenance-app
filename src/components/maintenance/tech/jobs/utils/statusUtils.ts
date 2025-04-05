@@ -38,17 +38,18 @@ export const updateJobAcceptance = (jobId: string) => {
 
 /**
  * Updates the status of a job in localStorage
+ * If isAdminOverride is true, allows completion without after photo
  */
-export const updateJobStatus = (jobId: string, status: string): boolean => {
+export const updateJobStatus = (jobId: string, status: string, isAdminOverride: boolean = false): boolean => {
   try {
     const savedJobs = localStorage.getItem('reporterJobs');
     if (savedJobs) {
       const parsedJobs = JSON.parse(savedJobs);
       
-      // If trying to mark as completed, check for after photo
-      if (status === "completed") {
+      // If trying to mark as completed, check for after photo (unless admin override)
+      if (status === "completed" && !isAdminOverride) {
         const job = parsedJobs.find((job: any) => job.id === jobId);
-        if (job && !job.afterPhoto) {
+        if (job && !job.afterPhoto && !job.photos?.after) {
           console.log("Cannot complete job without after photo");
           return false;
         }
