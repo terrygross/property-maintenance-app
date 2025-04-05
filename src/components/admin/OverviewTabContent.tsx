@@ -5,6 +5,7 @@ import AdminCard from "./AdminCard";
 import { adminTabs } from "./AdminTabsList";
 import { ArchiveRestore, CalendarCheck } from "lucide-react";
 import ComplianceBoardCard from "../compliance/ComplianceBoardCard";
+import { ComplianceProvider } from "@/context/ComplianceContext";
 
 interface OverviewTabContentProps {
   setActiveTab?: (tab: string) => void;
@@ -35,8 +36,10 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
           onClick={() => setActiveTab && setActiveTab("backup")}
         />
         
-        {/* Add back the My Board card */}
-        <ComplianceBoardCard />
+        {/* Wrap ComplianceBoardCard with ComplianceProvider */}
+        <ComplianceProvider>
+          <ComplianceBoardCard />
+        </ComplianceProvider>
       </Grid>
     </div>
   );
