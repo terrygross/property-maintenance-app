@@ -2,7 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Eye, CheckCircle, AlertTriangle, ShieldAlert } from "lucide-react";
+import { Eye, CheckCircle, AlertTriangle, ShieldAlert, User } from "lucide-react";
 import { Job } from "./jobsListUtils";
 
 interface JobItemProps {
@@ -50,6 +50,14 @@ const JobItem: React.FC<JobItemProps> = ({
         </Badge>
       </div>
       
+      {job.assignedTo && (
+        <div className="mt-2 text-sm flex items-center gap-1">
+          <User className="h-3 w-3 text-gray-500" /> 
+          <span className="text-muted-foreground">Assigned to:</span>
+          <span>{job.assignedTo}</span>
+        </div>
+      )}
+      
       <div className="mt-2 text-sm">
         <span className="text-muted-foreground mr-2">Due:</span>
         <span>{formatDate(job.dueDate)}</span>
@@ -62,7 +70,7 @@ const JobItem: React.FC<JobItemProps> = ({
           ) : (
             <AlertTriangle className="h-3 w-3 text-yellow-500" /> 
           )}
-          {isAdmin ? "Admin can override" : "Needs after photo"}
+          {isAdmin ? "Admin can override completion" : "Needs after photo"}
         </div>
       )}
 
