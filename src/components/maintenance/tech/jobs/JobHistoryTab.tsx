@@ -25,8 +25,17 @@ const JobHistoryTab: React.FC<JobHistoryTabProps> = ({ completedJobs }) => {
     handleViewReporterImage
   } = useTechJobs();
   
-  // Filter jobs based on search query and date
-  const filteredJobs = completedJobs.filter(job => {
+  // Filter out high priority unaccepted jobs that should remain in current jobs
+  const filteredCompletedJobs = completedJobs.filter(job => {
+    // Exclude high priority jobs that haven't been accepted yet
+    if (job.priority === "high" && job.status === "completed" && job.accepted === false) {
+      return false;
+    }
+    return true;
+  });
+  
+  // Further filter jobs based on search query and date
+  const filteredJobs = filteredCompletedJobs.filter(job => {
     const matchesSearch = !searchQuery || 
       job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       job.location.toLowerCase().includes(searchQuery.toLowerCase());
@@ -38,14 +47,14 @@ const JobHistoryTab: React.FC<JobHistoryTabProps> = ({ completedJobs }) => {
   });
   
   const handleExportJobs = () => {
-    exportJobsToFile(completedJobs);
+    exportJobsToFile(filteredCompletedJobs);
   };
   
   return (
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Job History ({completedJobs.length})</CardTitle>
+          <CardTitle className="text-lg">Job History ({filteredCompletedJobs.length})</CardTitle>
           <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 mt-2">
             <div className="relative flex-1">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -110,7 +119,7 @@ const JobHistoryTab: React.FC<JobHistoryTabProps> = ({ completedJobs }) => {
       <CloudStorageDialog 
         open={showCloudDialog} 
         onOpenChange={setShowCloudDialog}
-        jobs={completedJobs}
+        jobs={filteredCompletedJobs}
       />
     </div>
   );
