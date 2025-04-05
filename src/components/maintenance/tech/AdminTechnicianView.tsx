@@ -54,7 +54,8 @@ const AdminTechnicianView = () => {
               reporter: job.imageUrl || "",
               before: job.beforePhoto || "",
               after: job.afterPhoto || ""
-            }
+            },
+            comments: job.comments || []
           }));
         
         setTechJobs(technicianJobs);
@@ -149,6 +150,49 @@ const AdminTechnicianView = () => {
     }
   };
 
+  // Handle adding comments to jobs
+  const handleAddComment = (jobId: string, comment: string) => {
+    // Update local state
+    setTechJobs(prevJobs => 
+      prevJobs.map(job => 
+        job.id === jobId 
+          ? { 
+              ...job, 
+              comments: [...(job.comments || []), comment] 
+            } 
+          : job
+      )
+    );
+
+    // Update localStorage
+    try {
+      const savedJobs = localStorage.getItem('reporterJobs');
+      if (savedJobs) {
+        const parsedJobs = JSON.parse(savedJobs);
+        
+        const updatedJobs = parsedJobs.map((job: any) => {
+          if (job.id === jobId) {
+            const existingComments = job.comments || [];
+            return {
+              ...job,
+              comments: [...existingComments, comment]
+            };
+          }
+          return job;
+        });
+        
+        localStorage.setItem('reporterJobs', JSON.stringify(updatedJobs));
+        
+        toast({
+          title: "Comment added",
+          description: "Your comment has been added to the job.",
+        });
+      }
+    } catch (error) {
+      console.error("Error adding comment:", error);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -181,6 +225,7 @@ const AdminTechnicianView = () => {
               assignedJobs={techJobs} 
               onPhotoCapture={handlePhotoCapture}
               onUpdateStatus={handleUpdateStatus}
+              onAddComment={handleAddComment}
               isAdmin={true}
             />
           </TabsContent>

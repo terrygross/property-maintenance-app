@@ -10,6 +10,7 @@ interface Job {
   priority: string;
   dueDate: Date;
   status?: string;
+  comments?: string[];
   photos?: {
     before?: string;
     after?: string;

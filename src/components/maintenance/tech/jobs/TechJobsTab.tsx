@@ -1,17 +1,18 @@
 
 import React from "react";
-import { Job } from "./types";
+import { TechJob } from "./types";
 import JobsContainer from "./JobsContainer";
 import JobsDialogs from "./JobsDialogs";
 import { TechJobsProvider, useTechJobs } from "./TechJobsContext";
 import { getPriorityColor } from "./JobUtils";
 
 interface TechJobsTabProps {
-  assignedJobs: Job[];
+  assignedJobs: TechJob[];
   onPhotoCapture: (jobId: string, type: "before" | "after", imageUrl: string) => void;
   onAcceptJob?: (jobId: string) => void;
   onUpdateStatus?: (jobId: string, status: string) => void;
   onAddComment?: (jobId: string, comment: string) => void;
+  isAdmin?: boolean;
 }
 
 const TechJobsInner = () => {
@@ -48,7 +49,8 @@ const TechJobsTab: React.FC<TechJobsTabProps> = ({
   onPhotoCapture, 
   onAcceptJob, 
   onUpdateStatus,
-  onAddComment
+  onAddComment,
+  isAdmin
 }) => {
   return (
     <TechJobsProvider 
@@ -59,7 +61,7 @@ const TechJobsTab: React.FC<TechJobsTabProps> = ({
       onAddComment={onAddComment}
     >
       <div className="space-y-4">
-        <JobsContainer jobs={assignedJobs} />
+        <JobsContainer jobs={assignedJobs} isAdmin={isAdmin} />
         <TechJobsInner />
       </div>
     </TechJobsProvider>

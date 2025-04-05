@@ -29,7 +29,8 @@ const MaintenanceTech = () => {
     assignedJobs, 
     handleJobPhotoUpdate, 
     handleAcceptJob, 
-    handleUpdateJobStatus 
+    handleUpdateJobStatus,
+    handleAddComment 
   } = useAssignedJobs(currentUserId);
 
   // Example leave requests
@@ -91,6 +92,7 @@ const MaintenanceTech = () => {
               onPhotoCapture={handleJobPhotoUpdate}
               onAcceptJob={handleAcceptJob}
               onUpdateStatus={handleUpdateJobStatus}
+              onAddComment={handleAddComment}
             />
           </TabsContent>
 
