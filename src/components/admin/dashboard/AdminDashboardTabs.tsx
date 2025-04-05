@@ -9,7 +9,6 @@ import ReporterJobCards from "@/components/reporter/ReporterJobCards";
 import ComplianceDashboard from "@/components/compliance/ComplianceDashboard";
 import BillingManagement from "@/components/billing/BillingManagement";
 import SystemSettings from "@/components/settings/SystemSettings";
-import AdminTabsList from "../AdminTabsList";
 import GenericTabContent from "../GenericTabContent";
 import MaintenanceJobCards from "@/components/maintenance/jobcards/MaintenanceJobCards";
 import MaintenanceConfig from "@/components/maintenance/MaintenanceConfig";
@@ -35,7 +34,7 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({
   if (activeTab !== "overview") {
     return (
       <>
-        <AdminTabsList />
+        {/* Removed AdminTabsList component that was causing the tabs to render */}
         
         <TabsContent value="users">
           <UserManagement />
