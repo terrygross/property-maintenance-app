@@ -23,7 +23,7 @@ const JobsList = () => {
     setShowJobDetails(true);
   };
   
-  const handleMarkComplete = (jobId: string) => {
+  const handleMarkComplete = (jobId: string, isAdminOverride: boolean = false) => {
     const job = jobs.find(j => j.id === jobId);
     
     // Check if user is admin or if the job has an after photo
@@ -36,7 +36,7 @@ const JobsList = () => {
       return;
     }
     
-    const success = updateJobStatus(jobId, "completed");
+    const success = updateJobStatus(jobId, "completed", isAdminOverride);
     
     if (success) {
       setJobs(prevJobs => 
@@ -49,7 +49,7 @@ const JobsList = () => {
       
       toast({
         title: "Job completed",
-        description: isAdmin && !job?.photos?.after 
+        description: isAdminOverride 
           ? "Job completed by admin override." 
           : "The job has been marked as complete.",
       });

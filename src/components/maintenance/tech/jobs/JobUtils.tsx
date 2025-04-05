@@ -1,3 +1,4 @@
+
 /**
  * Re-export all job utilities from their respective modules
  * This file is kept for backward compatibility
@@ -21,14 +22,14 @@ export const getPriorityColor = (priority: string) => {
   }
 };
 
-export const updateJobStatus = (jobId: string, status: string): boolean => {
+export const updateJobStatus = (jobId: string, status: string, isAdminOverride: boolean = false): boolean => {
   try {
     const savedJobs = localStorage.getItem('reporterJobs');
     if (savedJobs) {
       const parsedJobs = JSON.parse(savedJobs);
       
-      // If trying to mark as completed, check for after photo
-      if (status === "completed") {
+      // If trying to mark as completed, check for after photo (unless admin override)
+      if (status === "completed" && !isAdminOverride) {
         const job = parsedJobs.find((job: any) => job.id === jobId);
         if (job && !job.photos?.after && !job.afterPhoto) {
           console.log("Cannot complete job without after photo");

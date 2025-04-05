@@ -24,7 +24,7 @@ interface JobDetailsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   job: Job | null;
-  onMarkComplete: (jobId: string) => void;
+  onMarkComplete: (jobId: string, isAdminOverride?: boolean) => void;
   isAdmin?: boolean;
 }
 
@@ -38,7 +38,7 @@ const JobDetailsDialog = ({
   if (!job) return null;
   
   const handleMarkComplete = () => {
-    onMarkComplete(job.id);
+    onMarkComplete(job.id, isAdmin && !job.photos?.after);
     onOpenChange(false);
   };
 

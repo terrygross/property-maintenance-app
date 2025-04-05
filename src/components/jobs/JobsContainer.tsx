@@ -7,7 +7,7 @@ import { Job } from "./jobsListUtils";
 interface JobsContainerProps {
   jobs: Job[];
   onViewDetails: (job: Job) => void;
-  onMarkComplete?: (jobId: string) => void;
+  onMarkComplete?: (jobId: string, isAdminOverride?: boolean) => void;
   isAdmin?: boolean;
 }
 
@@ -36,7 +36,7 @@ const JobsContainer: React.FC<JobsContainerProps> = ({
                 key={job.id}
                 job={job}
                 onViewDetails={() => onViewDetails(job)}
-                onMarkComplete={onMarkComplete ? () => onMarkComplete(job.id) : undefined}
+                onMarkComplete={onMarkComplete ? (isAdminOverride) => onMarkComplete(job.id, isAdminOverride) : undefined}
                 isAdmin={isAdmin}
               />
             ))}

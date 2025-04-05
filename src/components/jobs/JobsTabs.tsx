@@ -12,7 +12,7 @@ interface JobsTabsProps {
   ongoingJobs: Job[];
   completedJobs: Job[];
   onViewDetails: (job: Job) => void;
-  onMarkComplete: (jobId: string) => void;
+  onMarkComplete: (jobId: string, isAdminOverride?: boolean) => void;
   jobs: Job[];
   setJobs: React.Dispatch<React.SetStateAction<Job[]>>;
   isAdmin?: boolean;

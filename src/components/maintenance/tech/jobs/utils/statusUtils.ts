@@ -49,7 +49,7 @@ export const updateJobStatus = (jobId: string, status: string, isAdminOverride: 
       // If trying to mark as completed, check for after photo (unless admin override)
       if (status === "completed" && !isAdminOverride) {
         const job = parsedJobs.find((job: any) => job.id === jobId);
-        if (job && !job.afterPhoto && !job.photos?.after) {
+        if (job && !job.photos?.after && !job.afterPhoto) {
           console.log("Cannot complete job without after photo");
           return false;
         }
