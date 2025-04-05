@@ -1,4 +1,3 @@
-
 import React from "react";
 import { TabsContent } from "@/components/ui/tabs";
 import PropertyManagement from "@/components/PropertyManagement";
@@ -34,8 +33,8 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({
   if (activeTab !== "overview") {
     return (
       <>
-        {/* Removed AdminTabsList component that was causing the tabs to render */}
         
+
         <TabsContent value="users">
           <UserManagement />
         </TabsContent>
@@ -102,6 +101,7 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({
           <SystemSettings />
         </TabsContent>
 
+        
         <TabsContent value="backup">
           <BackupRestore />
         </TabsContent>
