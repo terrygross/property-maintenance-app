@@ -28,7 +28,12 @@ export const Grid = ({
       '5': `${breakpoint}:grid-cols-5`,
       '6': `${breakpoint}:grid-cols-6`,
     };
-    return map[count as keyof typeof map] || `${breakpoint}:grid-cols-${count}`;
+    
+    // Convert the number to a string to use as a key
+    const countKey = String(count) as keyof typeof map;
+    
+    // Return the mapped class or a fallback for numbers outside the map
+    return map[countKey] || `${breakpoint}:grid-cols-${count}`;
   };
 
   return (
