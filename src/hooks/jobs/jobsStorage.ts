@@ -43,6 +43,7 @@ export const loadJobsFromStorage = (userId: string): Job[] => {
             status: job.status || "assigned",
             assignedTo: job.assignedTo,
             accepted: job.accepted || false,
+            comments: job.comments || [],
             photos: photos
           };
         });

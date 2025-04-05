@@ -8,7 +8,8 @@ import { Job } from "./types";
 import { 
   updateJobAcceptance, 
   updateJobStatus, 
-  updateJobPriority 
+  updateJobPriority,
+  addJobComment
 } from "@/components/maintenance/tech/jobs/JobUtils";
 import { 
   updateLocalStorageJobs, 
@@ -152,11 +153,24 @@ export const useJobUpdates = (initialJobs: Job[]) => {
     const success = updateJobStatus(jobId, status);
     
     if (success) {
+      let message = "";
+      switch(status) {
+        case "in_progress":
+          message = "You have marked this job as in progress.";
+          break;
+        case "on_hold":
+          message = "You have marked this job as on hold (waiting for parts).";
+          break;
+        case "completed":
+          message = "You have marked this job as complete.";
+          break;
+        default:
+          message = `Job status updated to ${status}.`;
+      }
+      
       toast({
-        title: status === "in_progress" ? "Job Started" : "Job Completed",
-        description: status === "in_progress" 
-          ? "You have marked this job as in progress." 
-          : "You have marked this job as complete.",
+        title: `Status: ${status.replace('_', ' ')}`,
+        description: message,
         variant: "default",
       });
       
@@ -199,12 +213,41 @@ export const useJobUpdates = (initialJobs: Job[]) => {
     }
   };
   
+  // Function to handle adding comments to jobs
+  const handleAddComment = (jobId: string, comment: string) => {
+    // Update the UI
+    setJobs(prev => 
+      prev.map(job => {
+        if (job.id === jobId) {
+          const existingComments = job.comments || [];
+          return {
+            ...job,
+            comments: [...existingComments, comment]
+          };
+        }
+        return job;
+      })
+    );
+    
+    // Update localStorage
+    const success = addJobComment(jobId, comment);
+    
+    if (success) {
+      toast({
+        title: "Comment added",
+        description: "Your note has been saved to the job.",
+        variant: "default",
+      });
+    }
+  };
+  
   return {
     jobs,
     setJobs,
     handleJobPhotoUpdate,
     handleAcceptJob,
     handleUpdateJobStatus,
-    handleUpdateJobPriority
+    handleUpdateJobPriority,
+    handleAddComment
   };
 };

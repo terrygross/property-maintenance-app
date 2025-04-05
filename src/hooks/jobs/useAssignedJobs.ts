@@ -18,7 +18,8 @@ export const useAssignedJobs = (currentUserId: string): UseAssignedJobsReturn =>
     handleJobPhotoUpdate, 
     handleAcceptJob, 
     handleUpdateJobStatus,
-    handleUpdateJobPriority
+    handleUpdateJobPriority,
+    handleAddComment
   } = useJobUpdates(initialJobs);
 
   useEffect(() => {
@@ -53,6 +54,7 @@ export const useAssignedJobs = (currentUserId: string): UseAssignedJobsReturn =>
     handleJobPhotoUpdate,
     handleAcceptJob,
     handleUpdateJobStatus,
-    handleUpdateJobPriority
+    handleUpdateJobPriority,
+    handleAddComment
   };
 };

@@ -17,6 +17,7 @@ interface TechJobsContextProps {
   onPhotoCapture: (jobId: string, type: "before" | "after", imageUrl: string) => void;
   onAcceptJob?: (jobId: string) => void;
   onUpdateStatus?: (jobId: string, status: string) => void;
+  onAddComment?: (jobId: string, comment: string) => void;
 }
 
 const TechJobsContext = createContext<TechJobsContextProps | undefined>(undefined);
@@ -27,7 +28,8 @@ export const TechJobsProvider: React.FC<{
   onPhotoCapture: (jobId: string, type: "before" | "after", imageUrl: string) => void;
   onAcceptJob?: (jobId: string) => void;
   onUpdateStatus?: (jobId: string, status: string) => void;
-}> = ({ children, assignedJobs, onPhotoCapture, onAcceptJob, onUpdateStatus }) => {
+  onAddComment?: (jobId: string, comment: string) => void;
+}> = ({ children, assignedJobs, onPhotoCapture, onAcceptJob, onUpdateStatus, onAddComment }) => {
   const [selectedJob, setSelectedJob] = useState<TechJob | null>(null);
   const [showJobDetails, setShowJobDetails] = useState(false);
   const [showReporterImage, setShowReporterImage] = useState(false);
@@ -111,7 +113,8 @@ export const TechJobsProvider: React.FC<{
       handlePhotoCapture,
       onPhotoCapture,
       onAcceptJob,
-      onUpdateStatus
+      onUpdateStatus,
+      onAddComment
     }}>
       {children}
     </TechJobsContext.Provider>

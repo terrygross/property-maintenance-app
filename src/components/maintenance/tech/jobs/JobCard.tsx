@@ -39,6 +39,11 @@ const JobCard = ({
     }
   };
   
+  // Comments preview for the notes box
+  const commentPreview = job.comments && job.comments.length > 0 
+    ? job.comments[job.comments.length - 1] 
+    : null;
+  
   return (
     <div key={job.id} className={`border rounded-lg p-3 md:p-4 ${isHighPriority && !isAccepted ? 'border-red-500 bg-red-50' : ''}`}>
       <div className="flex flex-col md:flex-row md:items-start md:justify-between">
@@ -70,19 +75,58 @@ const JobCard = ({
             status={status} 
             onViewReporterImage={onViewReporterImage} 
           />
+          
+          {/* Show latest comment if exists */}
+          {commentPreview && (
+            <div className="mt-2 p-2 border rounded-md bg-gray-50 max-h-12 overflow-y-auto text-sm">
+              <p className="text-xs font-medium text-gray-500">Latest note:</p>
+              <p className="text-xs text-gray-700 line-clamp-2">{commentPreview}</p>
+            </div>
+          )}
         </div>
         
         <div className="flex items-center mt-3 md:mt-0">
-          {job.photos?.reporter && !isMobile && (
-            <div className="hidden md:block w-16 h-16 rounded-md overflow-hidden border bg-gray-50 mr-4 cursor-pointer" 
-                 onClick={() => onViewReporterImage(job)}>
-              <img 
-                src={job.photos.reporter} 
-                alt="Reporter photo" 
-                className="w-full h-full object-cover"
-              />
-            </div>
-          )}
+          {/* Photo thumbnails */}
+          <div className="hidden md:flex gap-2 mr-4">
+            {job.photos?.reporter && (
+              <div 
+                className="w-16 h-16 rounded-md overflow-hidden border bg-gray-50 cursor-pointer" 
+                onClick={() => onViewReporterImage(job)}
+              >
+                <img 
+                  src={job.photos.reporter} 
+                  alt="Reporter photo" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+            
+            {job.photos?.before && (
+              <div 
+                className="w-16 h-16 rounded-md overflow-hidden border bg-gray-50 cursor-pointer" 
+                onClick={() => onViewDetails(job)}
+              >
+                <img 
+                  src={job.photos.before} 
+                  alt="Before photo" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+            
+            {job.photos?.after && (
+              <div 
+                className="w-16 h-16 rounded-md overflow-hidden border bg-gray-50 cursor-pointer" 
+                onClick={() => onViewDetails(job)}
+              >
+                <img 
+                  src={job.photos.after} 
+                  alt="After photo" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+          </div>
           
           <JobActionButtons 
             job={job}

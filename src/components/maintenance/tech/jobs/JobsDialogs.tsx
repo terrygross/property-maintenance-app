@@ -11,6 +11,7 @@ interface Job {
   dueDate: Date;
   accepted?: boolean;
   status?: string;
+  comments?: string[];
   photos?: {
     before?: string;
     after?: string;
@@ -26,6 +27,8 @@ interface JobsDialogsProps {
   selectedJob: Job | null;
   getPriorityColor: (priority: string) => string;
   handlePhotoCapture: (jobId: string, type: "before" | "after", imageUrl: string) => void;
+  handleUpdateJobStatus?: (jobId: string, status: string) => void;
+  handleAddComment?: (jobId: string, comment: string) => void;
 }
 
 const JobsDialogs: React.FC<JobsDialogsProps> = ({
@@ -35,7 +38,9 @@ const JobsDialogs: React.FC<JobsDialogsProps> = ({
   setShowReporterImage,
   selectedJob,
   getPriorityColor,
-  handlePhotoCapture
+  handlePhotoCapture,
+  handleUpdateJobStatus,
+  handleAddComment
 }) => {
   return (
     <>
@@ -45,6 +50,8 @@ const JobsDialogs: React.FC<JobsDialogsProps> = ({
         selectedJob={selectedJob}
         getPriorityColor={getPriorityColor}
         handlePhotoCapture={handlePhotoCapture}
+        handleUpdateJobStatus={handleUpdateJobStatus}
+        handleAddComment={handleAddComment}
       />
 
       <ReporterImageDialog 

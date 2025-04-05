@@ -9,6 +9,7 @@ export interface Job {
   dueDate: Date;
   accepted?: boolean;
   status?: string;
+  comments?: string[];
   photos?: {
     before?: string;
     after?: string;

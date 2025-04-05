@@ -7,6 +7,7 @@ export interface TechJob {
   dueDate: Date;
   accepted?: boolean;
   status?: string;
+  comments?: string[];
   photos?: {
     before?: string;
     after?: string;
@@ -19,4 +20,5 @@ export interface TechJobsHandlers {
   onViewReporterImage: (job: TechJob) => void;
   onAcceptJob?: (jobId: string) => void;
   onUpdateStatus?: (jobId: string, status: string) => void;
+  onAddComment?: (jobId: string, comment: string) => void;
 }

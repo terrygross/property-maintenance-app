@@ -12,6 +12,7 @@ export interface Job {
   status?: string;
   assignedTo?: string;
   accepted?: boolean;
+  comments?: string[];
   photos?: {
     before?: string;
     after?: string;
@@ -25,4 +26,5 @@ export interface UseAssignedJobsReturn {
   handleAcceptJob: (jobId: string) => void;
   handleUpdateJobStatus: (jobId: string, status: string) => void;
   handleUpdateJobPriority: (jobId: string, priority: string) => void;
+  handleAddComment: (jobId: string, comment: string) => void;
 }
