@@ -17,6 +17,8 @@ export const useJobsData = () => {
         const savedJobs = localStorage.getItem('reporterJobs');
         if (savedJobs) {
           const parsedJobs = JSON.parse(savedJobs);
+          
+          // Ensure we're properly getting the status from localStorage
           const formattedJobs = parsedJobs
             .filter((job: any) => job.status !== "unassigned")
             .map((job: any) => {
@@ -28,7 +30,7 @@ export const useJobsData = () => {
                 title: job.title,
                 location: job.property,
                 priority: job.priority || "medium",
-                status: job.status,
+                status: job.status, // Make sure this is properly read from localStorage
                 assignedTo: assignedTech ? 
                   `${assignedTech.first_name} ${assignedTech.last_name}` : 
                   "Unassigned",
@@ -38,8 +40,8 @@ export const useJobsData = () => {
                 dueDate: new Date(new Date(job.reportDate).getTime() + 7 * 24 * 60 * 60 * 1000),
                 photos: { 
                   reporter: job.imageUrl,
-                  before: job.beforePhoto || "",
-                  after: job.afterPhoto || ""
+                  before: job.beforePhoto || job.photos?.before || "",
+                  after: job.afterPhoto || job.photos?.after || ""
                 }
               };
             });
@@ -53,9 +55,11 @@ export const useJobsData = () => {
       
       // Listen for storage events to update jobs when they change
       window.addEventListener('storage', loadJobs);
+      document.addEventListener('jobsUpdated', loadJobs as EventListener);
       
       return () => {
         window.removeEventListener('storage', loadJobs);
+        document.removeEventListener('jobsUpdated', loadJobs as EventListener);
       };
     } catch (error) {
       console.error("Error loading assigned jobs:", error);

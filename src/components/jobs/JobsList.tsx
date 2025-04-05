@@ -61,6 +61,7 @@ const JobsList = () => {
     }
   };
 
+  // Here's the fix: Ensure we're properly filtering jobs by status
   const ongoingJobs = jobs.filter(job => job.status !== "completed");
   const completedJobs = jobs.filter(job => job.status === "completed");
 

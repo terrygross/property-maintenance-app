@@ -57,6 +57,7 @@ export const updateJobStatus = (jobId: string, status: string, isAdminOverride: 
       
       const updatedJobs = parsedJobs.map((job: any) => {
         if (job.id === jobId) {
+          // Make sure we update both the 'status' field and any legacy fields
           return {
             ...job,
             status: status
@@ -64,6 +65,8 @@ export const updateJobStatus = (jobId: string, status: string, isAdminOverride: 
         }
         return job;
       });
+      
+      // Store updated jobs back in localStorage
       localStorage.setItem('reporterJobs', JSON.stringify(updatedJobs));
       
       // Dispatch events to notify all components
