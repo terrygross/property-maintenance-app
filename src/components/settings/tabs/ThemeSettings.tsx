@@ -1,4 +1,3 @@
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -465,7 +464,8 @@ const ThemeSettings = () => {
                       className={getPreviewClasses()}
                       style={{ 
                         borderColor: form.watch("accentColor"),
-                        color: form.watch("accentColor")
+                        color: form.watch("accentColor"),
+                        borderWidth: "1px"
                       }}
                     >
                       Secondary Button
@@ -474,7 +474,8 @@ const ThemeSettings = () => {
                   <div
                     className={`bg-card p-4 border shadow-sm ${getPreviewClasses()}`}
                     style={{ 
-                      borderColor: form.watch("accentColor") + "33"  // Add transparency
+                      borderColor: form.watch("accentColor") + "33",
+                      borderWidth: "1px"
                     }}
                   >
                     <h4 className="font-medium mb-2">Sample Card</h4>
