@@ -28,7 +28,8 @@ const TechnicianInterfaceSimulation: React.FC<TechnicianInterfaceSimulationProps
     assignedJobs, 
     handleJobPhotoUpdate, 
     handleAcceptJob, 
-    handleUpdateJobStatus 
+    handleUpdateJobStatus,
+    handleAddComment
   } = useAssignedJobs(technicianId);
 
   // Example leave requests for the technician
@@ -91,6 +92,7 @@ const TechnicianInterfaceSimulation: React.FC<TechnicianInterfaceSimulationProps
                       onPhotoCapture={handleJobPhotoUpdate}
                       onAcceptJob={handleAcceptJob}
                       onUpdateStatus={handleUpdateJobStatus}
+                      onAddComment={handleAddComment}
                     />
                   </TabsContent>
 

@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarClock, ClipboardList, PhoneCall, CheckSquare } from "lucide-react";
 import TechHeader from "@/components/maintenance/tech/TechHeader";
 import TechLeaveTab from "@/components/maintenance/tech/TechLeaveTab";
-import TechJobsTab from "@/components/maintenance/tech/TechJobsTab";
+import TechJobsTab from "@/components/maintenance/tech/jobs/TechJobsTab";
 import TechCallOutTab from "@/components/maintenance/tech/TechCallOutTab";
 import TechComplianceLists from "@/components/maintenance/tech/TechComplianceLists";
 import ChatDrawer from "@/components/chat/ChatDrawer";

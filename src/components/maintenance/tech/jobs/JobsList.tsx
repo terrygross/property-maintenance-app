@@ -1,3 +1,4 @@
+
 import React from "react";
 import JobCard from "./JobCard";
 import { Job } from "./JobCardTypes";
@@ -46,7 +47,7 @@ const JobsList = ({
     }
     
     // Then by due date (earliest first)
-    return a.dueDate.getTime() - b.dueDate.getTime();
+    return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
   });
 
   return (
@@ -62,6 +63,12 @@ const JobsList = ({
           getPriorityColor={getPriorityColor}
         />
       ))}
+      
+      {sortedJobs.length === 0 && (
+        <div className="text-center py-8 text-muted-foreground">
+          No jobs found
+        </div>
+      )}
     </div>
   );
 };

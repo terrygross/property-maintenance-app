@@ -18,6 +18,7 @@ interface TechJobsContextProps {
   onAcceptJob?: (jobId: string) => void;
   onUpdateStatus?: (jobId: string, status: string) => void;
   onAddComment?: (jobId: string, comment: string) => void;
+  jobs: TechJob[]; // Expose all jobs for the history tab
 }
 
 const TechJobsContext = createContext<TechJobsContextProps | undefined>(undefined);
@@ -33,7 +34,13 @@ export const TechJobsProvider: React.FC<{
   const [selectedJob, setSelectedJob] = useState<TechJob | null>(null);
   const [showJobDetails, setShowJobDetails] = useState(false);
   const [showReporterImage, setShowReporterImage] = useState(false);
+  const [jobs, setJobs] = useState<TechJob[]>(assignedJobs);
   const { toast } = useToast();
+
+  // Update jobs when assignedJobs changes
+  useEffect(() => {
+    setJobs(assignedJobs);
+  }, [assignedJobs]);
 
   // Effect to refresh selected job when it changes in assignedJobs
   useEffect(() => {
@@ -114,7 +121,8 @@ export const TechJobsProvider: React.FC<{
       onPhotoCapture,
       onAcceptJob,
       onUpdateStatus,
-      onAddComment
+      onAddComment,
+      jobs // Make jobs available to child components
     }}>
       {children}
     </TechJobsContext.Provider>
