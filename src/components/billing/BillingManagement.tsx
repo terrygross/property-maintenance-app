@@ -12,6 +12,7 @@ const BillingManagement = () => {
   const { additionalStations, updateAdditionalStations } = useAppState();
   const [techCount, setTechCount] = useState(0);
   const [userRole, setUserRole] = useState<string>("user");
+  const [activeTab, setActiveTab] = useState("subscription");
 
   // Simulate checking user role - in a real app, this would come from auth context
   useEffect(() => {
@@ -27,6 +28,14 @@ const BillingManagement = () => {
     };
     
     checkRole();
+    
+    // Check if we should navigate to a specific subtab
+    const savedSubtab = sessionStorage.getItem("billing-subtab");
+    if (savedSubtab) {
+      setActiveTab(savedSubtab);
+      // Clear after using once
+      sessionStorage.removeItem("billing-subtab");
+    }
   }, []);
 
   const handleCapacityUpdate = (techs: number, stations: number) => {
@@ -36,7 +45,7 @@ const BillingManagement = () => {
 
   return (
     <div className="space-y-6">
-      <Tabs defaultValue="subscription" className="space-y-4">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList>
           <TabsTrigger value="subscription">Subscription</TabsTrigger>
           <TabsTrigger value="reporter-subscription">Accounting Subscription</TabsTrigger>

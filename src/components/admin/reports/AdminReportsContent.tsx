@@ -6,10 +6,13 @@ import { Badge } from "@/components/ui/badge";
 import { UserRole, hasAdminAccess } from "@/types/user";
 import Reports from "@/components/maintenance/Reports";
 import ExpenseReports from "@/components/reporter/expenses/ExpenseReports";
+import ExpensesContent from "@/components/reporter/expenses/ExpensesContent";
 import ReportChartTabs from "@/components/reporter/ReportChartTabs";
 import { useAppState } from "@/context/AppStateContext";
-import { LockIcon, Info } from "lucide-react";
+import { LockIcon, Info, PlusCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 interface AdminReportsContentProps {
   userRole?: UserRole;
@@ -18,10 +21,16 @@ interface AdminReportsContentProps {
 const AdminReportsContent: React.FC<AdminReportsContentProps> = ({ userRole = "admin" }) => {
   const [activeReportTab, setActiveReportTab] = useState("general");
   const { additionalStations } = useAppState();
+  const navigate = useNavigate();
   
   // Check if user has access to expense reporting
   // Use the hasAdminAccess helper function instead of directly comparing with "admin"
   const hasExpenseAccess = hasAdminAccess(userRole) || additionalStations >= 2;
+  
+  const handleSubscribeClick = () => {
+    // Navigate to the billing page with accounting subscription tab active
+    navigate("/admin?tab=billing&subtab=reporter-subscription");
+  };
   
   return (
     <div className="space-y-4">
@@ -37,6 +46,12 @@ const AdminReportsContent: React.FC<AdminReportsContentProps> = ({ userRole = "a
           <TabsTrigger value="general">General Reports</TabsTrigger>
           <TabsTrigger value="maintenance">Maintenance Reports</TabsTrigger>
           <TabsTrigger value="expenses" disabled={!hasExpenseAccess}>
+            <div className="flex items-center gap-2">
+              Log Expenses
+              {!hasExpenseAccess && !hasAdminAccess(userRole) && <LockIcon className="h-3 w-3" />}
+            </div>
+          </TabsTrigger>
+          <TabsTrigger value="expense-reports" disabled={!hasExpenseAccess}>
             <div className="flex items-center gap-2">
               Expense Reports
               {!hasExpenseAccess && !hasAdminAccess(userRole) && <LockIcon className="h-3 w-3" />}
@@ -64,6 +79,31 @@ const AdminReportsContent: React.FC<AdminReportsContentProps> = ({ userRole = "a
         
         <TabsContent value="expenses">
           {hasExpenseAccess ? (
+            <ExpensesContent />
+          ) : (
+            <Card>
+              <CardContent className="pt-6">
+                <Alert variant="default" className="bg-yellow-50 border-yellow-200">
+                  <Info className="h-4 w-4" />
+                  <AlertTitle>Expense Tracking Add-on Required</AlertTitle>
+                  <AlertDescription>
+                    The Expense Tracking & Entry feature requires an additional subscription.
+                    Please visit the Accounting Subscription page to enable this feature.
+                  </AlertDescription>
+                </Alert>
+                <div className="mt-6 flex justify-center">
+                  <Button onClick={handleSubscribeClick} className="gap-2">
+                    <PlusCircle className="h-4 w-4" />
+                    Subscribe to Expense Tracking
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+        
+        <TabsContent value="expense-reports">
+          {hasExpenseAccess ? (
             <ExpenseReports />
           ) : (
             <Card>
@@ -76,6 +116,12 @@ const AdminReportsContent: React.FC<AdminReportsContentProps> = ({ userRole = "a
                     Please visit the Accounting Subscription page under Billing to enable this feature.
                   </AlertDescription>
                 </Alert>
+                <div className="mt-6 flex justify-center">
+                  <Button onClick={handleSubscribeClick} className="gap-2">
+                    <PlusCircle className="h-4 w-4" />
+                    Subscribe to Expense Tracking
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           )}

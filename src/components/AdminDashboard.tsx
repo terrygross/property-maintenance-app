@@ -9,6 +9,7 @@ import OverviewTabContent from "./admin/OverviewTabContent";
 import BackToOverviewButton from "./admin/dashboard/BackToOverviewButton";
 import AdminDashboardTabs from "./admin/dashboard/AdminDashboardTabs";
 import DashboardHeader from "./admin/dashboard/DashboardHeader";
+import { useLocation } from "react-router-dom";
 
 interface AdminDashboardProps {
   userRole?: UserRole;
@@ -20,19 +21,34 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
   const { users, properties } = useAppState();
   const highPriorityJobs = useHighPriorityJobsMonitor();
   const [isInitialized, setIsInitialized] = useState(false);
+  const location = useLocation();
   
   const currentUserId = "4";
 
   const technicians = users.filter(user => 
     user.role === "maintenance_tech" || user.role === "contractor"
   );
-
+  
+  // Handle URL parameters for direct tab navigation
   useEffect(() => {
-    if (!isInitialized) {
+    const params = new URLSearchParams(location.search);
+    const tabFromUrl = params.get("tab");
+    const subtabFromUrl = params.get("subtab");
+    
+    if (tabFromUrl && !isInitialized) {
+      setActiveTab(tabFromUrl);
+      
+      // Store subtab in sessionStorage to be used by the component when it loads
+      if (subtabFromUrl) {
+        sessionStorage.setItem(`${tabFromUrl}-subtab`, subtabFromUrl);
+      }
+      
+      setIsInitialized(true);
+    } else if (!isInitialized) {
       setActiveTab("overview");
       setIsInitialized(true);
     }
-  }, [isInitialized]);
+  }, [location.search, isInitialized]);
 
   const handleBackToOverview = () => {
     setActiveTab("overview");
