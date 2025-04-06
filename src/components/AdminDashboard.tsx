@@ -70,6 +70,7 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
       {activeTab === "overview" && (
         <DashboardHeader 
           highPriorityJobs={highPriorityJobs} 
+          unassignedJobs={unassignedJobs}
           onAlertClick={handleAlertClick}
           onNewTaskClick={handleNewTaskClick}
         />

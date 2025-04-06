@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { JobCardProps } from "@/components/job/jobCardTypes";
 import { useAppState } from "@/context/AppStateContext";
+import { notifyTechnicianTeam } from "@/services/NotificationService";
 
 export const useReporterJobs = () => {
   const [jobCards, setJobCards] = useState<JobCardProps[]>([]);
@@ -41,6 +42,33 @@ export const useReporterJobs = () => {
             reporterPhoto: job.imageUrl, // Include the imageUrl as reporterPhoto
             imageUrl: job.imageUrl // Also keep imageUrl for backward compatibility
           }));
+          
+          // Notify about high priority jobs when they're first loaded
+          const highPriorityJobs = unassignedJobs.filter((job: any) => 
+            job.priority === "high" && !job.notificationSent
+          );
+          
+          if (highPriorityJobs.length > 0) {
+            // Get all technicians
+            const technicians = users.filter(user => 
+              user.role === "maintenance_tech" || user.role === "contractor"
+            );
+            
+            // Send notifications for each high priority job
+            highPriorityJobs.forEach((job: any) => {
+              notifyTechnicianTeam(technicians, job.title, job.property);
+              
+              // Mark job as notified so we don't send duplicate notifications
+              const savedJobs = localStorage.getItem('reporterJobs');
+              if (savedJobs) {
+                const allJobs = JSON.parse(savedJobs);
+                const updatedJobs = allJobs.map((j: any) => 
+                  j.id === job.id ? { ...j, notificationSent: true } : j
+                );
+                localStorage.setItem('reporterJobs', JSON.stringify(updatedJobs));
+              }
+            });
+          }
           
           setJobCards(jobsWithPhotos);
           console.log("Loaded reporter jobs:", jobsWithPhotos.length);

@@ -1,141 +1,122 @@
-
-import { useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 import { useToast } from "@/hooks/use-toast";
 import { useAppState } from "@/context/AppStateContext";
-import { JobCardProps } from "@/components/job/jobCardTypes";
+import { sendPushNotification, notifyTechnicianTeam } from "@/services/NotificationService";
 
-interface UseJobActionsProps {
-  jobCards: JobCardProps[];
-  setJobCards: React.Dispatch<React.SetStateAction<JobCardProps[]>>;
-}
-
-export const useJobActions = ({ jobCards, setJobCards }: UseJobActionsProps) => {
+export const useJobActions = ({ jobCards, setJobCards }) => {
   const { toast } = useToast();
   const { users } = useAppState();
+  
+  const technicians = users.filter(user => 
+    user.role === "maintenance_tech" || user.role === "contractor"
+  );
 
-  // Function to handle assigning jobs to technicians
-  const handleAssignJob = (jobId: string, technicianId: string, priority: string) => {
-    // Find the technician to check their role
-    const technician = users.find(user => user.id === technicianId);
-    const isContractor = technician?.role === "contractor";
-    const isMaintenanceTech = technician?.role === "maintenance_tech";
-    
-    // Update the job status both in state and localStorage
-    const updatedJobCards = jobCards.map(card => 
-      card.id === jobId 
-        ? { 
-            ...card, 
-            status: "assigned" as const,
-            assignedTo: technicianId,
-            priority: priority as "low" | "medium" | "high",
-            emailSent: isContractor ? false : undefined // Only set emailSent for contractors
-          } 
-        : card
-    );
-    
-    // Remove the assigned job from the jobs list
-    const remainingJobs = updatedJobCards.filter(job => 
-      job.status === "unassigned"
-    );
-    setJobCards(remainingJobs);
-    
-    // Update the job in localStorage
+  // Function to handle assigning a job to a technician
+  const handleAssignJob = (jobId, technicianId) => {
+    // Update job in localStorage
     try {
-      const savedJobs = localStorage.getItem('reporterJobs');
+      const savedJobs = localStorage.getItem("reporterJobs");
       if (savedJobs) {
-        const allJobs = JSON.parse(savedJobs);
-        const updatedAllJobs = allJobs.map((job: any) => 
-          job.id === jobId 
-            ? { 
-                ...job, 
-                status: "assigned",
-                assignedTo: technicianId,
-                priority: priority,
-                emailSent: isContractor ? false : undefined // Only set emailSent for contractors
-              } 
-            : job
-        );
-        localStorage.setItem('reporterJobs', JSON.stringify(updatedAllJobs));
+        const parsedJobs = JSON.parse(savedJobs);
+        
+        const updatedJobs = parsedJobs.map((job) => {
+          if (job.id === jobId) {
+            const assignedJob = {
+              ...job,
+              assignedTo: technicianId,
+              status: "assigned",
+              assignedDate: new Date().toISOString(),
+            };
+            
+            // Check if this is a high priority job
+            if (job.priority === "high") {
+              // Find the technician details to get their phone number
+              const technician = users.find(user => user.id === technicianId);
+              
+              // Send notification to the specific technician assigned
+              if (technician && technician.phone) {
+                const title = "⚠️ HIGH PRIORITY JOB ASSIGNED";
+                const message = `You have been assigned a high priority job: ${job.title}`;
+                sendPushNotification(title, { 
+                  body: message,
+                  requireInteraction: true
+                });
+              }
+            }
+            
+            return assignedJob;
+          }
+          return job;
+        });
+        
+        localStorage.setItem("reporterJobs", JSON.stringify(updatedJobs));
+        
+        // Update local state to remove assigned job
+        setJobCards(jobCards.filter((job) => job.id !== jobId));
+        
+        // Show success message
+        toast({
+          title: "Job assigned",
+          description: "The job has been successfully assigned.",
+        });
+        
+        // Dispatch custom event to notify other components
+        document.dispatchEvent(new Event("jobsUpdated"));
+        
+        return true;
       }
     } catch (error) {
-      console.error("Error updating localStorage jobs:", error);
-    }
-
-    // In a real app, this would make an API call to update the database
-    setTimeout(() => {
-      // If it's a contractor, simulate sending an email automatically
-      if (isContractor && technician) {
-        toast({
-          title: "Email Automatically Sent",
-          description: `Job details have been automatically emailed to contractor ${technician.first_name} ${technician.last_name}.`,
-        });
-        
-        // Update the job to mark the email as sent in localStorage
-        try {
-          const savedJobs = localStorage.getItem('reporterJobs');
-          if (savedJobs) {
-            const allJobs = JSON.parse(savedJobs);
-            const updatedAllJobs = allJobs.map((job: any) => 
-              job.id === jobId ? { ...job, emailSent: true } : job
-            );
-            localStorage.setItem('reporterJobs', JSON.stringify(updatedAllJobs));
-          }
-        } catch (error) {
-          console.error("Error updating email sent status:", error);
-        }
-      }
-      
-      // If it's a maintenance technician, simulate sending an in-app notification
-      if (isMaintenanceTech && technician) {
-        toast({
-          title: "App Notification Sent",
-          description: `Job details have been sent to ${technician.first_name} ${technician.last_name}'s app.`,
-        });
-      }
+      console.error("Error assigning job:", error);
       
       toast({
-        title: "Job Moved to Jobs Tab",
-        description: `The job has been assigned with ${priority} priority and moved to the Jobs tab.`,
+        title: "Error",
+        description: "There was an error assigning the job.",
+        variant: "destructive",
       });
-    }, 2000);
-  };
-
-  // Function to handle resending email to contractors
-  const handleResendEmail = (jobId: string, technicianId: string) => {
-    const technician = users.find(user => user.id === technicianId);
+    }
     
-    if (technician?.role === "contractor") {
-      toast({
-        title: "Resending Email",
-        description: `Resending job details to contractor ${technician.first_name} ${technician.last_name}...`,
-      });
-      
-      // Simulate email sending
-      setTimeout(() => {
-        toast({
-          title: "Email Resent Successfully",
-          description: `Job details have been resent to ${technician.first_name} ${technician.last_name}.`,
-        });
-        
-        // Update emailSent status in localStorage
-        try {
-          const savedJobs = localStorage.getItem('reporterJobs');
-          if (savedJobs) {
-            const allJobs = JSON.parse(savedJobs);
-            const updatedAllJobs = allJobs.map((job: any) => 
-              job.id === jobId ? { ...job, emailSent: true } : job
-            );
-            localStorage.setItem('reporterJobs', JSON.stringify(updatedAllJobs));
-          }
-        } catch (error) {
-          console.error("Error updating email sent status:", error);
-        }
-      }, 2000);
-    }
+    return false;
   };
 
-  return {
-    handleAssignJob,
-    handleResendEmail
+  // Function to handle resending email for a job
+  const handleResendEmail = (jobId) => {
+    try {
+      const savedJobs = localStorage.getItem("reporterJobs");
+      if (savedJobs) {
+        const parsedJobs = JSON.parse(savedJobs);
+        
+        const jobToResend = parsedJobs.find((job) => job.id === jobId);
+        
+        if (jobToResend) {
+          // Mock email resend (replace with actual email service integration)
+          console.log(`[MOCK] Resending email for job ${jobId} to reporter`);
+          
+          toast({
+            title: "Email resent",
+            description: "The email has been resent to the reporter.",
+          });
+          
+          return true;
+        } else {
+          toast({
+            title: "Error",
+            description: "Job not found.",
+            variant: "destructive",
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error resending email:", error);
+      
+      toast({
+        title: "Error",
+        description: "There was an error resending the email.",
+        variant: "destructive",
+      });
+    }
+    
+    return true;
   };
+
+  return { handleAssignJob, handleResendEmail };
 };

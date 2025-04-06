@@ -6,11 +6,21 @@ import HighPriorityAlert from "@/components/alerts/HighPriorityAlert";
 
 interface DashboardHeaderProps {
   highPriorityJobs: any[];
+  unassignedJobs?: any[]; // Add unassignedJobs prop
   onAlertClick: () => void;
   onNewTaskClick: () => void;
 }
 
-const DashboardHeader = ({ highPriorityJobs, onAlertClick, onNewTaskClick }: DashboardHeaderProps) => {
+const DashboardHeader = ({ 
+  highPriorityJobs, 
+  unassignedJobs = [], 
+  onAlertClick, 
+  onNewTaskClick 
+}: DashboardHeaderProps) => {
+  // Calculate total alerts (high priority jobs + unassigned jobs with high priority)
+  const highPriorityUnassigned = unassignedJobs.filter(job => job.priority === "high");
+  const totalAlertCount = highPriorityJobs.length + highPriorityUnassigned.length;
+  
   return (
     <div className="flex justify-between items-center mb-6">
       <div className="flex items-center gap-3">
@@ -18,9 +28,9 @@ const DashboardHeader = ({ highPriorityJobs, onAlertClick, onNewTaskClick }: Das
           <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
           <p className="text-muted-foreground">Manage your maintenance system</p>
         </div>
-        {highPriorityJobs.length > 0 && (
+        {totalAlertCount > 0 && (
           <HighPriorityAlert 
-            count={highPriorityJobs.length} 
+            count={totalAlertCount} 
             onClick={onAlertClick}
           />
         )}
