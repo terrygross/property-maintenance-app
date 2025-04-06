@@ -1,10 +1,11 @@
-
 import { User } from "@/types/user";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
+import DeleteConfirmationDialog from "@/components/ui/DeleteConfirmationDialog";
 
 interface UserTableProps {
   users: User[];
@@ -13,6 +14,9 @@ interface UserTableProps {
 }
 
 const UserTable = ({ users, onEdit, onDelete }: UserTableProps) => {
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+
   const getRoleBadgeClass = (role: User['role']) => {
     switch (role) {
       case "admin":
@@ -47,82 +51,105 @@ const UserTable = ({ users, onEdit, onDelete }: UserTableProps) => {
     }
   };
 
+  const handleDeleteClick = (user: User) => {
+    setUserToDelete(user);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (userToDelete) {
+      onDelete(userToDelete.id);
+      setUserToDelete(null);
+    }
+    setDeleteDialogOpen(false);
+  };
+
   return (
-    <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>User</TableHead>
-            <TableHead className="hidden md:table-cell">Title</TableHead>
-            <TableHead className="hidden md:table-cell">Role</TableHead>
-            <TableHead className="hidden md:table-cell">Email</TableHead>
-            <TableHead className="hidden md:table-cell">Phone</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {users.length === 0 ? (
+    <>
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
             <TableRow>
-              <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
-                No users found
-              </TableCell>
+              <TableHead>User</TableHead>
+              <TableHead className="hidden md:table-cell">Title</TableHead>
+              <TableHead className="hidden md:table-cell">Role</TableHead>
+              <TableHead className="hidden md:table-cell">Email</TableHead>
+              <TableHead className="hidden md:table-cell">Phone</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
-          ) : (
-            users.map((user) => (
-              <TableRow key={user.id}>
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <Avatar>
-                      <AvatarImage src={user.photo_url} alt={`${user.first_name} ${user.last_name}`} />
-                      <AvatarFallback>
-                        {user.first_name?.[0]}{user.last_name?.[0]}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <div className="font-medium">{`${user.first_name} ${user.last_name}`}</div>
-                      <div className="md:hidden text-sm text-muted-foreground">{user.email}</div>
-                      <div className="md:hidden text-xs">
-                        <Badge variant="outline" className={getRoleBadgeClass(user.role)}>
-                          {formatRoleDisplay(user.role)}
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell className="hidden md:table-cell">{user.title}</TableCell>
-                <TableCell className="hidden md:table-cell">
-                  <Badge variant="outline" className={getRoleBadgeClass(user.role)}>
-                    {formatRoleDisplay(user.role)}
-                  </Badge>
-                </TableCell>
-                <TableCell className="hidden md:table-cell">{user.email}</TableCell>
-                <TableCell className="hidden md:table-cell">{user.phone}</TableCell>
-                <TableCell className="text-right">
-                  <div className="flex justify-end gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onEdit(user)}
-                    >
-                      <Pencil className="h-4 w-4" />
-                      <span className="sr-only">Edit</span>
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onDelete(user.id)}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                      <span className="sr-only">Delete</span>
-                    </Button>
-                  </div>
+          </TableHeader>
+          <TableBody>
+            {users.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
+                  No users found
                 </TableCell>
               </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
-    </div>
+            ) : (
+              users.map((user) => (
+                <TableRow key={user.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <Avatar>
+                        <AvatarImage src={user.photo_url} alt={`${user.first_name} ${user.last_name}`} />
+                        <AvatarFallback>
+                          {user.first_name?.[0]}{user.last_name?.[0]}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <div className="font-medium">{`${user.first_name} ${user.last_name}`}</div>
+                        <div className="md:hidden text-sm text-muted-foreground">{user.email}</div>
+                        <div className="md:hidden text-xs">
+                          <Badge variant="outline" className={getRoleBadgeClass(user.role)}>
+                            {formatRoleDisplay(user.role)}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">{user.title}</TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    <Badge variant="outline" className={getRoleBadgeClass(user.role)}>
+                      {formatRoleDisplay(user.role)}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">{user.email}</TableCell>
+                  <TableCell className="hidden md:table-cell">{user.phone}</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => onEdit(user)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                        <span className="sr-only">Edit</span>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDeleteClick(user)}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                        <span className="sr-only">Delete</span>
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      <DeleteConfirmationDialog
+        isOpen={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleConfirmDelete}
+        itemName={userToDelete ? `${userToDelete.first_name} ${userToDelete.last_name}` : ""}
+        itemType="user"
+      />
+    </>
   );
 };
 
