@@ -3,7 +3,7 @@ import React from "react";
 import { Grid } from "@/components/ui/grid";
 import AdminCard from "./AdminCard";
 import { adminTabs } from "./AdminTabsList";
-import { ArchiveRestore } from "lucide-react";
+import { ArchiveRestore, FileText } from "lucide-react";
 import ComplianceBoardCard from "../compliance/ComplianceBoardCard";
 import { ComplianceProvider } from "@/context/ComplianceContext";
 import { getCardDescription } from "./dashboard/dashboardUtils";
@@ -27,7 +27,7 @@ const OverviewTabContent = ({ setActiveTab, unassignedJobs = [] }: OverviewTabCo
 
       <Grid numItemsSm={2} numItemsMd={3} numItemsLg={4} className="gap-4">
         {adminTabs
-          .filter(tab => tab.id !== "overview" && tab.id !== "recycle-bin" && tab.id !== "logs")
+          .filter(tab => tab.id !== "overview" && tab.id !== "recycle-bin")
           .map((tab, index) => {
             const hasReportedJobs = tab.id === "reporter" && unassignedJobs.length > 0;
             const count = getTabCount(tab.id, users, properties, unassignedJobs);
@@ -53,6 +53,13 @@ const OverviewTabContent = ({ setActiveTab, unassignedJobs = [] }: OverviewTabCo
           description="Backup and restore your data to cloud storage"
           icon={<ArchiveRestore className="h-5 w-5" />}
           onClick={() => setActiveTab && setActiveTab("backup")}
+        />
+        
+        <AdminCard
+          title="System Logs"
+          description="View system activity logs and events"
+          icon={<FileText className="h-5 w-5" />}
+          onClick={() => setActiveTab && setActiveTab("logs")}
         />
         
         {/* Wrap ComplianceBoardCard with ComplianceProvider */}

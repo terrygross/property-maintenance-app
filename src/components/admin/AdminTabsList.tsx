@@ -25,6 +25,7 @@ export const adminTabs = [
   { id: "billing", label: "Billing", icon: Wallet },
   { id: "settings", label: "Settings", icon: Settings },
   { id: "logs", label: "Logs", icon: FileText },
+  { id: "backup", label: "Backup & Restore", icon: RotateCcw },
   { id: "recycle-bin", label: "Recycle Bin", icon: Trash }
 ];
 

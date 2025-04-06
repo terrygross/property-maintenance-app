@@ -36,8 +36,6 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({
   if (activeTab !== "overview") {
     return (
       <>
-        
-
         <TabsContent value="users">
           <UserManagement />
         </TabsContent>
@@ -99,7 +97,6 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({
         <TabsContent value="settings">
           <SystemSettings />
         </TabsContent>
-
         
         <TabsContent value="backup">
           <BackupRestore />
