@@ -10,6 +10,7 @@ import BackToOverviewButton from "./admin/dashboard/BackToOverviewButton";
 import AdminDashboardTabs from "./admin/dashboard/AdminDashboardTabs";
 import DashboardHeader from "./admin/dashboard/DashboardHeader";
 import { useLocation } from "react-router-dom";
+import { useReporterJobs } from "@/hooks/useReporterJobs";
 
 interface AdminDashboardProps {
   userRole?: UserRole;
@@ -22,6 +23,7 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
   const highPriorityJobs = useHighPriorityJobsMonitor();
   const [isInitialized, setIsInitialized] = useState(false);
   const location = useLocation();
+  const { jobCards: unassignedJobs } = useReporterJobs();
   
   const currentUserId = "4";
 
@@ -77,7 +79,10 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
         <BackToOverviewButton activeTab={activeTab} onBackClick={handleBackToOverview} />
 
         {activeTab === "overview" && (
-          <OverviewTabContent setActiveTab={setActiveTab} />
+          <OverviewTabContent 
+            setActiveTab={setActiveTab} 
+            unassignedJobs={unassignedJobs}
+          />
         )}
 
         <AdminDashboardTabs 

@@ -7,12 +7,19 @@ import { ArchiveRestore } from "lucide-react";
 import ComplianceBoardCard from "../compliance/ComplianceBoardCard";
 import { ComplianceProvider } from "@/context/ComplianceContext";
 import { getCardDescription } from "./dashboard/dashboardUtils";
+import DashboardCard from "./dashboard/DashboardCard";
+import { JobCardProps } from "@/components/job/jobCardTypes";
+import { getCardStyles, getIconColor, getTabCount } from "./dashboard/dashboardUtils";
+import { useAppState } from "@/context/AppStateContext";
 
 interface OverviewTabContentProps {
   setActiveTab?: (tab: string) => void;
+  unassignedJobs?: JobCardProps[];
 }
 
-const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
+const OverviewTabContent = ({ setActiveTab, unassignedJobs = [] }: OverviewTabContentProps) => {
+  const { users, properties } = useAppState();
+  
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">Admin Dashboard</h1>
@@ -21,15 +28,25 @@ const OverviewTabContent = ({ setActiveTab }: OverviewTabContentProps) => {
       <Grid numItemsSm={2} numItemsMd={3} numItemsLg={4} className="gap-4">
         {adminTabs
           .filter(tab => tab.id !== "overview" && tab.id !== "recycle-bin" && tab.id !== "logs")
-          .map(tab => (
-            <AdminCard
-              key={tab.id}
-              title={tab.label}
-              description={getCardDescription(tab.id)}
-              icon={<tab.icon className="h-5 w-5" />}
-              onClick={() => setActiveTab && setActiveTab(tab.id)}
-            />
-          ))}
+          .map((tab, index) => {
+            const hasReportedJobs = tab.id === "reporter" && unassignedJobs.length > 0;
+            const count = getTabCount(tab.id, users, properties, unassignedJobs);
+            
+            return (
+              <DashboardCard
+                key={tab.id}
+                id={tab.id}
+                label={tab.label}
+                icon={tab.icon}
+                count={count}
+                description={getCardDescription(tab.id)}
+                bgColorClass={getCardStyles(index, hasReportedJobs)}
+                iconColorClass={getIconColor(index)}
+                onClick={() => setActiveTab && setActiveTab(tab.id)}
+                hasAlert={hasReportedJobs}
+              />
+            );
+          })}
           
         <AdminCard
           title="Backup & Restore"

@@ -12,6 +12,7 @@ interface DashboardCardProps {
   bgColorClass: string;
   iconColorClass: string;
   onClick: () => void;
+  hasAlert?: boolean;
 }
 
 const DashboardCard = ({
@@ -22,24 +23,28 @@ const DashboardCard = ({
   description,
   bgColorClass,
   iconColorClass,
-  onClick
+  onClick,
+  hasAlert = false
 }: DashboardCardProps) => {
   // Format dynamic description for reporter management card only
   const formattedDescription = 
     id === "reporter-management" && description.includes("Base") 
       ? "Base (2) + (1) Additional station"
       : description;
+      
+  const borderClass = hasAlert ? "border-red-400" : "border-2";
+  const iconClass = hasAlert ? "text-red-500" : iconColorClass;
 
   return (
     <Card 
       key={id}
-      className={`${bgColorClass} transition-colors cursor-pointer border-2`}
+      className={`${bgColorClass} transition-colors cursor-pointer ${borderClass}`}
       onClick={onClick}
     >
       <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
           <CardTitle className="text-lg font-medium">{label}</CardTitle>
-          <Icon className={`h-5 w-5 ${iconColorClass}`} />
+          <Icon className={`h-5 w-5 ${iconClass}`} />
         </div>
       </CardHeader>
       <CardContent>

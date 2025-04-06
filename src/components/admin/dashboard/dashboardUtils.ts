@@ -13,20 +13,16 @@ export const getTabCount = (tabId: string, users: any[], properties: any[], unas
   const technicianCount = countUsersByRole(users, "maintenance_tech");
   const contractorCount = countUsersByRole(users, "contractor");
   
-  // Note: We no longer need to calculate reporterStationsCount here
-  // as we're now using the value directly from AppState in OverviewTabContent
-  
   switch (tabId) {
     case "users": return technicianCount;
     case "properties": return properties.length;
     case "maintenance": return contractorCount;
-    case "reporter": return unassignedJobs.length;
+    case "reporter": return unassignedJobs.length > 0 ? unassignedJobs.length : 0; // Ensure we return 0 if no jobs
     case "tech-view": return technicianCount;
     case "reports": return 4;
     case "chat": return 12;
     case "compliance": return 3;
     case "billing": return 1;
-    // reporter-management count is now handled in OverviewTabContent
     case "maintenance-jobcards": return 8;
     default: return null;
   }
@@ -56,7 +52,11 @@ export const getCardDescription = (tabId: string): string => {
 };
 
 // Get background colors for cards
-export const getCardStyles = (index: number): string => {
+export const getCardStyles = (index: number, hasAlert: boolean = false): string => {
+  if (hasAlert) {
+    return "bg-white hover:bg-red-50 border-red-400 animate-pulse";
+  }
+  
   const colorClasses = [
     "bg-white hover:bg-blue-50 border-blue-300",
     "bg-white hover:bg-green-50 border-blue-300",
