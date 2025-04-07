@@ -1,9 +1,9 @@
-
 import React, { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Download, Upload, FileText } from "lucide-react";
 import { Job } from "./jobsListUtils";
+import ClearStorageButton from "@/components/admin/ClearStorageButton";
 
 interface JobsSystemActionsProps {
   jobs: Job[];
@@ -202,6 +202,10 @@ const JobsSystemActions = ({ jobs, setJobs }: JobsSystemActionsProps) => {
     reader.readAsText(file);
   };
   
+  const handleClearStorage = () => {
+    setJobs([]);
+  };
+  
   return (
     <div className="mb-4 p-4 border rounded-md bg-muted/20">
       <h3 className="text-sm font-medium mb-2">System Actions</h3>
@@ -224,6 +228,7 @@ const JobsSystemActions = ({ jobs, setJobs }: JobsSystemActionsProps) => {
           <Upload className="h-4 w-4" />
           Import Job History
         </Button>
+        <ClearStorageButton onClear={handleClearStorage} />
         <input
           type="file"
           ref={fileInputRef}
@@ -234,7 +239,7 @@ const JobsSystemActions = ({ jobs, setJobs }: JobsSystemActionsProps) => {
       </div>
       <p className="text-xs text-muted-foreground mt-2">
         <FileText className="h-3 w-3 inline mr-1" />
-        Export jobs to CSV or import historical job data
+        Manage job data - export to CSV, import historical data, or clear browser storage
       </p>
     </div>
   );

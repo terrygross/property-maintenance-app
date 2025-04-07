@@ -2,8 +2,9 @@
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, Upload, RefreshCw } from "lucide-react";
+import { Download, Upload, RefreshCw, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import ClearStorageButton from "@/components/admin/ClearStorageButton";
 
 interface DashboardActionsProps {
   compact?: boolean;
@@ -40,7 +41,7 @@ const DashboardActions = ({ compact = false }: DashboardActionsProps) => {
           <CardTitle className="text-sm">System Actions</CardTitle>
         </CardHeader>
         <CardContent className="p-3 pt-0 space-y-2">
-          <div className="grid grid-cols-3 gap-1">
+          <div className="grid grid-cols-4 gap-1">
             <Button variant="outline" size="sm" onClick={handleExportData} className="text-xs h-7 px-1">
               <Download className="h-3 w-3 mr-1" />
               Export
@@ -53,6 +54,7 @@ const DashboardActions = ({ compact = false }: DashboardActionsProps) => {
               <RefreshCw className="h-3 w-3 mr-1" />
               Check
             </Button>
+            <ClearStorageButton />
           </div>
         </CardContent>
       </Card>
@@ -71,7 +73,7 @@ const DashboardActions = ({ compact = false }: DashboardActionsProps) => {
         <div className="grid grid-cols-1 gap-3">
           <div className="space-y-1">
             <h3 className="text-sm font-medium">Data Management</h3>
-            <div className="grid grid-cols-2 gap-2 mt-1">
+            <div className="grid grid-cols-3 gap-2 mt-1">
               <Button variant="outline" size="sm" onClick={handleExportData} className="flex items-center gap-1">
                 <Download className="h-3.5 w-3.5" />
                 Export
@@ -80,6 +82,7 @@ const DashboardActions = ({ compact = false }: DashboardActionsProps) => {
                 <Upload className="h-3.5 w-3.5" />
                 Import
               </Button>
+              <ClearStorageButton />
             </div>
           </div>
 
