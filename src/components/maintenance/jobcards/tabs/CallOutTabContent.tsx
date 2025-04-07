@@ -2,12 +2,17 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import CallOutSchedule from "../CallOutSchedule";
+import { UserRole } from "@/types/user";
 
-const CallOutTabContent = () => {
+interface CallOutTabContentProps {
+  userRole: UserRole;
+}
+
+const CallOutTabContent = ({ userRole }: CallOutTabContentProps) => {
   return (
     <Card>
       <CardContent className="pt-6">
-        <CallOutSchedule />
+        <CallOutSchedule userRole={userRole} />
       </CardContent>
     </Card>
   );

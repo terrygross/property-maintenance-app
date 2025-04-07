@@ -41,7 +41,7 @@ const ReporterStation = ({ stationId }: ReporterStationProps) => {
               toast({
                 title: "Property Changed",
                 description: "The associated property was not found. Using default property instead.",
-                variant: "warning"
+                variant: "destructive"
               });
             } else {
               setStationProperty("");
@@ -60,7 +60,7 @@ const ReporterStation = ({ stationId }: ReporterStationProps) => {
             toast({
               title: "Station Not Found",
               description: "Using default property settings.",
-              variant: "warning"
+              variant: "destructive"
             });
           } else {
             setStationProperty("");
