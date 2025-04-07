@@ -1,17 +1,17 @@
 
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarClock, ClipboardList, PhoneCall, CheckSquare } from "lucide-react";
+import { CalendarClock, ClipboardList, PhoneCall, CheckSquare, MessageCircle } from "lucide-react";
 import TechHeader from "@/components/maintenance/tech/TechHeader";
 import TechLeaveTab from "@/components/maintenance/tech/TechLeaveTab";
 import TechJobsTab from "@/components/maintenance/tech/jobs/TechJobsTab";
 import TechCallOutTab from "@/components/maintenance/tech/TechCallOutTab";
 import TechComplianceLists from "@/components/maintenance/tech/TechComplianceLists";
-import ChatDrawer from "@/components/chat/ChatDrawer";
 import LoadingState from "@/components/maintenance/tech/LoadingState";
 import TechDashboardHeader from "@/components/maintenance/tech/TechDashboardHeader";
 import { useHighPriorityJobs } from "@/hooks/useHighPriorityJobs";
 import { useAssignedJobs } from "@/hooks/useAssignedJobs";
+import ChatInterface from "@/components/chat/ChatInterface";
 
 const MaintenanceTech = () => {
   const [activeTab, setActiveTab] = useState("jobs");
@@ -84,6 +84,10 @@ const MaintenanceTech = () => {
               <CheckSquare className="h-4 w-4 mr-2" />
               Compliance Lists
             </TabsTrigger>
+            <TabsTrigger value="chat">
+              <MessageCircle className="h-4 w-4 mr-2" />
+              Team Chat
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="jobs" className="space-y-4">
@@ -107,11 +111,14 @@ const MaintenanceTech = () => {
           <TabsContent value="compliance" className="space-y-4">
             <TechComplianceLists userId={currentUserId} />
           </TabsContent>
+
+          <TabsContent value="chat" className="space-y-4">
+            <div className="h-[calc(100vh-250px)]">
+              <ChatInterface currentUserId={currentUserId} />
+            </div>
+          </TabsContent>
         </Tabs>
       </div>
-
-      {/* Add the chat drawer */}
-      <ChatDrawer currentUserId={currentUserId} />
     </div>
   );
 };

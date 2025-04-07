@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { CalendarClock, ClipboardList, PhoneCall, CheckSquare } from "lucide-react";
+import { CalendarClock, ClipboardList, PhoneCall, CheckSquare, MessageCircle } from "lucide-react";
 import { useAssignedJobs } from "@/hooks/jobs/useAssignedJobs";
 import { useHighPriorityJobs } from "@/hooks/highPriorityJobs/useHighPriorityJobs";
 import TechJobsTab from "./jobs/TechJobsTab";
@@ -10,6 +10,7 @@ import TechLeaveTab from "./TechLeaveTab";
 import TechCallOutTab from "./TechCallOutTab";
 import TechComplianceLists from "./TechComplianceLists";
 import TechDashboardHeader from "./TechDashboardHeader";
+import ChatInterface from "@/components/chat/ChatInterface";
 
 interface TechnicianInterfaceSimulationProps {
   technicianId: string;
@@ -67,7 +68,7 @@ const TechnicianInterfaceSimulation: React.FC<TechnicianInterfaceSimulationProps
                 />
                 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                  <TabsList className="mb-4 w-full grid grid-cols-4 h-auto">
+                  <TabsList className="mb-4 w-full grid grid-cols-5 h-auto">
                     <TabsTrigger value="jobs" className="flex flex-col py-2 px-2 h-auto text-xs">
                       <ClipboardList className="h-4 w-4 mb-1" />
                       Jobs
@@ -83,6 +84,10 @@ const TechnicianInterfaceSimulation: React.FC<TechnicianInterfaceSimulationProps
                     <TabsTrigger value="compliance" className="flex flex-col py-2 px-2 h-auto text-xs">
                       <CheckSquare className="h-4 w-4 mb-1" />
                       Compliance
+                    </TabsTrigger>
+                    <TabsTrigger value="chat" className="flex flex-col py-2 px-2 h-auto text-xs">
+                      <MessageCircle className="h-4 w-4 mb-1" />
+                      Chat
                     </TabsTrigger>
                   </TabsList>
 
@@ -106,6 +111,12 @@ const TechnicianInterfaceSimulation: React.FC<TechnicianInterfaceSimulationProps
                   
                   <TabsContent value="compliance" className="space-y-4">
                     <TechComplianceLists userId={technicianId} />
+                  </TabsContent>
+                  
+                  <TabsContent value="chat" className="space-y-4">
+                    <div className="h-[250px]">
+                      <ChatInterface currentUserId={technicianId} />
+                    </div>
                   </TabsContent>
                 </Tabs>
               </div>
