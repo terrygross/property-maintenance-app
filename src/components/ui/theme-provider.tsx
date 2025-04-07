@@ -13,14 +13,29 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
     setMounted(true);
   }, []);
 
-  const onThemeChange = React.useCallback((theme: string | undefined) => {
-    if (theme) {
+  // Set up a listener for theme changes to store in localStorage
+  React.useEffect(() => {
+    const handleThemeChange = () => {
+      const theme = document.documentElement.classList.contains('dark') ? 'dark' : 
+                   document.documentElement.classList.contains('light') ? 'light' : 'system';
       localStorage.setItem("theme", theme);
-    }
+    };
+
+    // Initial check
+    handleThemeChange();
+
+    // Set up an observer to watch for class changes on the html element
+    const observer = new MutationObserver(handleThemeChange);
+    observer.observe(document.documentElement, { 
+      attributes: true, 
+      attributeFilter: ['class'] 
+    });
+
+    return () => observer.disconnect();
   }, []);
 
   return (
-    <NextThemesProvider {...props} onThemeChange={onThemeChange}>
+    <NextThemesProvider {...props}>
       {/* Avoid rendering anything until mounting to prevent hydration mismatch */}
       {mounted ? children : <div style={{ visibility: 'hidden' }}>{children}</div>}
     </NextThemesProvider>
