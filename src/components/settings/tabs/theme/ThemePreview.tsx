@@ -2,9 +2,15 @@
 import { useFormContext } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { type ThemeFormValues } from "./themeFormSchema";
+import { colorThemeOptions } from "./themeFormSchema";
 
 export function ThemePreview() {
   const { watch } = useFormContext<ThemeFormValues>();
+  
+  const watchTheme = watch("theme");
+  const watchColorTheme = watch("colorTheme");
+  const watchPrimaryColor = watch("primaryColor");
+  const watchAccentColor = watch("accentColor");
   
   // Get preview class names based on form values
   const getPreviewClasses = () => {
@@ -18,15 +24,25 @@ export function ThemePreview() {
     return `${borderRadiusClasses[watch("borderRadius")]}`;
   };
 
+  // Get the theme name for display
+  const getThemeName = () => {
+    const selectedTheme = colorThemeOptions.find(theme => theme.value === watchColorTheme);
+    return selectedTheme ? selectedTheme.name : "Custom";
+  };
+
   return (
     <div className="pt-4 border-t">
-      <h3 className="text-lg font-medium mb-4">Preview</h3>
-      <div className="flex items-center justify-center p-6 bg-background border rounded-md">
+      <h3 className="text-lg font-medium mb-2">Preview</h3>
+      <div className="mb-2 flex items-center space-x-2">
+        <span className="text-sm font-medium">Current theme:</span>
+        <span className="text-sm">{watchTheme.charAt(0).toUpperCase() + watchTheme.slice(1)} Mode - {getThemeName()}</span>
+      </div>
+      <div className={`flex items-center justify-center p-6 bg-background border rounded-md ${watchTheme === 'dark' ? 'bg-gray-800' : 'bg-white'}`}>
         <div className="flex flex-col items-center space-y-4">
           <div className="flex space-x-2">
             <Button
               style={{ 
-                backgroundColor: watch("primaryColor"),
+                backgroundColor: watchPrimaryColor,
                 color: "#ffffff"
               }}
               className={getPreviewClasses()}
@@ -37,8 +53,8 @@ export function ThemePreview() {
               variant="outline"
               className={getPreviewClasses()}
               style={{ 
-                borderColor: watch("accentColor"),
-                color: watch("accentColor"),
+                borderColor: watchAccentColor,
+                color: watchAccentColor,
                 borderWidth: "1px"
               }}
             >
@@ -46,9 +62,9 @@ export function ThemePreview() {
             </Button>
           </div>
           <div
-            className={`bg-card p-4 border shadow-sm ${getPreviewClasses()}`}
+            className={`bg-card p-4 border shadow-sm ${getPreviewClasses()} ${watchTheme === 'dark' ? 'bg-gray-900 text-white' : 'bg-white text-gray-800'}`}
             style={{ 
-              borderColor: watch("accentColor") + "33",
+              borderColor: watchAccentColor + "33",
               borderWidth: "1px"
             }}
           >
@@ -56,6 +72,23 @@ export function ThemePreview() {
             <p className="text-sm text-muted-foreground">
               This is how cards will appear with your selected theme options
             </p>
+          </div>
+        </div>
+      </div>
+      
+      <div className="mt-4 grid grid-cols-2 gap-4">
+        <div className="flex flex-col space-y-1">
+          <span className="text-xs font-semibold">Primary Color</span>
+          <div className="flex items-center space-x-2">
+            <div className="w-4 h-4 rounded-full" style={{ backgroundColor: watchPrimaryColor }}></div>
+            <span className="text-xs">{watchPrimaryColor}</span>
+          </div>
+        </div>
+        <div className="flex flex-col space-y-1">
+          <span className="text-xs font-semibold">Accent Color</span>
+          <div className="flex items-center space-x-2">
+            <div className="w-4 h-4 rounded-full" style={{ backgroundColor: watchAccentColor }}></div>
+            <span className="text-xs">{watchAccentColor}</span>
           </div>
         </div>
       </div>

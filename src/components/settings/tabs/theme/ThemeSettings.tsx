@@ -16,6 +16,7 @@ const ThemeSettings = () => {
     resolver: zodResolver(themeFormSchema),
     defaultValues: {
       theme: "light",
+      colorTheme: "default",
       primaryColor: "#2563eb",
       accentColor: "#60a5fa",
       borderRadius: "medium",
@@ -33,6 +34,21 @@ const ThemeSettings = () => {
     setIsSubmitting(true);
     console.log("Submitting theme settings:", values);
     
+    // Apply theme changes to CSS variables
+    const root = document.documentElement;
+    
+    // Update primary and accent colors
+    const primaryHsl = hexToHSL(values.primaryColor);
+    const accentHsl = hexToHSL(values.accentColor);
+    
+    if (primaryHsl) {
+      root.style.setProperty('--primary', `${primaryHsl.h} ${primaryHsl.s}% ${primaryHsl.l}%`);
+    }
+    
+    if (accentHsl) {
+      root.style.setProperty('--accent', `${accentHsl.h} ${accentHsl.s}% ${accentHsl.l}%`);
+    }
+    
     // Simulate API call
     setTimeout(() => {
       toast({
@@ -41,6 +57,42 @@ const ThemeSettings = () => {
       });
       setIsSubmitting(false);
     }, 1000);
+  }
+
+  // Utility function to convert hex to HSL
+  function hexToHSL(hex: string): { h: number, s: number, l: number } | null {
+    // Remove the # if present
+    hex = hex.replace(/^#/, '');
+    
+    // Parse the hex values
+    const r = parseInt(hex.substring(0, 2), 16) / 255;
+    const g = parseInt(hex.substring(2, 4), 16) / 255;
+    const b = parseInt(hex.substring(4, 6), 16) / 255;
+    
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    let h = 0, s = 0, l = (max + min) / 2;
+
+    if (max !== min) {
+      const d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      
+      switch (max) {
+        case r:
+          h = (g - b) / d + (g < b ? 6 : 0);
+          break;
+        case g:
+          h = (b - r) / d + 2;
+          break;
+        case b:
+          h = (r - g) / d + 4;
+          break;
+      }
+      
+      h *= 60;
+    }
+    
+    return { h: Math.round(h), s: Math.round(s * 100), l: Math.round(l * 100) };
   }
 
   return (
