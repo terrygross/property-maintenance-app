@@ -45,3 +45,12 @@ export interface JobsContextProps {
   handleViewReporterImage: (job: Job) => void;
   handlePhotoCapture: (jobId: string, type: "before" | "after", imageUrl: string) => void;
 }
+
+export interface PriorityDialogProps {
+  showPriorityDialog: boolean;
+  setShowPriorityDialog: (show: boolean) => void;
+  selectedPriority: string;
+  setSelectedPriority: (priority: string) => void;
+  handlePriorityChange: () => void;
+}
+
