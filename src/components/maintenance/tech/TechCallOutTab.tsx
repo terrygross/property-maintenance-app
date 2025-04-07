@@ -10,7 +10,7 @@ const TechCallOutTab = () => {
         <CardTitle>My Call-Out Schedule</CardTitle>
       </CardHeader>
       <CardContent>
-        <CallOutSchedule isReadOnly={true} />
+        <CallOutSchedule isReadOnly={true} userRole="maintenance_tech" />
       </CardContent>
     </Card>
   );

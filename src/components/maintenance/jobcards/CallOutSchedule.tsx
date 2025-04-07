@@ -7,15 +7,20 @@ import { useToast } from "@/hooks/use-toast";
 import CallOutDialog from "./callout/CallOutDialog";
 import CallOutList from "./callout/CallOutList";
 import { CallOut, mockCallOutData } from "./callout/callOutTypes";
+import { UserRole } from "@/types/user";
 
 interface CallOutScheduleProps {
   isReadOnly?: boolean;
+  userRole?: UserRole;
 }
 
-const CallOutSchedule = ({ isReadOnly = false }: CallOutScheduleProps) => {
+const CallOutSchedule = ({ isReadOnly = false, userRole }: CallOutScheduleProps) => {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
+
+  // Determine if user has admin access based on their role
+  const hasAdminAccess = userRole === "admin" || userRole === "maintenance_manager";
 
   const handleSubmit = (data: any) => {
     console.log("Call-out schedule added:", data);
@@ -52,7 +57,7 @@ const CallOutSchedule = ({ isReadOnly = false }: CallOutScheduleProps) => {
     <div>
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-medium">{isReadOnly ? "My Call-Out Schedule" : "Call-Out Schedule"}</h3>
-        {!isReadOnly && (
+        {!isReadOnly && hasAdminAccess && (
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button>Schedule Call-Out</Button>
