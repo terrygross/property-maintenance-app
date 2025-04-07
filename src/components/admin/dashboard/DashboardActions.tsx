@@ -1,9 +1,9 @@
 
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Download, Upload, RefreshCw, Trash2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import ExportDataButton from "./ExportDataButton";
+import ImportDataButton from "./ImportDataButton";
+import SystemCheckButton from "./SystemCheckButton";
 import ClearStorageButton from "@/components/admin/ClearStorageButton";
 
 interface DashboardActionsProps {
@@ -11,29 +11,6 @@ interface DashboardActionsProps {
 }
 
 const DashboardActions = ({ compact = false }: DashboardActionsProps) => {
-  const { toast } = useToast();
-
-  const handleExportData = () => {
-    toast({
-      title: "Export Data",
-      description: "Data export functionality will be implemented here.",
-    });
-  };
-
-  const handleImportData = () => {
-    toast({
-      title: "Import Data",
-      description: "Data import functionality will be implemented here.",
-    });
-  };
-
-  const handleSystemCheck = () => {
-    toast({
-      title: "System Check",
-      description: "All systems are operational.",
-    });
-  };
-
   if (compact) {
     return (
       <Card className="w-full">
@@ -42,18 +19,9 @@ const DashboardActions = ({ compact = false }: DashboardActionsProps) => {
         </CardHeader>
         <CardContent className="p-3 pt-0 space-y-2">
           <div className="grid grid-cols-4 gap-1">
-            <Button variant="outline" size="sm" onClick={handleExportData} className="text-xs h-7 px-1">
-              <Download className="h-3 w-3 mr-1" />
-              Export
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleImportData} className="text-xs h-7 px-1">
-              <Upload className="h-3 w-3 mr-1" />
-              Import
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleSystemCheck} className="text-xs h-7 px-1">
-              <RefreshCw className="h-3 w-3 mr-1" />
-              Check
-            </Button>
+            <ExportDataButton size="xs" />
+            <ImportDataButton size="xs" />
+            <SystemCheckButton />
             <ClearStorageButton />
           </div>
         </CardContent>
@@ -74,29 +42,15 @@ const DashboardActions = ({ compact = false }: DashboardActionsProps) => {
           <div className="space-y-1">
             <h3 className="text-sm font-medium">Data Management</h3>
             <div className="grid grid-cols-3 gap-2 mt-1">
-              <Button variant="outline" size="sm" onClick={handleExportData} className="flex items-center gap-1">
-                <Download className="h-3.5 w-3.5" />
-                Export
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleImportData} className="flex items-center gap-1">
-                <Upload className="h-3.5 w-3.5" />
-                Import
-              </Button>
+              <ExportDataButton />
+              <ImportDataButton />
               <ClearStorageButton />
             </div>
           </div>
 
           <div className="space-y-1">
             <h3 className="text-sm font-medium">System Health</h3>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleSystemCheck} 
-              className="w-full mt-1 flex items-center justify-center gap-1"
-            >
-              <RefreshCw className="h-3.5 w-3.5" />
-              Run System Check
-            </Button>
+            <SystemCheckButton />
           </div>
         </div>
       </CardContent>
