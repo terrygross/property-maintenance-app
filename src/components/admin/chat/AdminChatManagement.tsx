@@ -2,10 +2,10 @@
 import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
-import ChatInterface from "@/components/chat/ChatInterface";
 import { useAppState } from "@/context/AppStateContext";
 import { Button } from "@/components/ui/button";
 import { Settings, ToggleLeft, Bell } from "lucide-react";
+import EnhancedChatInterface from "@/components/chat/EnhancedChatInterface";
 
 const AdminChatManagement = () => {
   const { currentUser } = useAppState();
@@ -33,7 +33,7 @@ const AdminChatManagement = () => {
         
         <TabsContent value="interface">
           <Card className="p-6 h-[calc(100vh-300px)]">
-            <ChatInterface currentUserId={currentUserId} className="h-full" />
+            <EnhancedChatInterface currentUserId={currentUserId} isAdmin={true} className="h-full" />
           </Card>
         </TabsContent>
         

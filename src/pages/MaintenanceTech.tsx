@@ -11,7 +11,7 @@ import LoadingState from "@/components/maintenance/tech/LoadingState";
 import TechDashboardHeader from "@/components/maintenance/tech/TechDashboardHeader";
 import { useHighPriorityJobs } from "@/hooks/useHighPriorityJobs";
 import { useAssignedJobs } from "@/hooks/useAssignedJobs";
-import ChatInterface from "@/components/chat/ChatInterface";
+import EnhancedChatInterface from "@/components/chat/EnhancedChatInterface";
 
 const MaintenanceTech = () => {
   const [activeTab, setActiveTab] = useState("jobs");
@@ -86,7 +86,7 @@ const MaintenanceTech = () => {
             </TabsTrigger>
             <TabsTrigger value="chat">
               <MessageCircle className="h-4 w-4 mr-2" />
-              Team Chat
+              Messages
             </TabsTrigger>
           </TabsList>
 
@@ -114,7 +114,7 @@ const MaintenanceTech = () => {
 
           <TabsContent value="chat" className="space-y-4">
             <div className="h-[calc(100vh-250px)]">
-              <ChatInterface currentUserId={currentUserId} />
+              <EnhancedChatInterface currentUserId={currentUserId} />
             </div>
           </TabsContent>
         </Tabs>

@@ -10,7 +10,7 @@ import TechLeaveTab from "./TechLeaveTab";
 import TechCallOutTab from "./TechCallOutTab";
 import TechComplianceLists from "./TechComplianceLists";
 import TechDashboardHeader from "./TechDashboardHeader";
-import ChatInterface from "@/components/chat/ChatInterface";
+import EnhancedChatInterface from "@/components/chat/EnhancedChatInterface";
 
 interface TechnicianInterfaceSimulationProps {
   technicianId: string;
@@ -115,7 +115,7 @@ const TechnicianInterfaceSimulation: React.FC<TechnicianInterfaceSimulationProps
                   
                   <TabsContent value="chat" className="space-y-4">
                     <div className="h-[250px]">
-                      <ChatInterface currentUserId={technicianId} />
+                      <EnhancedChatInterface currentUserId={technicianId} />
                     </div>
                   </TabsContent>
                 </Tabs>
