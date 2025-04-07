@@ -47,52 +47,56 @@ const StationTable = ({ stations, onEdit, onDelete }: StationTableProps) => {
 
   return (
     <>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Station ID</TableHead>
-            <TableHead>Company Name</TableHead>
-            <TableHead>Property</TableHead>
-            <TableHead>Created</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {stations.map((station) => (
-            <TableRow key={station.id}>
-              <TableCell>{station.stationId}</TableCell>
-              <TableCell>{station.companyName}</TableCell>
-              <TableCell>{getPropertyName(station.propertyId)}</TableCell>
-              <TableCell>{station.createdAt}</TableCell>
-              <TableCell className="text-right">
-                <div className="flex justify-end gap-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onEdit(station)}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleDeleteClick(station)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
-          {stations.length === 0 && (
+      <div className="overflow-auto">
+        <Table>
+          <TableHeader>
             <TableRow>
-              <TableCell colSpan={5} className="text-center py-4">
-                No reporter stations found. Click "Add Station" to create one.
-              </TableCell>
+              <TableHead>Station ID</TableHead>
+              <TableHead className="hidden sm:table-cell">Company Name</TableHead>
+              <TableHead>Property</TableHead>
+              <TableHead className="hidden md:table-cell">Created</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
-          )}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {stations.map((station) => (
+              <TableRow key={station.id}>
+                <TableCell className="font-medium">{station.stationId}</TableCell>
+                <TableCell className="hidden sm:table-cell">{station.companyName}</TableCell>
+                <TableCell>{getPropertyName(station.propertyId)}</TableCell>
+                <TableCell className="hidden md:table-cell">{station.createdAt}</TableCell>
+                <TableCell className="text-right">
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onEdit(station)}
+                    >
+                      <Edit className="h-4 w-4" />
+                      <span className="sr-only">Edit</span>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDeleteClick(station)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      <span className="sr-only">Delete</span>
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+            {stations.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-4">
+                  No reporter stations found. Click "Add Station" to create one.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
 
       <DeleteConfirmationDialog
         isOpen={deleteDialogOpen}

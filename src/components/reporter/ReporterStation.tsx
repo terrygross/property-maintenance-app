@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useAppState } from "@/context/AppStateContext";
 import ReporterStationHeader from "./ReporterStationHeader";
 import ReporterForm from "./ReporterForm";
+import { useToast } from "@/hooks/use-toast";
 
 interface ReporterStationProps {
   stationId: string;
@@ -11,13 +12,16 @@ interface ReporterStationProps {
 
 const ReporterStation = ({ stationId }: ReporterStationProps) => {
   const { properties } = useAppState();
+  const { toast } = useToast();
   
   // State to store the station's property ID
   const [stationProperty, setStationProperty] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
   
   // Find the property ID for this station from localStorage
   useEffect(() => {
     try {
+      setIsLoading(true);
       const savedStations = localStorage.getItem('reporterStations');
       if (savedStations) {
         const stations = JSON.parse(savedStations);
@@ -32,30 +36,66 @@ const ReporterStation = ({ stationId }: ReporterStationProps) => {
           } else {
             console.warn(`Property ID ${station.propertyId} not found in properties list. Using first available property.`);
             // Fallback to first property if the property ID doesn't exist
-            setStationProperty(properties.length > 0 ? properties[0].id : "");
+            if (properties.length > 0) {
+              setStationProperty(properties[0].id);
+              toast({
+                title: "Property Changed",
+                description: "The associated property was not found. Using default property instead.",
+                variant: "warning"
+              });
+            } else {
+              setStationProperty("");
+              toast({
+                title: "No Properties Available",
+                description: "No properties are available for this station.",
+                variant: "destructive"
+              });
+            }
           }
         } else {
           console.error(`Station with ID ${stationId} not found`);
           // Fallback if station not found
-          setStationProperty(properties.length > 0 ? properties[0].id : "");
+          if (properties.length > 0) {
+            setStationProperty(properties[0].id);
+            toast({
+              title: "Station Not Found",
+              description: "Using default property settings.",
+              variant: "warning"
+            });
+          } else {
+            setStationProperty("");
+          }
         }
       } else {
         console.error("No stations found in localStorage");
         // Fallback if no stations are found
-        setStationProperty(properties.length > 0 ? properties[0].id : "");
+        if (properties.length > 0) {
+          setStationProperty(properties[0].id);
+        } else {
+          setStationProperty("");
+        }
       }
     } catch (error) {
       console.error("Error finding station property:", error);
       // Fallback if error occurs
-      setStationProperty(properties.length > 0 ? properties[0].id : "");
+      if (properties.length > 0) {
+        setStationProperty(properties[0].id);
+      } else {
+        setStationProperty("");
+      }
+      toast({
+        title: "Error Loading Station",
+        description: "There was a problem loading the station configuration.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
     }
-  }, [stationId, properties]);
+  }, [stationId, properties, toast]);
 
   // Get the current property name for display
   const currentProperty = properties.find(p => p.id === stationProperty);
   const propertyName = currentProperty ? currentProperty.name : "Unknown Property";
-
-  console.log("ReporterStation - Current property:", propertyName, "ID:", stationProperty);
 
   return (
     <Card className="w-full max-w-2xl mx-auto">
@@ -63,11 +103,21 @@ const ReporterStation = ({ stationId }: ReporterStationProps) => {
         <ReporterStationHeader stationId={stationId} propertyName={propertyName} />
       </CardHeader>
       <CardContent>
-        <ReporterForm 
-          stationId={stationId} 
-          stationProperty={stationProperty} 
-          propertyName={propertyName} 
-        />
+        {isLoading ? (
+          <div className="py-8 text-center text-muted-foreground" aria-live="polite">
+            <p>Loading station configuration...</p>
+          </div>
+        ) : stationProperty ? (
+          <ReporterForm 
+            stationId={stationId} 
+            stationProperty={stationProperty} 
+            propertyName={propertyName} 
+          />
+        ) : (
+          <div className="py-8 text-center text-muted-foreground" aria-live="polite">
+            <p>No properties available for this station. Please add a property first.</p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

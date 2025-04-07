@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import JobDetailsDialog from "./JobDetailsDialog";
 import { Job } from "./jobsListUtils";
@@ -17,51 +17,102 @@ const JobsList = () => {
   const { jobs, setJobs } = useJobsData();
   const { currentUser } = useAppState();
   const isAdmin = currentUser ? hasAdminAccess(currentUser.role) : false;
+  
+  // Listen for job updates from other components
+  useEffect(() => {
+    const handleJobsUpdated = () => {
+      console.log("Jobs updated event received");
+    };
+    
+    document.addEventListener('jobsUpdated', handleJobsUpdated);
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      document.removeEventListener('jobsUpdated', handleJobsUpdated);
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+  
+  const handleStorageChange = (event: StorageEvent) => {
+    if (event.key === 'jobs' || event.key === null) {
+      console.log("Storage changed, potentially jobs updated");
+    }
+  };
 
   const handleViewDetails = (job: Job) => {
+    if (!job) {
+      console.error("Attempted to view details of undefined job");
+      return;
+    }
+    
     setSelectedJob(job);
     setShowJobDetails(true);
   };
   
   const handleMarkComplete = (jobId: string, isAdminOverride: boolean = false) => {
-    const job = jobs.find(j => j.id === jobId);
-    
-    // Check if user is admin or if the job has an after photo
-    if (!job?.photos?.after && !isAdmin) {
+    try {
+      const job = jobs.find(j => j.id === jobId);
+      
+      if (!job) {
+        console.error(`Job with ID ${jobId} not found`);
+        toast({
+          title: "Error",
+          description: "Could not find the job to mark as complete.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Check if user is admin or if the job has an after photo
+      if (!job?.photos?.after && !isAdmin) {
+        toast({
+          title: "After photo required",
+          description: "This job cannot be marked as complete until the technician uploads an 'after' photo.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      const success = updateJobStatus(jobId, "completed", isAdminOverride);
+      
+      if (success) {
+        setJobs(prevJobs => 
+          prevJobs.map(job => 
+            job.id === jobId 
+              ? { ...job, status: "completed" } 
+              : job
+          )
+        );
+        
+        toast({
+          title: "Job completed",
+          description: isAdminOverride 
+            ? "Job completed by admin override." 
+            : "The job has been marked as complete.",
+        });
+
+        // Dispatch events to notify other components
+        const event = new Event('jobsUpdated');
+        document.dispatchEvent(event);
+        window.dispatchEvent(new Event('storage'));
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to mark job as complete. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error marking job as complete:", error);
       toast({
-        title: "After photo required",
-        description: "This job cannot be marked as complete until the technician uploads an 'after' photo.",
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
-      return;
-    }
-    
-    const success = updateJobStatus(jobId, "completed", isAdminOverride);
-    
-    if (success) {
-      setJobs(prevJobs => 
-        prevJobs.map(job => 
-          job.id === jobId 
-            ? { ...job, status: "completed" } 
-            : job
-        )
-      );
-      
-      toast({
-        title: "Job completed",
-        description: isAdminOverride 
-          ? "Job completed by admin override." 
-          : "The job has been marked as complete.",
-      });
-
-      // Dispatch events to notify other components
-      const event = new Event('jobsUpdated');
-      document.dispatchEvent(event);
-      window.dispatchEvent(new Event('storage'));
     }
   };
 
-  // Here's the fix: Ensure we're properly filtering jobs by status
+  // Filter jobs by status
   const ongoingJobs = jobs.filter(job => job.status !== "completed");
   const completedJobs = jobs.filter(job => job.status === "completed");
 
@@ -79,13 +130,15 @@ const JobsList = () => {
         isAdmin={isAdmin}
       />
 
-      <JobDetailsDialog 
-        open={showJobDetails} 
-        onOpenChange={setShowJobDetails} 
-        job={selectedJob}
-        onMarkComplete={handleMarkComplete}
-        isAdmin={isAdmin}
-      />
+      {selectedJob && (
+        <JobDetailsDialog 
+          open={showJobDetails} 
+          onOpenChange={setShowJobDetails} 
+          job={selectedJob}
+          onMarkComplete={handleMarkComplete}
+          isAdmin={isAdmin}
+        />
+      )}
     </>
   );
 };

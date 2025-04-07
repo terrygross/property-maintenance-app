@@ -31,59 +31,62 @@ const PropertyTable = ({ properties, onEdit, onDelete }: PropertyTableProps) => 
 
   return (
     <>
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Property</TableHead>
-              <TableHead className="hidden md:table-cell">Location</TableHead>
-              <TableHead className="hidden md:table-cell">Units</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {properties.length === 0 ? (
+      <div className="rounded-md border overflow-hidden">
+        <div className="overflow-auto">
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">
-                  No properties found
-                </TableCell>
+                <TableHead>Property</TableHead>
+                <TableHead className="hidden md:table-cell">Location</TableHead>
+                <TableHead className="hidden md:table-cell">Units</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
-            ) : (
-              properties.map((property) => (
-                <TableRow key={property.id}>
-                  <TableCell>
-                    <div>
-                      <div className="font-medium">{property.name}</div>
-                      <div className="text-sm text-muted-foreground">{property.type}</div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">{property.address}</TableCell>
-                  <TableCell className="hidden md:table-cell">{property.units || '-'}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => onEdit(property)}
-                      >
-                        <Edit className="h-4 w-4" />
-                        <span className="sr-only">Edit</span>
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDeleteClick(property)}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                        <span className="sr-only">Delete</span>
-                      </Button>
-                    </div>
+            </TableHeader>
+            <TableBody>
+              {properties.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">
+                    No properties found
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              ) : (
+                properties.map((property) => (
+                  <TableRow key={property.id}>
+                    <TableCell>
+                      <div>
+                        <div className="font-medium">{property.name}</div>
+                        <div className="text-sm text-muted-foreground md:hidden">{property.address}</div>
+                        <div className="text-sm text-muted-foreground">{property.type}</div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">{property.address}</TableCell>
+                    <TableCell className="hidden md:table-cell">{property.units || '-'}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => onEdit(property)}
+                        >
+                          <Edit className="h-4 w-4" />
+                          <span className="sr-only">Edit</span>
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDeleteClick(property)}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                          <span className="sr-only">Delete</span>
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
 
       <DeleteConfirmationDialog
