@@ -30,6 +30,16 @@ const App = () => {
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") || "light";
     setTheme(savedTheme);
+    
+    // Listen for changes to theme in localStorage
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "theme") {
+        setTheme(e.newValue || "light");
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   return (

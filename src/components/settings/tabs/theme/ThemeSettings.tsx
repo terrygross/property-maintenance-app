@@ -12,27 +12,47 @@ const ThemeSettings = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   
+  // Get saved values from localStorage or use defaults
+  const getSavedValue = (key: string, defaultValue: any) => {
+    const saved = localStorage.getItem(key);
+    return saved !== null ? JSON.parse(saved) : defaultValue;
+  };
+  
+  // Initialize form with values from localStorage if available
   const form = useForm<ThemeFormValues>({
     resolver: zodResolver(themeFormSchema),
     defaultValues: {
-      theme: "light",
-      colorTheme: "default",
-      primaryColor: "#2563eb",
-      accentColor: "#60a5fa",
-      borderRadius: "medium",
-      enableAnimations: true,
-      highContrastMode: false,
-      fontFamily: "system",
-      customLogo: false,
-      logoUrl: "",
-      customFavicon: false,
-      faviconUrl: "",
+      theme: localStorage.getItem("theme") as "light" | "dark" | "system" || "light",
+      colorTheme: localStorage.getItem("colorTheme") || "default",
+      primaryColor: getSavedValue("primaryColor", "#2563eb"),
+      accentColor: getSavedValue("accentColor", "#60a5fa"),
+      borderRadius: getSavedValue("borderRadius", "medium"),
+      enableAnimations: getSavedValue("enableAnimations", true),
+      highContrastMode: getSavedValue("highContrastMode", false),
+      fontFamily: getSavedValue("fontFamily", "system"),
+      customLogo: getSavedValue("customLogo", false),
+      logoUrl: localStorage.getItem("logoUrl") || "",
+      customFavicon: getSavedValue("customFavicon", false),
+      faviconUrl: localStorage.getItem("faviconUrl") || "",
     },
   });
 
   function onSubmit(values: ThemeFormValues) {
     setIsSubmitting(true);
     console.log("Submitting theme settings:", values);
+    
+    // Save all theme settings to localStorage
+    localStorage.setItem("colorTheme", values.colorTheme);
+    localStorage.setItem("primaryColor", JSON.stringify(values.primaryColor));
+    localStorage.setItem("accentColor", JSON.stringify(values.accentColor));
+    localStorage.setItem("borderRadius", JSON.stringify(values.borderRadius));
+    localStorage.setItem("enableAnimations", JSON.stringify(values.enableAnimations));
+    localStorage.setItem("highContrastMode", JSON.stringify(values.highContrastMode));
+    localStorage.setItem("fontFamily", JSON.stringify(values.fontFamily));
+    localStorage.setItem("customLogo", JSON.stringify(values.customLogo));
+    localStorage.setItem("logoUrl", values.logoUrl || "");
+    localStorage.setItem("customFavicon", JSON.stringify(values.customFavicon));
+    localStorage.setItem("faviconUrl", values.faviconUrl || "");
     
     // Apply theme changes to CSS variables
     const root = document.documentElement;
@@ -48,6 +68,12 @@ const ThemeSettings = () => {
     if (accentHsl) {
       root.style.setProperty('--accent', `${accentHsl.h} ${accentHsl.s}% ${accentHsl.l}%`);
     }
+    
+    // Dispatch a storage event so other components can react to the change
+    window.dispatchEvent(new StorageEvent('storage', { 
+      key: 'colorTheme',
+      newValue: values.colorTheme
+    }));
     
     // Simulate API call
     setTimeout(() => {
