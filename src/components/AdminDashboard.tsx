@@ -77,7 +77,9 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
       )}
       
       <Tabs defaultValue="overview" className="w-full" value={activeTab} onValueChange={setActiveTab}>
-        <BackToOverviewButton activeTab={activeTab} onBackClick={handleBackToOverview} />
+        {activeTab !== "overview" && (
+          <BackToOverviewButton activeTab={activeTab} onBackClick={handleBackToOverview} />
+        )}
 
         {activeTab === "overview" && (
           <OverviewTabContent 

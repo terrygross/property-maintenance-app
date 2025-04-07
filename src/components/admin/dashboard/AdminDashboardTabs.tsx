@@ -19,6 +19,7 @@ import { UserRole } from "@/types/user";
 import BackupRestore from "@/pages/BackupRestore";
 import Reports from "@/components/maintenance/Reports";
 import AdminReportsContent from "@/components/admin/reports/AdminReportsContent";
+import AdminChatManagement from "@/components/admin/chat/AdminChatManagement";
 
 interface AdminDashboardTabsProps {
   activeTab: string;
@@ -83,11 +84,7 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({
         </TabsContent>
         
         <TabsContent value="chat">
-          <GenericTabContent 
-            title="Chat Management"
-            description="Configure chat settings and view chat history" 
-            setActiveTab={setActiveTab}
-          />
+          <AdminChatManagement />
         </TabsContent>
         
         <TabsContent value="billing">
