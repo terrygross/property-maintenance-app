@@ -15,6 +15,13 @@ export function ColorThemeSection() {
   const { control, setValue } = useFormContext<ThemeFormValues>();
 
   const handleColorThemeChange = (value: string) => {
+    // Make sure the value is a valid theme option
+    const isValidTheme = colorThemeOptions.some(theme => theme.value === value);
+    if (!isValidTheme) {
+      console.warn(`Invalid color theme value: ${value}. Using default theme.`);
+      value = "default";
+    }
+    
     // Find the selected theme
     const selectedTheme = colorThemeOptions.find(theme => theme.value === value);
     

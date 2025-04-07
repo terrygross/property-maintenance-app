@@ -5,17 +5,26 @@ import { useToast } from "@/hooks/use-toast";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ThemeForm } from "./ThemeForm";
-import { themeFormSchema, type ThemeFormValues } from "./themeFormSchema";
+import { themeFormSchema, type ThemeFormValues, colorThemeOptions } from "./themeFormSchema";
 import { ThemePreview } from "./ThemePreview";
 
 const ThemeSettings = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   
-  // Get saved values from localStorage or use defaults
+  // Get saved value from localStorage or use defaults
   const getSavedValue = (key: string, defaultValue: any) => {
     const saved = localStorage.getItem(key);
     return saved !== null ? JSON.parse(saved) : defaultValue;
+  };
+  
+  // Validate the colorTheme value from localStorage against allowed values
+  const validateColorTheme = (storedValue: string | null): ThemeFormValues['colorTheme'] => {
+    if (!storedValue) return "default";
+    
+    // Check if the stored value is one of the allowed color themes
+    const validTheme = colorThemeOptions.find(theme => theme.value === storedValue);
+    return validTheme ? (storedValue as ThemeFormValues['colorTheme']) : "default";
   };
   
   // Initialize form with values from localStorage if available
@@ -23,7 +32,7 @@ const ThemeSettings = () => {
     resolver: zodResolver(themeFormSchema),
     defaultValues: {
       theme: localStorage.getItem("theme") as "light" | "dark" | "system" || "light",
-      colorTheme: localStorage.getItem("colorTheme") || "default",
+      colorTheme: validateColorTheme(localStorage.getItem("colorTheme")),
       primaryColor: getSavedValue("primaryColor", "#2563eb"),
       accentColor: getSavedValue("accentColor", "#60a5fa"),
       borderRadius: getSavedValue("borderRadius", "medium"),

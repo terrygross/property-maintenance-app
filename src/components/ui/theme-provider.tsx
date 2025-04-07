@@ -41,6 +41,7 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
       const storedColorTheme = localStorage.getItem("colorTheme");
       
       if (storedColorTheme) {
+        // Make sure the stored theme value is a valid theme
         const themeOption = colorThemeOptions.find(
           (option) => option.value === storedColorTheme
         );
@@ -59,6 +60,9 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
           if (accentHsl) {
             root.style.setProperty('--accent', `${accentHsl.h} ${accentHsl.s}% ${accentHsl.l}%`);
           }
+        } else {
+          // If theme is invalid, set it to default
+          localStorage.setItem("colorTheme", "default");
         }
       }
     };
