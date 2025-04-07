@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Badge } from "@/components/ui/badge";
-import { Clock, CheckCircle, AlarmClock, AlertTriangle } from "lucide-react";
+import { Clock, CheckCircle, AlarmClock, AlertTriangle, Pause } from "lucide-react";
 import { StatusBadgeProps } from "./JobCardTypes";
 
 const StatusBadge: React.FC<StatusBadgeProps> = ({ 
@@ -34,6 +34,13 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
         <Badge variant="outline" className="bg-yellow-50 text-yellow-700 flex items-center gap-1">
           <AlertTriangle className="h-3 w-3" />
           On Hold
+        </Badge>
+      );
+    case "paused":
+      return (
+        <Badge variant="outline" className="bg-amber-50 text-amber-700 flex items-center gap-1">
+          <Pause className="h-3 w-3" />
+          Paused
         </Badge>
       );
     default:

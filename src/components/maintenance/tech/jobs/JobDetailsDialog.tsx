@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import JobPhotoUpload from "../JobPhotoUpload";
 import JobPhotosViewer from "@/components/jobs/JobPhotosViewer";
 import JobComments from "./JobComments";
+import { Pause, Play } from "lucide-react";
 
 interface Job {
   id: string;
@@ -16,6 +17,8 @@ interface Job {
   priority: string;
   dueDate: Date;
   status?: string;
+  pausedReason?: string;
+  pausedAt?: string;
   photos?: {
     before?: string;
     after?: string;
@@ -51,6 +54,7 @@ const JobDetailsDialog = ({
     { value: "assigned", label: "Assigned" },
     { value: "in_progress", label: "In Progress" },
     { value: "on_hold", label: "On Hold (Waiting for Parts)" },
+    { value: "paused", label: "Paused (Waiting for Materials)" },
     { value: "completed", label: "Completed" }
   ];
   
@@ -59,6 +63,11 @@ const JobDetailsDialog = ({
     if (handleUpdateJobStatus) {
       handleUpdateJobStatus(selectedJob.id, value);
     }
+  };
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "N/A";
+    return new Date(dateString).toLocaleString();
   };
   
   return (
@@ -100,6 +109,29 @@ const JobDetailsDialog = ({
               </Select>
             </div>
           </div>
+          
+          {/* Display pause information if job is paused */}
+          {selectedJob.status === "paused" && (
+            <div className="border rounded-md p-3 bg-amber-50">
+              <div className="flex items-center gap-2">
+                <Pause className="h-4 w-4 text-amber-700" />
+                <p className="font-medium text-amber-700">Job Paused</p>
+              </div>
+              <p className="text-sm mt-1">Reason: {selectedJob.pausedReason || "Waiting for materials"}</p>
+              <p className="text-sm">Paused at: {formatDate(selectedJob.pausedAt)}</p>
+              
+              {handleUpdateJobStatus && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="mt-2"
+                  onClick={() => handleUpdateJobStatus(selectedJob.id, "in_progress")}
+                >
+                  <Play className="h-4 w-4 mr-1" /> Resume Job
+                </Button>
+              )}
+            </div>
+          )}
           
           {/* Use JobPhotosViewer for existing photos */}
           {(selectedJob.photos?.reporter || selectedJob.photos?.before || selectedJob.photos?.after) && (

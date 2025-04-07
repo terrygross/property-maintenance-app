@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Job } from "./JobCardTypes";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Pause, Play } from "lucide-react";
 
 interface JobActionButtonsProps {
   job: Job;
@@ -46,6 +47,26 @@ const JobActionButtons = ({
     }
   };
 
+  const handlePauseJob = () => {
+    if (onUpdateStatus) {
+      onUpdateStatus(job.id, "paused");
+      toast({
+        title: "Job Paused",
+        description: "This job is now paused while waiting for materials. You'll receive daily reminders until it's completed.",
+      });
+    }
+  };
+
+  const handleUnpauseJob = () => {
+    if (onUpdateStatus) {
+      onUpdateStatus(job.id, "in_progress");
+      toast({
+        title: "Job Resumed",
+        description: "This job is now back in progress.",
+      });
+    }
+  };
+
   // Determine button size based on screen size
   const buttonSize = isMobile ? "xs" : "sm";
 
@@ -62,7 +83,29 @@ const JobActionButtons = ({
         </Button>
       )}
       
-      {(onUpdateStatus || isAdmin) && status !== "completed" && (
+      {status === "paused" && onUpdateStatus && (
+        <Button
+          size={buttonSize}
+          variant="secondary"
+          onClick={handleUnpauseJob}
+          className="mb-1 w-full md:w-auto"
+        >
+          <Play className="h-4 w-4 mr-1" /> Resume Job
+        </Button>
+      )}
+      
+      {status === "in_progress" && onUpdateStatus && (
+        <Button
+          size={buttonSize}
+          variant="outline"
+          onClick={handlePauseJob}
+          className="mb-1 w-full md:w-auto"
+        >
+          <Pause className="h-4 w-4 mr-1" /> Pause Job
+        </Button>
+      )}
+      
+      {(onUpdateStatus || isAdmin) && status !== "completed" && status !== "paused" && (
         <Button 
           size={buttonSize} 
           variant={status === "in_progress" ? "outline" : "secondary"} 

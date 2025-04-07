@@ -12,10 +12,13 @@ import TechDashboardHeader from "@/components/maintenance/tech/TechDashboardHead
 import { useHighPriorityJobs } from "@/hooks/useHighPriorityJobs";
 import { useAssignedJobs } from "@/hooks/useAssignedJobs";
 import EnhancedChatInterface from "@/components/chat/EnhancedChatInterface";
+import { useToast } from "@/hooks/use-toast";
+import { checkPausedJobsForReminders } from "@/components/maintenance/tech/jobs/utils/statusUtils";
 
 const MaintenanceTech = () => {
   const [activeTab, setActiveTab] = useState("jobs");
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   // Both string "1" and the special ID for Tristan from the compliance list
   // Using both IDs to ensure we catch all assigned compliance lists for Tristan
@@ -50,6 +53,48 @@ const MaintenanceTech = () => {
   const handleAlertClick = () => {
     // Navigate to the jobs tab
     setActiveTab("jobs");
+  };
+
+  // Set up daily check for paused jobs
+  useEffect(() => {
+    // Check for paused jobs that need reminders on component mount
+    const pausedJobs = checkPausedJobsForReminders();
+    
+    // Show notifications for jobs that need reminders
+    pausedJobs.forEach(job => {
+      toast({
+        title: "Paused Job Reminder",
+        description: `"${job.title}" has been paused for ${getDaysSincePaused(job.pausedAt)} days. Please check on its status.`,
+        variant: "default",
+      });
+    });
+    
+    // Set up interval to check daily (for demo, we'll check more frequently)
+    const intervalId = setInterval(() => {
+      const pausedJobs = checkPausedJobsForReminders();
+      pausedJobs.forEach(job => {
+        toast({
+          title: "Paused Job Reminder",
+          description: `"${job.title}" has been paused for ${getDaysSincePaused(job.pausedAt)} days. Please check on its status.`,
+          variant: "default",
+        });
+      });
+    }, 60000 * 60); // Every hour (for demo purposes)
+    
+    return () => clearInterval(intervalId);
+  }, [toast]);
+  
+  // Helper function to calculate days since job was paused
+  const getDaysSincePaused = (pausedAt: string) => {
+    if (!pausedAt) return 0;
+    
+    const now = new Date();
+    const pausedDate = new Date(pausedAt);
+    const millisecondsPerDay = 24 * 60 * 60 * 1000;
+    
+    return Math.floor(
+      (now.getTime() - pausedDate.getTime()) / millisecondsPerDay
+    );
   };
 
   if (loading) {

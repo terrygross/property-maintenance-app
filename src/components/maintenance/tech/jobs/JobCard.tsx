@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle, CheckCircle, Edit } from "lucide-react";
+import { AlertCircle, CheckCircle, Edit, Pause } from "lucide-react";
 import { JobCardProps } from "./JobCardTypes";
 import StatusBadge from "./StatusBadge";
 import PriorityDialog from "./PriorityDialog";
@@ -22,6 +22,7 @@ const JobCard = ({
 }: JobCardProps) => {
   const isHighPriority = job.priority === "high";
   const isAccepted = job.accepted;
+  const isPaused = job.status === "paused";
   const status = job.status || "assigned";
   const { toast } = useToast();
   const isMobile = useIsMobile();
@@ -44,13 +45,18 @@ const JobCard = ({
     ? job.comments[job.comments.length - 1] 
     : null;
   
+  // Calculate days paused if job is paused
+  const daysPaused = isPaused && job.pausedAt ? 
+    Math.floor((new Date().getTime() - new Date(job.pausedAt).getTime()) / (1000 * 3600 * 24)) : 0;
+  
   return (
-    <div key={job.id} className={`border rounded-lg p-3 md:p-4 ${isHighPriority && !isAccepted ? 'border-red-500 bg-red-50' : ''}`}>
+    <div key={job.id} className={`border rounded-lg p-3 md:p-4 ${isHighPriority && !isAccepted ? 'border-red-500 bg-red-50' : ''} ${isPaused ? 'border-amber-300 bg-amber-50' : ''}`}>
       <div className="flex flex-col md:flex-row md:items-start md:justify-between">
         <div className="flex-grow">
           <div className="flex flex-wrap items-center gap-2 mb-2">
             {isHighPriority && !isAccepted && <AlertCircle className="h-4 w-4 text-red-600 animate-pulse" />}
             {isHighPriority && isAccepted && <CheckCircle className="h-4 w-4 text-green-600" />}
+            {isPaused && <Pause className="h-4 w-4 text-amber-600" />}
             <h3 className="font-medium">{job.title}</h3>
             <Badge className={`${getPriorityColor(job.priority)} text-xs`}>
               {job.priority.charAt(0).toUpperCase() + job.priority.slice(1)}
@@ -69,6 +75,14 @@ const JobCard = ({
           <p className="text-xs mt-2">
             Due: {job.dueDate.toLocaleDateString()}
           </p>
+          
+          {/* Display pause information if job is paused */}
+          {isPaused && (
+            <div className="mt-2 text-xs text-amber-700">
+              <p>Paused: {daysPaused} {daysPaused === 1 ? 'day' : 'days'} ago</p>
+              <p>Reason: {job.pausedReason || "Waiting for materials"}</p>
+            </div>
+          )}
           
           <PhotoBadges 
             job={job} 

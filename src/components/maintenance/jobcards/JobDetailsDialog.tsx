@@ -3,7 +3,7 @@ import React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, Check, ShieldAlert } from "lucide-react";
+import { AlertTriangle, Check, ShieldAlert, Pause, Play } from "lucide-react";
 import { getPriorityColor } from "../tech/jobs/JobUtils";
 
 interface Job {
@@ -13,6 +13,8 @@ interface Job {
   priority: string;
   dueDate: Date;
   status?: string;
+  pausedAt?: string;
+  pausedReason?: string;
   photos?: {
     before?: string;
     after?: string;
@@ -33,7 +35,7 @@ const JobDetailsDialog = ({
   onOpenChange,
   selectedJob,
   onUpdateStatus,
-  isAdmin = false
+  isAdmin = true
 }: JobDetailsDialogProps) => {
   if (!selectedJob) return null;
   
@@ -41,6 +43,17 @@ const JobDetailsDialog = ({
     onUpdateStatus(selectedJob.id, "completed");
     onOpenChange(false);
   };
+  
+  const handleResumeJob = () => {
+    onUpdateStatus(selectedJob.id, "in_progress");
+    onOpenChange(false);
+  };
+  
+  const isPaused = selectedJob.status === "paused";
+  
+  // Calculate days paused if job is paused
+  const daysPaused = isPaused && selectedJob.pausedAt ? 
+    Math.floor((new Date().getTime() - new Date(selectedJob.pausedAt).getTime()) / (1000 * 3600 * 24)) : 0;
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -70,6 +83,29 @@ const JobDetailsDialog = ({
               <p className="text-sm">{selectedJob.dueDate.toLocaleDateString()}</p>
             </div>
           </div>
+          
+          {/* Display pause information if job is paused */}
+          {isPaused && (
+            <div className="border rounded-md p-3 bg-amber-50">
+              <div className="flex items-center gap-2">
+                <Pause className="h-4 w-4 text-amber-700" />
+                <p className="font-medium text-amber-700">Job Paused</p>
+              </div>
+              <p className="text-sm mt-1">Reason: {selectedJob.pausedReason || "Waiting for materials"}</p>
+              <p className="text-sm">Paused for: {daysPaused} {daysPaused === 1 ? 'day' : 'days'}</p>
+              
+              {isAdmin && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="mt-2"
+                  onClick={handleResumeJob}
+                >
+                  <Play className="h-4 w-4 mr-1" /> Resume Job
+                </Button>
+              )}
+            </div>
+          )}
           
           <div className="border-t pt-4">
             <h4 className="font-medium mb-2">Job Photos</h4>
@@ -129,7 +165,7 @@ const JobDetailsDialog = ({
           </div>
           
           <div className="flex justify-between">
-            {selectedJob.status !== "completed" && (selectedJob.photos?.after || isAdmin) && (
+            {selectedJob.status !== "completed" && !isPaused && (selectedJob.photos?.after || isAdmin) && (
               <Button 
                 variant="outline" 
                 className={isAdmin && !selectedJob.photos?.after ? "bg-amber-50 hover:bg-amber-100" : "bg-green-50 hover:bg-green-100"}
@@ -139,9 +175,21 @@ const JobDetailsDialog = ({
                 {isAdmin && !selectedJob.photos?.after ? "Admin Override: Mark Complete" : "Mark Complete"}
               </Button>
             )}
-            <div className={(selectedJob.status !== "completed" && (selectedJob.photos?.after || isAdmin)) ? "ml-auto" : "w-full"}>
+            
+            {isPaused && isAdmin && (
               <Button 
-                className={(selectedJob.status !== "completed" && (selectedJob.photos?.after || isAdmin)) ? "" : "w-full"} 
+                variant="outline"
+                className="bg-blue-50 hover:bg-blue-100"
+                onClick={handleResumeJob}
+              >
+                <Play className="h-4 w-4 mr-1" />
+                Resume Job
+              </Button>
+            )}
+            
+            <div className={(selectedJob.status !== "completed" && !isPaused && (selectedJob.photos?.after || isAdmin) || (isPaused && isAdmin)) ? "ml-auto" : "w-full"}>
+              <Button 
+                className={(selectedJob.status !== "completed" && !isPaused && (selectedJob.photos?.after || isAdmin) || (isPaused && isAdmin)) ? "" : "w-full"} 
                 onClick={() => onOpenChange(false)}
               >
                 Close
