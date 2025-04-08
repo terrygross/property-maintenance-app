@@ -78,6 +78,13 @@ const ThemeSettings = () => {
       root.style.setProperty('--accent', `${accentHsl.h} ${accentHsl.s}% ${accentHsl.l}%`);
     }
     
+    // Dispatch custom event for theme change within the same window
+    window.dispatchEvent(
+      new CustomEvent('themeChange', { 
+        detail: { theme: values.colorTheme } 
+      })
+    );
+    
     // Dispatch a storage event so other components can react to the change
     window.dispatchEvent(new StorageEvent('storage', { 
       key: 'colorTheme',

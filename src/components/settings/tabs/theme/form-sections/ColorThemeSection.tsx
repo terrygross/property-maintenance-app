@@ -49,6 +49,21 @@ export function ColorThemeSection() {
       localStorage.setItem("colorTheme", value);
       localStorage.setItem("primaryColor", JSON.stringify(selectedTheme.primaryColor));
       localStorage.setItem("accentColor", JSON.stringify(selectedTheme.accentColor));
+      
+      // Dispatch custom event for theme change within the same window
+      window.dispatchEvent(
+        new CustomEvent('themeChange', { 
+          detail: { theme: value } 
+        })
+      );
+      
+      // Also dispatch a storage event for other windows
+      window.dispatchEvent(
+        new StorageEvent('storage', { 
+          key: 'colorTheme',
+          newValue: value
+        })
+      );
     }
   };
   
