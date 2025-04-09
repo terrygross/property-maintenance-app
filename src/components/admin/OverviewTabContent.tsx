@@ -20,6 +20,11 @@ interface OverviewTabContentProps {
 const OverviewTabContent = ({ setActiveTab, unassignedJobs = [] }: OverviewTabContentProps) => {
   const { users, properties } = useAppState();
   
+  // Debug jobs data
+  console.log("OverviewTabContent - Unassigned jobs:", unassignedJobs);
+  console.log("OverviewTabContent - High priority unassigned jobs:", 
+    unassignedJobs.filter(job => job.priority === "high" || job.highPriority === true));
+  
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">Admin Dashboard</h1>
@@ -33,6 +38,12 @@ const OverviewTabContent = ({ setActiveTab, unassignedJobs = [] }: OverviewTabCo
             const isReporterTab = tab.id === "reporter";
             const hasUnassignedJobs = unassignedJobs.length > 0;
             const hasHighPriorityUnassignedJobs = isReporterTab && hasHighPriorityJobs(unassignedJobs);
+            
+            // Log for debugging reporter card
+            if (isReporterTab) {
+              console.log("Reporter tab card - Has high priority jobs:", hasHighPriorityUnassignedJobs);
+              console.log("Reporter tab card - Unassigned job count:", unassignedJobs.length);
+            }
             
             const count = getTabCount(tab.id, users, properties, unassignedJobs);
             

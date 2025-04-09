@@ -28,6 +28,8 @@ export const useReporterJobs = () => {
           
           if (unassignedJobs.length === 0) {
             console.log("No unassigned jobs found in localStorage");
+          } else {
+            console.log("First unassigned job:", unassignedJobs[0]);
           }
           
           // Map the jobs to include priority and other required properties
@@ -40,6 +42,11 @@ export const useReporterJobs = () => {
               priority = "high";
             } else if (priority === "high" && !highPriorityFlag) {
               highPriorityFlag = true;
+            }
+            
+            // Log for debugging
+            if (priority === "high" || highPriorityFlag) {
+              console.log("Found high priority job:", job.id, "priority:", priority, "highPriority:", highPriorityFlag);
             }
             
             return {
@@ -58,10 +65,12 @@ export const useReporterJobs = () => {
           });
           
           // Notify about high priority jobs when they're first loaded
-          const highPriorityJobs = jobsWithPhotos.filter((job: JobCardProps) => 
+          const highPriorityJobs = jobsWithPhotos.filter((job) => 
             (job.priority === "high" || job.highPriority === true) && 
             !job.notificationSent
           );
+          
+          console.log("High priority jobs that need notification:", highPriorityJobs.length);
           
           if (highPriorityJobs.length > 0) {
             // Get all technicians
@@ -70,7 +79,7 @@ export const useReporterJobs = () => {
             );
             
             // Send notifications for each high priority job
-            highPriorityJobs.forEach((job: JobCardProps) => {
+            highPriorityJobs.forEach((job) => {
               notifyTechnicianTeam(technicians, job.title, job.property);
               
               // Mark job as notified so we don't send duplicate notifications

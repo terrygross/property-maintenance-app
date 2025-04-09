@@ -17,7 +17,9 @@ export const getTabCount = (tabId: string, users: any[], properties: any[], unas
     case "users": return technicianCount;
     case "properties": return properties.length;
     case "maintenance": return contractorCount;
-    case "reporter": return unassignedJobs.length > 0 ? unassignedJobs.length : 0; // Ensure we return 0 if no jobs
+    case "reporter": 
+      console.log(`Reporter tab count: ${unassignedJobs.length}`);
+      return unassignedJobs.length;
     case "tech-view": return technicianCount;
     case "reports": return 4;
     case "chat": return 12;
@@ -105,5 +107,7 @@ export const getIconColor = (index: number): string => {
 
 // Check if any jobs are high priority
 export const hasHighPriorityJobs = (jobs: any[]): boolean => {
-  return jobs.some(job => job.priority === "high" || job.highPriority === true);
+  const highPriorityJobs = jobs.filter(job => job.priority === "high" || job.highPriority === true);
+  console.log(`hasHighPriorityJobs check - Found ${highPriorityJobs.length} high priority jobs out of ${jobs.length} total`);
+  return highPriorityJobs.length > 0;
 };

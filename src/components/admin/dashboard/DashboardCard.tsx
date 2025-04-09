@@ -32,13 +32,16 @@ const DashboardCard = ({
       ? "Base (2) + (1) Additional station"
       : description;
       
-  const borderClass = hasAlert ? "border-red-400" : "border-2";
+  const borderClass = hasAlert ? "border-red-400 border-2" : "border";
   const iconClass = hasAlert ? "text-red-500" : iconColorClass;
+  const animationClass = hasAlert ? "animate-pulse" : "";
+
+  console.log(`DashboardCard ${id}: hasAlert=${hasAlert}, count=${count}`);
 
   return (
     <Card 
       key={id}
-      className={`${bgColorClass} transition-colors cursor-pointer ${borderClass}`}
+      className={`${bgColorClass} transition-colors cursor-pointer ${borderClass} ${animationClass}`}
       onClick={onClick}
     >
       <CardHeader className="pb-2">
