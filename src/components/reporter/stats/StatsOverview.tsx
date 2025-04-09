@@ -7,8 +7,8 @@ import { Users, AlertTriangle, History, CheckCircle } from "lucide-react";
 const StatsOverview = () => {
   const { reporterStations, additionalStations } = useAppState();
   const [unprocessedReportsCount, setUnprocessedReportsCount] = useState(0);
-  const [recentlyAssignedCount, setRecentlyAssignedCount] = useState(12); // Default value
-  const [completedJobsCount, setCompletedJobsCount] = useState(28); // Default value
+  const [recentlyAssignedCount, setRecentlyAssignedCount] = useState(0);
+  const [completedJobsCount, setCompletedJobsCount] = useState(0);
   
   // Load job counts from localStorage
   useEffect(() => {
@@ -36,7 +36,7 @@ const StatsOverview = () => {
             new Date(job.assignedDate || job.reportDate) >= sevenDaysAgo
           ).length;
           
-          setRecentlyAssignedCount(recentAssigned || 12); // Use 12 if no data
+          setRecentlyAssignedCount(recentAssigned);
           
           // Count completed jobs (last 30 days)
           const thirtyDaysAgo = new Date();
@@ -47,7 +47,14 @@ const StatsOverview = () => {
             new Date(job.completedDate || job.reportDate) >= thirtyDaysAgo
           ).length;
           
-          setCompletedJobsCount(completed || 28); // Use 28 if no data
+          setCompletedJobsCount(completed);
+          
+          // Log for debugging
+          console.log("Stats Overview - Job counts:", {
+            unassigned: unassignedCount,
+            recentAssigned,
+            completed
+          });
         }
       } catch (error) {
         console.error("Error loading job counts:", error);

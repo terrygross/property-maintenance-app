@@ -32,8 +32,10 @@ const HighPriorityAlert = ({ count, onClick }: HighPriorityAlertProps) => {
         "transition-colors duration-200",
         isFlashing ? "bg-red-600" : "bg-red-400",
         "animate-pulse hover:bg-red-700",
-        "shadow-lg" // Add shadow for more emphasis
+        "shadow-lg", // Add shadow for more emphasis
+        "h-8 w-8" // Set explicit size
       )}
+      aria-label={`${count} high priority alerts`}
     >
       <AlertCircle className="h-6 w-6 text-white" />
       <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-white text-xs font-bold text-red-600 border border-red-600">

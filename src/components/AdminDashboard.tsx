@@ -25,6 +25,14 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
   const location = useLocation();
   const { jobCards: unassignedJobs } = useReporterJobs();
   
+  // Log the unassigned jobs for debugging
+  useEffect(() => {
+    console.log("AdminDashboard - Unassigned jobs:", unassignedJobs.length);
+    if (unassignedJobs.length > 0) {
+      console.log("First unassigned job:", unassignedJobs[0]);
+    }
+  }, [unassignedJobs]);
+  
   const currentUserId = "4";
 
   const technicians = users.filter(user => 
@@ -62,7 +70,7 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
   
   const handleAlertClick = () => {
     // Navigate to jobs tab which will show high priority jobs
-    setActiveTab("jobs");
+    setActiveTab("reporter");
   };
 
   return (

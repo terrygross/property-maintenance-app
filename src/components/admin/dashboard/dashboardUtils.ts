@@ -102,3 +102,8 @@ export const getIconColor = (index: number): string => {
   ];
   return colorClasses[index % colorClasses.length];
 };
+
+// Check if any jobs are high priority
+export const hasHighPriorityJobs = (jobs: any[]): boolean => {
+  return jobs.some(job => job.priority === "high" || job.highPriority === true);
+};

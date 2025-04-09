@@ -9,7 +9,7 @@ import { ComplianceProvider } from "@/context/ComplianceContext";
 import { getCardDescription } from "./dashboard/dashboardUtils";
 import DashboardCard from "./dashboard/DashboardCard";
 import { JobCardProps } from "@/components/job/jobCardTypes";
-import { getCardStyles, getIconColor, getTabCount } from "./dashboard/dashboardUtils";
+import { getCardStyles, getIconColor, getTabCount, hasHighPriorityJobs } from "./dashboard/dashboardUtils";
 import { useAppState } from "@/context/AppStateContext";
 
 interface OverviewTabContentProps {
@@ -29,7 +29,11 @@ const OverviewTabContent = ({ setActiveTab, unassignedJobs = [] }: OverviewTabCo
         {adminTabs
           .filter(tab => tab.id !== "overview" && tab.id !== "recycle-bin")
           .map((tab, index) => {
-            const hasReportedJobs = tab.id === "reporter" && unassignedJobs.length > 0;
+            // Check if this is the reporter tab and if there are high priority jobs
+            const isReporterTab = tab.id === "reporter";
+            const hasUnassignedJobs = unassignedJobs.length > 0;
+            const hasHighPriorityUnassignedJobs = isReporterTab && hasHighPriorityJobs(unassignedJobs);
+            
             const count = getTabCount(tab.id, users, properties, unassignedJobs);
             
             return (
@@ -40,10 +44,10 @@ const OverviewTabContent = ({ setActiveTab, unassignedJobs = [] }: OverviewTabCo
                 icon={tab.icon}
                 count={count}
                 description={getCardDescription(tab.id)}
-                bgColorClass={getCardStyles(index, hasReportedJobs)}
+                bgColorClass={getCardStyles(index, hasHighPriorityUnassignedJobs)}
                 iconColorClass={getIconColor(index)}
                 onClick={() => setActiveTab && setActiveTab(tab.id)}
-                hasAlert={hasReportedJobs}
+                hasAlert={hasHighPriorityUnassignedJobs}
               />
             );
           })}

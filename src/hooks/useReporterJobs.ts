@@ -34,8 +34,12 @@ export const useReporterJobs = () => {
           const jobsWithPhotos = unassignedJobs.map((job: any) => {
             // Convert highPriority flag to priority value if needed
             let priority = job.priority || "medium";
-            if (job.highPriority === true && priority !== "high") {
+            let highPriorityFlag = job.highPriority === true;
+            
+            if (highPriorityFlag && priority !== "high") {
               priority = "high";
+            } else if (priority === "high" && !highPriorityFlag) {
+              highPriorityFlag = true;
             }
             
             return {
@@ -48,7 +52,8 @@ export const useReporterJobs = () => {
               status: job.status || "unassigned",
               reporterPhoto: job.imageUrl, // Include the imageUrl as reporterPhoto
               imageUrl: job.imageUrl, // Also keep imageUrl for backward compatibility
-              highPriority: job.highPriority || priority === "high" // Ensure highPriority flag is set
+              highPriority: highPriorityFlag, // Ensure highPriority flag matches priority
+              notificationSent: job.notificationSent || false
             };
           });
           
@@ -76,17 +81,19 @@ export const useReporterJobs = () => {
                   j.id === job.id ? { ...j, notificationSent: true } : j
                 );
                 localStorage.setItem('reporterJobs', JSON.stringify(updatedJobs));
-                
-                // Dispatch an event to notify other components
-                document.dispatchEvent(new CustomEvent('jobsUpdated'));
               }
             });
           }
           
+          // Log detailed job info for debugging
+          console.log("Jobs with high priority:", jobsWithPhotos.filter(j => 
+            j.priority === "high" || j.highPriority === true
+          ).length);
+          
           setJobCards(jobsWithPhotos);
           console.log("Loaded reporter jobs:", jobsWithPhotos.length);
           
-          // Ensure we always fire an event when jobs are loaded
+          // Always dispatch an event when jobs are loaded to ensure UI updates
           document.dispatchEvent(new CustomEvent('jobsUpdated'));
         } else {
           console.log("No reporter jobs found in localStorage");

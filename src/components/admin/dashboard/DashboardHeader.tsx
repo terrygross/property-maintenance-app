@@ -6,7 +6,7 @@ import HighPriorityAlert from "@/components/alerts/HighPriorityAlert";
 
 interface DashboardHeaderProps {
   highPriorityJobs: any[];
-  unassignedJobs?: any[]; // Add unassignedJobs prop
+  unassignedJobs?: any[]; 
   onAlertClick: () => void;
   onNewTaskClick: () => void;
 }
