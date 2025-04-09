@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import HighPriorityAlert from "@/components/alerts/HighPriorityAlert";
@@ -18,8 +18,18 @@ const DashboardHeader = ({
   onNewTaskClick 
 }: DashboardHeaderProps) => {
   // Calculate total alerts (high priority jobs + unassigned jobs with high priority)
-  const highPriorityUnassigned = unassignedJobs.filter(job => job.priority === "high");
+  const highPriorityUnassigned = unassignedJobs.filter(job => 
+    job.priority === "high" || job.highPriority === true
+  );
+  
   const totalAlertCount = highPriorityJobs.length + highPriorityUnassigned.length;
+  
+  // Log alert count for debugging
+  useEffect(() => {
+    console.log("High priority jobs count:", highPriorityJobs.length);
+    console.log("High priority unassigned jobs count:", highPriorityUnassigned.length);
+    console.log("Total alert count:", totalAlertCount);
+  }, [highPriorityJobs.length, highPriorityUnassigned.length, totalAlertCount]);
   
   return (
     <div className="flex justify-between items-center mb-6">

@@ -4,12 +4,24 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { UseFormReturn } from "react-hook-form";
 import { ReporterFormValues } from "../ReporterForm";
 import { AlertTriangle } from "lucide-react";
+import { useEffect } from "react";
 
 interface HighPriorityFieldProps {
   form: UseFormReturn<ReporterFormValues>;
 }
 
 const HighPriorityField = ({ form }: HighPriorityFieldProps) => {
+  // When highPriority is checked, also set priority to "high"
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name === "highPriority" && value.highPriority) {
+        form.setValue("priority", "high");
+      }
+    });
+    
+    return () => subscription.unsubscribe();
+  }, [form]);
+
   return (
     <FormField
       control={form.control}
@@ -19,7 +31,13 @@ const HighPriorityField = ({ form }: HighPriorityFieldProps) => {
           <FormControl>
             <Checkbox
               checked={field.value}
-              onCheckedChange={field.onChange}
+              onCheckedChange={(checked) => {
+                field.onChange(checked);
+                // If checked, also set priority to high
+                if (checked) {
+                  form.setValue("priority", "high");
+                }
+              }}
             />
           </FormControl>
           <div className="space-y-1 leading-none">

@@ -31,11 +31,12 @@ const HighPriorityAlert = ({ count, onClick }: HighPriorityAlertProps) => {
         "relative flex items-center justify-center p-1 rounded-full",
         "transition-colors duration-200",
         isFlashing ? "bg-red-600" : "bg-red-400",
-        "animate-pulse"
+        "animate-pulse hover:bg-red-700",
+        "shadow-lg" // Add shadow for more emphasis
       )}
     >
       <AlertCircle className="h-6 w-6 text-white" />
-      <span className="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-white text-xs font-bold text-red-600">
+      <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-white text-xs font-bold text-red-600 border border-red-600">
         {count}
       </span>
     </button>

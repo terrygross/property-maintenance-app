@@ -19,16 +19,15 @@ export const useHighPriorityJobsMonitor = () => {
           // Get all high priority jobs regardless of technician
           const highPriorityJobs = parsedJobs
             .filter((job: any) => 
-              job.priority === "high" && 
-              job.status === "assigned" &&
-              !job.accepted
+              job.priority === "high" || 
+              job.highPriority === true  // Add this check for highPriority flag
             )
             .map((job: any) => ({
               id: job.id,
               title: job.title,
               location: job.property || job.location,
-              priority: job.priority,
-              status: job.status,
+              priority: job.priority || "high",
+              status: job.status || "unassigned",
               assignedTo: job.assignedTo,
               dueDate: new Date(job.dueDate || Date.now()),
               accepted: job.accepted || false,
@@ -41,6 +40,7 @@ export const useHighPriorityJobsMonitor = () => {
             }));
           
           setHighPriorityJobs(highPriorityJobs);
+          console.log("Found high priority jobs:", highPriorityJobs.length);
         }
       } catch (error) {
         console.error("Error monitoring high priority jobs:", error);
@@ -51,19 +51,26 @@ export const useHighPriorityJobsMonitor = () => {
     monitorHighPriorityJobs();
     
     // Set up periodic checks
-    const interval = setInterval(monitorHighPriorityJobs, 5000);
+    const interval = setInterval(monitorHighPriorityJobs, 3000); // Check every 3 seconds
     
     // Listen for storage events to update jobs when they change
     const handleStorageChange = () => {
       monitorHighPriorityJobs();
     };
     
+    // Listen for custom events as well
+    const handleJobsUpdated = () => {
+      monitorHighPriorityJobs();
+    };
+    
     window.addEventListener('storage', handleStorageChange);
+    document.addEventListener('jobsUpdated', handleJobsUpdated as EventListener);
     
     // Clean up on unmount
     return () => {
       clearInterval(interval);
       window.removeEventListener('storage', handleStorageChange);
+      document.removeEventListener('jobsUpdated', handleJobsUpdated as EventListener);
     };
   }, []);
 
