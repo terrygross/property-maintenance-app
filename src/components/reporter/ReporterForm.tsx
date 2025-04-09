@@ -25,6 +25,7 @@ export interface ReporterFormValues {
   location: string;
   description: string;
   highPriority: boolean;
+  priority?: string; // Add priority field
   imageUrl?: string;
 }
 
