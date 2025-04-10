@@ -48,6 +48,57 @@ export type Database = {
         }
         Relationships: []
       }
+      reporter_jobs: {
+        Row: {
+          assigned_to: string | null
+          description: string
+          high_priority: boolean
+          id: string
+          image_url: string | null
+          location: string
+          notification_sent: boolean
+          priority: string
+          property: string
+          report_date: string
+          reported_by: string
+          status: string
+          timestamp: string
+          title: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          description: string
+          high_priority?: boolean
+          id?: string
+          image_url?: string | null
+          location: string
+          notification_sent?: boolean
+          priority?: string
+          property: string
+          report_date?: string
+          reported_by: string
+          status?: string
+          timestamp?: string
+          title: string
+        }
+        Update: {
+          assigned_to?: string | null
+          description?: string
+          high_priority?: boolean
+          id?: string
+          image_url?: string | null
+          location?: string
+          notification_sent?: boolean
+          priority?: string
+          property?: string
+          report_date?: string
+          reported_by?: string
+          status?: string
+          timestamp?: string
+          title?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

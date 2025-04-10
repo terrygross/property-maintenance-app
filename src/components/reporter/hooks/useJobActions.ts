@@ -1,7 +1,9 @@
+
 import { v4 as uuidv4 } from "uuid";
 import { useToast } from "@/hooks/use-toast";
 import { useAppState } from "@/context/AppStateContext";
 import { sendPushNotification, notifyTechnicianTeam } from "@/services/NotificationService";
+import { supabase } from "@/integrations/supabase/client";
 
 export const useJobActions = ({ jobCards, setJobCards }) => {
   const { toast } = useToast();
@@ -12,59 +14,57 @@ export const useJobActions = ({ jobCards, setJobCards }) => {
   );
 
   // Function to handle assigning a job to a technician
-  const handleAssignJob = (jobId, technicianId) => {
-    // Update job in localStorage
+  const handleAssignJob = async (jobId, technicianId) => {
+    // Update job in Supabase
     try {
-      const savedJobs = localStorage.getItem("reporterJobs");
-      if (savedJobs) {
-        const parsedJobs = JSON.parse(savedJobs);
-        
-        const updatedJobs = parsedJobs.map((job) => {
-          if (job.id === jobId) {
-            const assignedJob = {
-              ...job,
-              assignedTo: technicianId,
-              status: "assigned",
-              assignedDate: new Date().toISOString(),
-            };
-            
-            // Check if this is a high priority job
-            if (job.priority === "high") {
-              // Find the technician details to get their phone number
-              const technician = users.find(user => user.id === technicianId);
-              
-              // Send notification to the specific technician assigned
-              if (technician && technician.phone) {
-                const title = "⚠️ HIGH PRIORITY JOB ASSIGNED";
-                const message = `You have been assigned a high priority job: ${job.title}`;
-                sendPushNotification(title, { 
-                  body: message,
-                  requireInteraction: true
-                });
-              }
-            }
-            
-            return assignedJob;
-          }
-          return job;
-        });
-        
-        localStorage.setItem("reporterJobs", JSON.stringify(updatedJobs));
-        
-        // Update local state to remove assigned job
-        setJobCards(jobCards.filter((job) => job.id !== jobId));
-        
-        // Show success message
-        toast({
-          title: "Job assigned",
-          description: "The job has been successfully assigned.",
-        });
-        
-        // Dispatch custom event to notify other components
-        document.dispatchEvent(new Event("jobsUpdated"));
-        
-        return true;
+      console.log(`Assigning job ${jobId} to technician ${technicianId}`);
+      
+      const { data, error } = await supabase
+        .from('reporter_jobs')
+        .update({
+          assigned_to: technicianId,
+          status: "assigned",
+          assigned_date: new Date().toISOString()
+        })
+        .eq('id', jobId)
+        .select();
+      
+      if (error) {
+        throw error;
       }
+      
+      console.log("Assignment update result:", data);
+      
+      // Check if this is a high priority job
+      const job = jobCards.find(j => j.id === jobId);
+      if (job && (job.priority === "high" || job.highPriority)) {
+        // Find the technician details to get their phone number
+        const technician = users.find(user => user.id === technicianId);
+        
+        // Send notification to the specific technician assigned
+        if (technician && technician.phone) {
+          const title = "⚠️ HIGH PRIORITY JOB ASSIGNED";
+          const message = `You have been assigned a high priority job: ${job.title}`;
+          sendPushNotification(title, { 
+            body: message,
+            requireInteraction: true
+          });
+        }
+      }
+      
+      // Update local state to remove assigned job
+      setJobCards(jobCards.filter((job) => job.id !== jobId));
+      
+      // Show success message
+      toast({
+        title: "Job assigned",
+        description: "The job has been successfully assigned.",
+      });
+      
+      // Dispatch custom event to notify other components
+      document.dispatchEvent(new Event("jobsUpdated"));
+      
+      return true;
     } catch (error) {
       console.error("Error assigning job:", error);
       
@@ -79,31 +79,34 @@ export const useJobActions = ({ jobCards, setJobCards }) => {
   };
 
   // Function to handle resending email for a job
-  const handleResendEmail = (jobId) => {
+  const handleResendEmail = async (jobId) => {
     try {
-      const savedJobs = localStorage.getItem("reporterJobs");
-      if (savedJobs) {
-        const parsedJobs = JSON.parse(savedJobs);
+      const { data, error } = await supabase
+        .from('reporter_jobs')
+        .select('*')
+        .eq('id', jobId)
+        .single();
+      
+      if (error) {
+        throw error;
+      }
+      
+      if (data) {
+        // Mock email resend (replace with actual email service integration)
+        console.log(`[MOCK] Resending email for job ${jobId} to reporter`);
         
-        const jobToResend = parsedJobs.find((job) => job.id === jobId);
+        toast({
+          title: "Email resent",
+          description: "The email has been resent to the reporter.",
+        });
         
-        if (jobToResend) {
-          // Mock email resend (replace with actual email service integration)
-          console.log(`[MOCK] Resending email for job ${jobId} to reporter`);
-          
-          toast({
-            title: "Email resent",
-            description: "The email has been resent to the reporter.",
-          });
-          
-          return true;
-        } else {
-          toast({
-            title: "Error",
-            description: "Job not found.",
-            variant: "destructive",
-          });
-        }
+        return true;
+      } else {
+        toast({
+          title: "Error",
+          description: "Job not found.",
+          variant: "destructive",
+        });
       }
     } catch (error) {
       console.error("Error resending email:", error);

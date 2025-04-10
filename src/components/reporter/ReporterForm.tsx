@@ -14,6 +14,7 @@ import DescriptionField from "./form-fields/DescriptionField";
 import HighPriorityField from "./form-fields/HighPriorityField";
 import ImageField from "./form-fields/ImageField";
 import SubmitButton from "./form-fields/SubmitButton";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ReporterFormProps {
   stationId: string;
@@ -62,7 +63,7 @@ const ReporterForm = ({ stationId, stationProperty, propertyName }: ReporterForm
   });
 
   // Handle form submission
-  const onSubmit = (data: ReporterFormValues) => {
+  const onSubmit = async (data: ReporterFormValues) => {
     setIsSubmitting(true);
     
     try {
@@ -70,43 +71,37 @@ const ReporterForm = ({ stationId, stationProperty, propertyName }: ReporterForm
       const timestamp = new Date().toISOString();
       const reportDate = timestamp.split("T")[0];
       
-      // Generate unique ID
-      const id = `job-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-      
       // Create job object with explicit status and priority
       const jobData = {
-        id,
         title: `Maintenance Request - ${propertyName}`,
         description: data.description,
         property: propertyName,
         location: data.location,
-        reportDate,
+        report_date: timestamp,
         priority: data.highPriority ? "high" : "medium",
-        highPriority: data.highPriority, // Make sure this flag is set explicitly
-        status: "unassigned", // Explicitly set status to unassigned
-        assignedTo: null, // Explicitly set assignedTo to null
-        reportedBy: data.reporterName,
-        imageUrl: data.imageUrl,
+        high_priority: data.highPriority,
+        status: "unassigned",
+        reported_by: data.reporterName,
+        image_url: data.imageUrl,
         timestamp
       };
       
       console.log("ReporterForm - Creating new job:", jobData);
       
-      // Save to localStorage
-      const existingJobs = localStorage.getItem('reporterJobs');
-      const jobs = existingJobs ? JSON.parse(existingJobs) : [];
-      jobs.push(jobData);
+      // Save to Supabase
+      const { data: insertedJob, error } = await supabase
+        .from('reporter_jobs')
+        .insert(jobData)
+        .select();
       
-      console.log("ReporterForm - Saving jobs to localStorage, total count:", jobs.length);
-      localStorage.setItem('reporterJobs', JSON.stringify(jobs));
+      if (error) {
+        throw error;
+      }
+      
+      console.log("ReporterForm - Job saved to Supabase:", insertedJob);
       
       // Trigger custom event to refresh jobs list in other components
       document.dispatchEvent(new Event('jobsUpdated'));
-      
-      // Also trigger a storage event to notify other tabs/windows
-      window.dispatchEvent(new StorageEvent('storage', {
-        key: 'reporterJobs'
-      }));
       
       // Show success message
       toast({

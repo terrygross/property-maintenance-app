@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Property } from "@/types/property";
+import { supabase } from "@/integrations/supabase/client";
 
 // Import the smaller components
 import TaskDialogHeader from "./dialog/TaskDialogHeader";
@@ -45,7 +45,7 @@ const NewTaskDialog = ({ open, onOpenChange, technicians, properties }: NewTaskD
     });
   };
 
-  const handleCreateTask = () => {
+  const handleCreateTask = async () => {
     if (!jobTitle || !jobLocation || selectedTechs.length === 0) {
       toast({
         title: "Missing information",
@@ -56,27 +56,31 @@ const NewTaskDialog = ({ open, onOpenChange, technicians, properties }: NewTaskD
     }
 
     try {
-      const savedJobs = localStorage.getItem('reporterJobs');
-      const jobs = savedJobs ? JSON.parse(savedJobs) : [];
-      
-      selectedTechs.forEach(techId => {
-        const newJob = {
-          id: `job-${Date.now()}-${techId}`,
+      for (const techId of selectedTechs) {
+        // Create a job object
+        const jobData = {
           title: jobTitle,
           property: jobLocation,
           description: jobDescription,
           priority: priority,
+          high_priority: priority === "high",
           status: "assigned",
-          assignedTo: techId,
-          reportDate: new Date().toISOString(),
-          dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-          emailSent: true
+          assigned_to: techId,
+          report_date: new Date().toISOString(),
+          reported_by: "Admin",
+          due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+          notification_sent: true
         };
         
-        jobs.push(newJob);
-      });
-      
-      localStorage.setItem('reporterJobs', JSON.stringify(jobs));
+        // Insert into Supabase
+        const { data, error } = await supabase
+          .from('reporter_jobs')
+          .insert(jobData);
+        
+        if (error) {
+          throw error;
+        }
+      }
       
       toast({
         title: "Task created",
@@ -85,10 +89,8 @@ const NewTaskDialog = ({ open, onOpenChange, technicians, properties }: NewTaskD
       
       resetForm();
       
-      const event = new Event('jobsUpdated');
-      document.dispatchEvent(event);
-      
-      window.dispatchEvent(new Event('storage'));
+      // Dispatch event to refresh job lists
+      document.dispatchEvent(new Event('jobsUpdated'));
     } catch (error) {
       console.error("Error creating task:", error);
       toast({
