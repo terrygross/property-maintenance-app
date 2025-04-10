@@ -24,8 +24,8 @@ export const getTabCount = (tabId: string, users: any[], properties: any[], unas
     case "properties": return properties.length;
     case "maintenance": return contractorCount;
     case "reporter": 
-      // Ensure we return 0 rather than null if there are no jobs
-      return unassignedJobs && unassignedJobs.length > 0 ? unassignedJobs.length : 0;
+      // Make sure we return a value if unassignedJobs is defined, even if it's empty
+      return unassignedJobs ? unassignedJobs.length : 0;
     case "tech-view": return technicianCount;
     case "reports": return 4;
     case "chat": return 12;

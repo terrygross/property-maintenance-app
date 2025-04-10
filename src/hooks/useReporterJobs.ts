@@ -30,6 +30,7 @@ export const useReporterJobs = () => {
           );
           
           console.log("useReporterJobs - Filtered unassigned jobs:", unassignedJobs.length);
+          console.log("useReporterJobs - Raw unassigned jobs data:", unassignedJobs);
           
           if (unassignedJobs.length === 0) {
             console.log("useReporterJobs - No unassigned jobs found in localStorage");
@@ -100,12 +101,12 @@ export const useReporterJobs = () => {
           }
           
           // Log detailed job info for debugging
-          console.log("useReporterJobs - Jobs with high priority:", jobsWithPhotos.filter(j => 
+          console.log("useReporterJobs - Final jobs with high priority:", jobsWithPhotos.filter(j => 
             j.priority === "high" || j.highPriority === true
           ).length);
           
           setJobCards(jobsWithPhotos);
-          console.log("useReporterJobs - Final job cards array:", jobsWithPhotos);
+          console.log("useReporterJobs - Final job cards array length:", jobsWithPhotos.length);
           
           // Always dispatch an event when jobs are loaded to ensure UI updates
           document.dispatchEvent(new CustomEvent('jobsUpdated'));
