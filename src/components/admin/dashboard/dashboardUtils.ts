@@ -17,15 +17,19 @@ export const getTabCount = (tabId: string, users: any[], properties: any[], unas
   if (tabId === "reporter") {
     console.log(`getTabCount for reporter tab - unassignedJobs:`, unassignedJobs);
     console.log(`getTabCount for reporter tab - unassignedJobs length:`, unassignedJobs?.length || 0);
+    
+    // Force a positive integer return value for unassigned jobs
+    if (unassignedJobs && Array.isArray(unassignedJobs)) {
+      return unassignedJobs.length;
+    }
+    return 0; // Default to 0 if undefined or not an array
   }
   
   switch (tabId) {
     case "users": return technicianCount;
     case "properties": return properties.length;
     case "maintenance": return contractorCount;
-    case "reporter": 
-      // Make sure we return a value if unassignedJobs is defined, even if it's empty
-      return unassignedJobs ? unassignedJobs.length : 0;
+    case "reporter": return unassignedJobs?.length || 0; // This case is handled above, but included for completeness
     case "tech-view": return technicianCount;
     case "reports": return 4;
     case "chat": return 12;
@@ -113,7 +117,8 @@ export const getIconColor = (index: number): string => {
 
 // Check if any jobs are high priority
 export const hasHighPriorityJobs = (jobs: any[]): boolean => {
-  if (!jobs || jobs.length === 0) {
+  if (!jobs || !Array.isArray(jobs) || jobs.length === 0) {
+    console.log("hasHighPriorityJobs - No jobs or invalid jobs array");
     return false;
   }
   

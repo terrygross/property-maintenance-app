@@ -60,22 +60,32 @@ const ReporterForm = ({ stationId, stationProperty, propertyName }: ReporterForm
       location: location,
       reportDate,
       priority: isHighPriority ? "high" : "medium",
-      status: "unassigned",
+      highPriority: isHighPriority, // Make sure this flag is set explicitly
+      status: "unassigned", // Explicitly set status to unassigned
       reportedBy: name,
       imageUrl: capturedImage,
       timestamp
     };
+    
+    console.log("ReporterForm - Creating new job:", jobData);
     
     // Save to localStorage
     try {
       const existingJobs = localStorage.getItem('reporterJobs');
       const jobs = existingJobs ? JSON.parse(existingJobs) : [];
       jobs.push(jobData);
+      
+      console.log("ReporterForm - Saving jobs to localStorage, total count:", jobs.length);
       localStorage.setItem('reporterJobs', JSON.stringify(jobs));
       
       // Trigger custom event to refresh jobs list in other components
       const event = new Event('jobsUpdated');
       document.dispatchEvent(event);
+      
+      // Also trigger a storage event to notify other tabs/windows
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: 'reporterJobs'
+      }));
       
       // Show success message
       toast({

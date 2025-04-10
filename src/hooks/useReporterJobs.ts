@@ -12,11 +12,21 @@ export const useReporterJobs = () => {
   useEffect(() => {
     const loadReporterJobs = () => {
       try {
+        // Direct check of localStorage content for debugging
+        console.log("DIRECT CHECK - All localStorage keys:", Object.keys(localStorage));
+        const rawJobsData = localStorage.getItem('reporterJobs');
+        console.log("DIRECT CHECK - Raw jobs data exists:", !!rawJobsData);
+        if (rawJobsData) {
+          console.log("DIRECT CHECK - Raw jobs data length:", rawJobsData.length);
+          console.log("DIRECT CHECK - First 100 chars:", rawJobsData.substring(0, 100));
+        }
+
         const savedJobs = localStorage.getItem('reporterJobs');
         if (savedJobs) {
           const parsedJobs = JSON.parse(savedJobs);
           
           console.log("useReporterJobs - All jobs in storage:", parsedJobs.length);
+          console.log("useReporterJobs - First job in storage:", parsedJobs[0]);
           
           // Filter out jobs that are completed or already assigned to technicians
           const unassignedJobs = parsedJobs.filter((job: any) => 
@@ -56,7 +66,7 @@ export const useReporterJobs = () => {
             }
             
             return {
-              id: job.id,
+              id: job.id || `job-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
               title: job.title || "Maintenance Request",
               description: job.description || "",
               property: job.property || "Unknown Property",
@@ -65,8 +75,7 @@ export const useReporterJobs = () => {
               status: job.status || "unassigned",
               reporterPhoto: job.imageUrl, // Include the imageUrl as reporterPhoto
               imageUrl: job.imageUrl, // Also keep imageUrl for backward compatibility
-              highPriority: highPriorityFlag, // Ensure highPriority flag matches priority
-              notificationSent: job.notificationSent || false
+              highPriority: highPriorityFlag // Ensure highPriority flag matches priority
             };
           });
           

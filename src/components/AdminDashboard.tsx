@@ -31,6 +31,19 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
     console.log("AdminDashboard - Unassigned jobs total:", unassignedJobs?.length || 0);
     console.log("AdminDashboard - Raw unassigned jobs:", unassignedJobs);
     
+    // Check if localStorage has any jobs
+    try {
+      const savedJobs = localStorage.getItem('reporterJobs');
+      if (savedJobs) {
+        const parsedJobs = JSON.parse(savedJobs);
+        console.log("AdminDashboard - Direct localStorage check - Total jobs:", parsedJobs.length);
+      } else {
+        console.log("AdminDashboard - Direct localStorage check - No 'reporterJobs' key found");
+      }
+    } catch (error) {
+      console.error("AdminDashboard - Error checking localStorage:", error);
+    }
+    
     const highPriorityUnassigned = unassignedJobs?.filter(job => 
       job.priority === "high" || job.highPriority === true
     ) || [];
@@ -44,6 +57,16 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
       console.log("AdminDashboard - First high priority unassigned job:", highPriorityUnassigned[0]);
     }
   }, [highPriorityJobs, unassignedJobs]);
+  
+  // Force a periodic refresh of the data
+  useEffect(() => {
+    const refreshInterval = setInterval(() => {
+      // Dispatch event to force refresh of job data
+      document.dispatchEvent(new CustomEvent('jobsUpdated'));
+    }, 5000); // Check every 5 seconds
+    
+    return () => clearInterval(refreshInterval);
+  }, []);
   
   const currentUserId = "4";
 

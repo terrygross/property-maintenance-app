@@ -36,6 +36,7 @@ const DashboardCard = ({
   const iconClass = hasAlert ? "text-red-500" : iconColorClass;
   const animationClass = hasAlert ? "animate-pulse" : "";
 
+  // Enhanced debugging - always log card props
   console.log(`DashboardCard ${id}: hasAlert=${hasAlert}, count=${count}, description=${description}`);
 
   return (

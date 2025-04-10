@@ -39,16 +39,24 @@ const OverviewTabContent = ({ setActiveTab, unassignedJobs = [] }: OverviewTabCo
           .map((tab, index) => {
             // Check if this is the reporter tab and if there are high priority jobs
             const isReporterTab = tab.id === "reporter";
-            const hasUnassignedJobs = unassignedJobs && unassignedJobs.length > 0;
+            const hasUnassignedJobs = unassignedJobs && Array.isArray(unassignedJobs) && unassignedJobs.length > 0;
             const hasHighPriorityUnassignedJobs = isReporterTab && hasHighPriorityJobs(unassignedJobs);
             
             // Log for debugging reporter card
             if (isReporterTab) {
               console.log("Reporter tab card - Has high priority jobs:", hasHighPriorityUnassignedJobs);
-              console.log("Reporter tab card - Unassigned job count:", unassignedJobs.length);
+              console.log("Reporter tab card - Unassigned job count:", unassignedJobs?.length || 0);
+              console.log("Reporter tab card - Is array:", Array.isArray(unassignedJobs));
             }
             
-            const count = getTabCount(tab.id, users, properties, unassignedJobs);
+            // Force reporter tab count to reflect actual jobs array length
+            let count = getTabCount(tab.id, users, properties, unassignedJobs);
+            
+            // Extra safety check for reporter tab
+            if (isReporterTab && Array.isArray(unassignedJobs)) {
+              count = unassignedJobs.length;
+              console.log("Reporter tab card - Forced count to:", count);
+            }
             
             return (
               <DashboardCard
