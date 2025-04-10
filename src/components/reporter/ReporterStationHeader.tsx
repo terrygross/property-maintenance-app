@@ -1,6 +1,5 @@
 
 import React from "react";
-import { CardTitle } from "@/components/ui/card";
 
 interface ReporterStationHeaderProps {
   stationId: string;
@@ -9,13 +8,15 @@ interface ReporterStationHeaderProps {
 
 const ReporterStationHeader = ({ stationId, propertyName }: ReporterStationHeaderProps) => {
   return (
-    <>
-      <CardTitle className="text-2xl">Report Maintenance Issue</CardTitle>
-      <div className="text-sm text-muted-foreground">
-        <div>Station ID: {stationId}</div>
-        <div>Property: {propertyName}</div>
+    <div className="text-center">
+      <h2 className="text-2xl font-bold mb-1">Maintenance Request Station</h2>
+      <p className="text-muted-foreground mb-2">
+        Station ID: {stationId}
+      </p>
+      <div className="bg-blue-50 text-blue-700 px-4 py-2 rounded-md">
+        <p className="font-medium">Property: {propertyName}</p>
       </div>
-    </>
+    </div>
   );
 };
 

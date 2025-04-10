@@ -1,16 +1,17 @@
 
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { useForm, FormProvider } from "react-hook-form";
 import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
-import { Camera } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import ReporterImageCapture from "./ReporterImageCapture";
 import { useAppState } from "@/context/AppStateContext";
+import ReporterImageCapture from "./ReporterImageCapture";
+import ReporterNameField from "./form-fields/ReporterNameField";
 import PropertyField from "./form-fields/PropertyField";
+import LocationField from "./form-fields/LocationField";
+import DescriptionField from "./form-fields/DescriptionField";
+import HighPriorityField from "./form-fields/HighPriorityField";
+import ImageField from "./form-fields/ImageField";
+import SubmitButton from "./form-fields/SubmitButton";
 
 interface ReporterFormProps {
   stationId: string;
@@ -30,48 +31,54 @@ export interface ReporterFormValues {
 }
 
 const ReporterForm = ({ stationId, stationProperty, propertyName }: ReporterFormProps) => {
-  const { properties } = useAppState();
   const { toast } = useToast();
-  
-  // Form fields
-  const [name, setName] = useState("");
-  const [location, setLocation] = useState("");
-  const [issue, setIssue] = useState("");
-  const [isHighPriority, setIsHighPriority] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
-  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  // Initialize form with react-hook-form
+  const form = useForm<ReporterFormValues>({
+    defaultValues: {
+      reporterName: "",
+      propertyId: stationProperty,
+      location: "",
+      description: "",
+      highPriority: false,
+      priority: "medium"
+    }
+  });
+
+  // Handle form submission
+  const onSubmit = (data: ReporterFormValues) => {
+    setIsSubmitting(true);
     
-    // Create timestamp
-    const timestamp = new Date().toISOString();
-    const reportDate = timestamp.split("T")[0];
-    
-    // Generate unique ID
-    const id = `job-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-    
-    // Create job object with explicit status and priority
-    const jobData = {
-      id,
-      title: `Maintenance Request - ${propertyName}`,
-      description: issue,
-      property: propertyName,
-      location: location,
-      reportDate,
-      priority: isHighPriority ? "high" : "medium",
-      highPriority: isHighPriority, // Make sure this flag is set explicitly
-      status: "unassigned", // Explicitly set status to unassigned
-      assignedTo: null, // Explicitly set assignedTo to null
-      reportedBy: name,
-      imageUrl: capturedImage,
-      timestamp
-    };
-    
-    console.log("ReporterForm - Creating new job:", jobData);
-    
-    // Save to localStorage
     try {
+      // Create timestamp
+      const timestamp = new Date().toISOString();
+      const reportDate = timestamp.split("T")[0];
+      
+      // Generate unique ID
+      const id = `job-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+      
+      // Create job object with explicit status and priority
+      const jobData = {
+        id,
+        title: `Maintenance Request - ${propertyName}`,
+        description: data.description,
+        property: propertyName,
+        location: data.location,
+        reportDate,
+        priority: data.highPriority ? "high" : "medium",
+        highPriority: data.highPriority, // Make sure this flag is set explicitly
+        status: "unassigned", // Explicitly set status to unassigned
+        assignedTo: null, // Explicitly set assignedTo to null
+        reportedBy: data.reporterName,
+        imageUrl: data.imageUrl,
+        timestamp
+      };
+      
+      console.log("ReporterForm - Creating new job:", jobData);
+      
+      // Save to localStorage
       const existingJobs = localStorage.getItem('reporterJobs');
       const jobs = existingJobs ? JSON.parse(existingJobs) : [];
       jobs.push(jobData);
@@ -94,12 +101,17 @@ const ReporterForm = ({ stationId, stationProperty, propertyName }: ReporterForm
       });
       
       // Reset form
-      setName("");
-      setLocation("");
-      setIssue("");
-      setIsHighPriority(false);
-      setCapturedImage(null);
-      setShowCamera(false);
+      form.reset({
+        reporterName: "",
+        propertyId: stationProperty,
+        location: "",
+        description: "",
+        highPriority: false,
+        priority: "medium"
+      });
+      
+      // Reset image
+      form.setValue("imageUrl", undefined);
     } catch (error) {
       console.error("Error saving job:", error);
       toast({
@@ -107,118 +119,40 @@ const ReporterForm = ({ stationId, stationProperty, propertyName }: ReporterForm
         description: "There was a problem submitting your request. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleImageChange = (imageData: string) => {
-    setCapturedImage(imageData);
+    form.setValue("imageUrl", imageData);
     setShowCamera(false);
   };
 
+  if (showCamera) {
+    return (
+      <ReporterImageCapture 
+        imageUrl={form.watch("imageUrl") || ""} 
+        onImageChange={handleImageChange} 
+      />
+    );
+  }
+
   return (
-    <>
-      {showCamera ? (
-        <ReporterImageCapture 
-          imageUrl={capturedImage || ""} 
-          onImageChange={handleImageChange} 
+    <FormProvider {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <ReporterNameField form={form} />
+        <PropertyField form={form} propertyName={propertyName} />
+        <LocationField form={form} />
+        <DescriptionField form={form} />
+        <HighPriorityField form={form} />
+        <ImageField 
+          imageUrl={form.watch("imageUrl")} 
+          setShowCamera={setShowCamera} 
         />
-      ) : (
-        <form onSubmit={handleSubmit}>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Your Name</Label>
-              <Input
-                id="name"
-                placeholder="Enter your name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="property">Property</Label>
-              <Input
-                id="property"
-                value={propertyName}
-                readOnly
-                className="bg-gray-100 border border-gray-300 px-4 py-2 rounded cursor-not-allowed"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="location">Location in Property</Label>
-              <Input
-                id="location"
-                placeholder="e.g., Apartment 2B, Main Lobby, etc."
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                required
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="issue">Describe the Issue</Label>
-              <Textarea
-                id="issue"
-                placeholder="Please describe the maintenance issue in detail"
-                rows={4}
-                value={issue}
-                onChange={(e) => setIssue(e.target.value)}
-                required
-              />
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="priority"
-                checked={isHighPriority}
-                onCheckedChange={setIsHighPriority}
-              />
-              <Label htmlFor="priority">This is a high-priority issue</Label>
-            </div>
-            
-            <div className="space-y-2">
-              <Label>Add a Photo</Label>
-              {capturedImage ? (
-                <Card className="overflow-hidden">
-                  <CardContent className="p-0">
-                    <div className="relative">
-                      <img 
-                        src={capturedImage} 
-                        alt="Captured" 
-                        className="w-full h-auto" 
-                      />
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        size="sm"
-                        className="absolute bottom-2 right-2"
-                        onClick={() => setShowCamera(true)}
-                      >
-                        Retake
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ) : (
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full h-32 flex flex-col items-center justify-center gap-2"
-                  onClick={() => setShowCamera(true)}
-                >
-                  <Camera className="h-6 w-6" />
-                  <span>Take Photo</span>
-                </Button>
-              )}
-            </div>
-            
-            <Button type="submit" className="w-full">Submit Maintenance Request</Button>
-          </div>
-        </form>
-      )}
-    </>
+        <SubmitButton isSubmitting={isSubmitting} />
+      </form>
+    </FormProvider>
   );
 };
 
