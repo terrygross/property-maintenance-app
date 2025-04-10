@@ -22,10 +22,33 @@ const OverviewTabContent = ({ setActiveTab, unassignedJobs = [] }: OverviewTabCo
   
   // Debug jobs data
   useEffect(() => {
-    console.log("OverviewTabContent - Unassigned jobs:", unassignedJobs);
-    console.log("OverviewTabContent - High priority unassigned jobs:", 
-      unassignedJobs.filter(job => job.priority === "high" || job.highPriority === true));
-    console.log("OverviewTabContent - Total unassigned jobs count:", unassignedJobs.length);
+    console.log("OverviewTabContent - Unassigned jobs received:", unassignedJobs);
+    console.log("OverviewTabContent - Unassigned jobs array:", Array.isArray(unassignedJobs));
+    console.log("OverviewTabContent - Total unassigned jobs count:", unassignedJobs?.length || 0);
+    
+    if (unassignedJobs && unassignedJobs.length > 0) {
+      console.log("OverviewTabContent - First unassigned job:", unassignedJobs[0]);
+      
+      // Check for high priority jobs
+      const highPriorityJobs = unassignedJobs.filter(job => 
+        job.priority === "high" || job.highPriority === true
+      );
+      console.log("OverviewTabContent - High priority unassigned jobs:", highPriorityJobs);
+    }
+    
+    // Check localStorage directly
+    try {
+      const savedJobs = localStorage.getItem('reporterJobs');
+      if (savedJobs) {
+        const parsedJobs = JSON.parse(savedJobs);
+        const unassignedDirectCount = parsedJobs.filter((job: any) => 
+          (!job.assignedTo || job.status === "unassigned") && job.status !== "completed"
+        ).length;
+        console.log(`OverviewTabContent - Direct localStorage check: ${unassignedDirectCount} unassigned jobs`);
+      }
+    } catch (error) {
+      console.error("OverviewTabContent - Error checking localStorage:", error);
+    }
   }, [unassignedJobs]);
   
   return (
@@ -47,15 +70,29 @@ const OverviewTabContent = ({ setActiveTab, unassignedJobs = [] }: OverviewTabCo
               console.log("Reporter tab card - Has high priority jobs:", hasHighPriorityUnassignedJobs);
               console.log("Reporter tab card - Unassigned job count:", unassignedJobs?.length || 0);
               console.log("Reporter tab card - Is array:", Array.isArray(unassignedJobs));
+              
+              // Check localStorage directly
+              try {
+                const savedJobs = localStorage.getItem('reporterJobs');
+                if (savedJobs) {
+                  const parsedJobs = JSON.parse(savedJobs);
+                  const unassignedDirectCount = parsedJobs.filter((job: any) => 
+                    (!job.assignedTo || job.status === "unassigned") && job.status !== "completed"
+                  ).length;
+                  console.log(`Reporter tab card - Direct localStorage check: ${unassignedDirectCount} unassigned jobs`);
+                }
+              } catch (error) {
+                console.error("Reporter tab card - Error checking localStorage:", error);
+              }
             }
             
-            // Force reporter tab count to reflect actual jobs array length
+            // Get the count for this tab
             let count = getTabCount(tab.id, users, properties, unassignedJobs);
             
-            // Extra safety check for reporter tab
+            // Force reporter tab count to reflect actual jobs array length
             if (isReporterTab && Array.isArray(unassignedJobs)) {
               count = unassignedJobs.length;
-              console.log("Reporter tab card - Forced count to:", count);
+              console.log("Reporter tab card - Final count:", count);
             }
             
             return (
@@ -88,7 +125,6 @@ const OverviewTabContent = ({ setActiveTab, unassignedJobs = [] }: OverviewTabCo
           onClick={() => setActiveTab && setActiveTab("logs")}
         />
         
-        {/* Wrap ComplianceBoardCard with ComplianceProvider */}
         <ComplianceProvider>
           <ComplianceBoardCard />
         </ComplianceProvider>

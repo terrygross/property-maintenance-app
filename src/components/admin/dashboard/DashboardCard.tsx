@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LucideIcon } from "lucide-react";
 
@@ -37,7 +37,9 @@ const DashboardCard = ({
   const animationClass = hasAlert ? "animate-pulse" : "";
 
   // Enhanced debugging - always log card props
-  console.log(`DashboardCard ${id}: hasAlert=${hasAlert}, count=${count}, description=${description}`);
+  useEffect(() => {
+    console.log(`DashboardCard ${id}: hasAlert=${hasAlert}, count=${count}, description=${description}`);
+  }, [id, hasAlert, count, description]);
 
   return (
     <Card 

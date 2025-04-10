@@ -51,7 +51,7 @@ const ReporterForm = ({ stationId, stationProperty, propertyName }: ReporterForm
     // Generate unique ID
     const id = `job-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
     
-    // Create job object
+    // Create job object with explicit status and priority
     const jobData = {
       id,
       title: `Maintenance Request - ${propertyName}`,
@@ -62,6 +62,7 @@ const ReporterForm = ({ stationId, stationProperty, propertyName }: ReporterForm
       priority: isHighPriority ? "high" : "medium",
       highPriority: isHighPriority, // Make sure this flag is set explicitly
       status: "unassigned", // Explicitly set status to unassigned
+      assignedTo: null, // Explicitly set assignedTo to null
       reportedBy: name,
       imageUrl: capturedImage,
       timestamp
@@ -79,8 +80,7 @@ const ReporterForm = ({ stationId, stationProperty, propertyName }: ReporterForm
       localStorage.setItem('reporterJobs', JSON.stringify(jobs));
       
       // Trigger custom event to refresh jobs list in other components
-      const event = new Event('jobsUpdated');
-      document.dispatchEvent(event);
+      document.dispatchEvent(new Event('jobsUpdated'));
       
       // Also trigger a storage event to notify other tabs/windows
       window.dispatchEvent(new StorageEvent('storage', {

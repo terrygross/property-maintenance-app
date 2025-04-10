@@ -19,6 +19,20 @@ export const useReporterJobs = () => {
         if (rawJobsData) {
           console.log("DIRECT CHECK - Raw jobs data length:", rawJobsData.length);
           console.log("DIRECT CHECK - First 100 chars:", rawJobsData.substring(0, 100));
+          
+          // Attempt to parse and log the entire data
+          try {
+            const allData = JSON.parse(rawJobsData);
+            console.log("DIRECT CHECK - All localStorage jobs:", allData);
+            console.log("DIRECT CHECK - Total jobs count:", allData.length);
+            
+            // Log each job's status and priority for debugging
+            allData.forEach((job: any, index: number) => {
+              console.log(`Job ${index}: id=${job.id}, status=${job.status}, assignedTo=${job.assignedTo}, priority=${job.priority}, highPriority=${job.highPriority}`);
+            });
+          } catch (e) {
+            console.error("DIRECT CHECK - Error parsing full data:", e);
+          }
         }
 
         const savedJobs = localStorage.getItem('reporterJobs');
@@ -26,7 +40,9 @@ export const useReporterJobs = () => {
           const parsedJobs = JSON.parse(savedJobs);
           
           console.log("useReporterJobs - All jobs in storage:", parsedJobs.length);
-          console.log("useReporterJobs - First job in storage:", parsedJobs[0]);
+          if (parsedJobs.length > 0) {
+            console.log("useReporterJobs - First job in storage:", parsedJobs[0]);
+          }
           
           // Filter out jobs that are completed or already assigned to technicians
           const unassignedJobs = parsedJobs.filter((job: any) => 
@@ -40,10 +56,13 @@ export const useReporterJobs = () => {
           );
           
           console.log("useReporterJobs - Filtered unassigned jobs:", unassignedJobs.length);
-          console.log("useReporterJobs - Raw unassigned jobs data:", unassignedJobs);
+          if (unassignedJobs.length > 0) {
+            console.log("useReporterJobs - All unassigned jobs:", unassignedJobs);
+          }
           
           if (unassignedJobs.length === 0) {
             console.log("useReporterJobs - No unassigned jobs found in localStorage");
+            console.log("useReporterJobs - All jobs statuses:", parsedJobs.map((j: any) => j.status));
           } else {
             console.log("useReporterJobs - First unassigned job:", unassignedJobs[0]);
           }
@@ -117,7 +136,7 @@ export const useReporterJobs = () => {
           setJobCards(jobsWithPhotos);
           console.log("useReporterJobs - Final job cards array length:", jobsWithPhotos.length);
           
-          // Always dispatch an event when jobs are loaded to ensure UI updates
+          // Trigger refresh event to ensure admin dashboard updates
           document.dispatchEvent(new CustomEvent('jobsUpdated'));
         } else {
           console.log("useReporterJobs - No reporter jobs found in localStorage");

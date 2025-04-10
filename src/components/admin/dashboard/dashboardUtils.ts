@@ -1,8 +1,6 @@
 
 // Utility functions for dashboard components
 
-import { useAppState } from "@/context/AppStateContext";
-
 // Count users by role
 export const countUsersByRole = (users: any[], role: string): number => {
   return users.filter(user => user.role === role).length;
@@ -13,23 +11,48 @@ export const getTabCount = (tabId: string, users: any[], properties: any[], unas
   const technicianCount = countUsersByRole(users, "maintenance_tech");
   const contractorCount = countUsersByRole(users, "contractor");
   
-  // Enhanced logging for reporter tab debugging
+  // Special handling for reporter tab to ensure we get the correct count
   if (tabId === "reporter") {
-    console.log(`getTabCount for reporter tab - unassignedJobs:`, unassignedJobs);
-    console.log(`getTabCount for reporter tab - unassignedJobs length:`, unassignedJobs?.length || 0);
+    console.log("getTabCount for reporter tab called with:", {
+      unassignedJobsArray: unassignedJobs,
+      unassignedJobsLength: unassignedJobs?.length || 0,
+      isArray: Array.isArray(unassignedJobs)
+    });
     
-    // Force a positive integer return value for unassigned jobs
-    if (unassignedJobs && Array.isArray(unassignedJobs)) {
+    // Directly access localStorage to verify
+    try {
+      const savedJobs = localStorage.getItem('reporterJobs');
+      if (savedJobs) {
+        const parsedJobs = JSON.parse(savedJobs);
+        const unassignedCount = parsedJobs.filter((job: any) => 
+          (!job.assignedTo || job.status === "unassigned") && job.status !== "completed"
+        ).length;
+        
+        console.log(`Direct localStorage check - Found ${unassignedCount} unassigned jobs out of ${parsedJobs.length} total jobs`);
+        
+        // If we found unassigned jobs but the passed array is empty, use the direct count
+        if (unassignedCount > 0 && (!unassignedJobs || unassignedJobs.length === 0)) {
+          console.log(`Override: Using direct count ${unassignedCount} instead of passed array length 0`);
+          return unassignedCount;
+        }
+      }
+    } catch (error) {
+      console.error("Error checking localStorage directly:", error);
+    }
+    
+    // Return the length of unassignedJobs if it's an array
+    if (Array.isArray(unassignedJobs)) {
       return unassignedJobs.length;
     }
-    return 0; // Default to 0 if undefined or not an array
+    
+    // Fallback to 0 if unassignedJobs is undefined or not an array
+    return 0;
   }
   
   switch (tabId) {
     case "users": return technicianCount;
     case "properties": return properties.length;
     case "maintenance": return contractorCount;
-    case "reporter": return unassignedJobs?.length || 0; // This case is handled above, but included for completeness
     case "tech-view": return technicianCount;
     case "reports": return 4;
     case "chat": return 12;
