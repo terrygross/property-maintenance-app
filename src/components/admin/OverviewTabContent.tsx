@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Grid } from "@/components/ui/grid";
 import AdminCard from "./AdminCard";
 import { adminTabs } from "./AdminTabsList";
@@ -21,9 +21,12 @@ const OverviewTabContent = ({ setActiveTab, unassignedJobs = [] }: OverviewTabCo
   const { users, properties } = useAppState();
   
   // Debug jobs data
-  console.log("OverviewTabContent - Unassigned jobs:", unassignedJobs);
-  console.log("OverviewTabContent - High priority unassigned jobs:", 
-    unassignedJobs.filter(job => job.priority === "high" || job.highPriority === true));
+  useEffect(() => {
+    console.log("OverviewTabContent - Unassigned jobs:", unassignedJobs);
+    console.log("OverviewTabContent - High priority unassigned jobs:", 
+      unassignedJobs.filter(job => job.priority === "high" || job.highPriority === true));
+    console.log("OverviewTabContent - Total unassigned jobs count:", unassignedJobs.length);
+  }, [unassignedJobs]);
   
   return (
     <div className="space-y-4">
@@ -36,7 +39,7 @@ const OverviewTabContent = ({ setActiveTab, unassignedJobs = [] }: OverviewTabCo
           .map((tab, index) => {
             // Check if this is the reporter tab and if there are high priority jobs
             const isReporterTab = tab.id === "reporter";
-            const hasUnassignedJobs = unassignedJobs.length > 0;
+            const hasUnassignedJobs = unassignedJobs && unassignedJobs.length > 0;
             const hasHighPriorityUnassignedJobs = isReporterTab && hasHighPriorityJobs(unassignedJobs);
             
             // Log for debugging reporter card

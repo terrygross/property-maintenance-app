@@ -16,20 +16,25 @@ export const useReporterJobs = () => {
         if (savedJobs) {
           const parsedJobs = JSON.parse(savedJobs);
           
-          console.log("All jobs in storage:", parsedJobs.length);
+          console.log("useReporterJobs - All jobs in storage:", parsedJobs.length);
           
           // Filter out jobs that are completed or already assigned to technicians
           const unassignedJobs = parsedJobs.filter((job: any) => 
+            // A job is unassigned if:
+            // 1. It has no assignedTo property OR
+            // 2. Its status is explicitly "unassigned" OR
+            // 3. It has no status property (legacy jobs)
+            // AND it's not completed
             (!job.assignedTo || job.status === "unassigned" || !job.status) &&
             job.status !== "completed"
           );
           
-          console.log("Filtered unassigned jobs:", unassignedJobs.length);
+          console.log("useReporterJobs - Filtered unassigned jobs:", unassignedJobs.length);
           
           if (unassignedJobs.length === 0) {
-            console.log("No unassigned jobs found in localStorage");
+            console.log("useReporterJobs - No unassigned jobs found in localStorage");
           } else {
-            console.log("First unassigned job:", unassignedJobs[0]);
+            console.log("useReporterJobs - First unassigned job:", unassignedJobs[0]);
           }
           
           // Map the jobs to include priority and other required properties
@@ -46,7 +51,7 @@ export const useReporterJobs = () => {
             
             // Log for debugging
             if (priority === "high" || highPriorityFlag) {
-              console.log("Found high priority job:", job.id, "priority:", priority, "highPriority:", highPriorityFlag);
+              console.log("useReporterJobs - Found high priority job:", job.id, "priority:", priority, "highPriority:", highPriorityFlag);
             }
             
             return {
@@ -70,7 +75,7 @@ export const useReporterJobs = () => {
             !job.notificationSent
           );
           
-          console.log("High priority jobs that need notification:", highPriorityJobs.length);
+          console.log("useReporterJobs - High priority jobs that need notification:", highPriorityJobs.length);
           
           if (highPriorityJobs.length > 0) {
             // Get all technicians
@@ -95,26 +100,27 @@ export const useReporterJobs = () => {
           }
           
           // Log detailed job info for debugging
-          console.log("Jobs with high priority:", jobsWithPhotos.filter(j => 
+          console.log("useReporterJobs - Jobs with high priority:", jobsWithPhotos.filter(j => 
             j.priority === "high" || j.highPriority === true
           ).length);
           
           setJobCards(jobsWithPhotos);
-          console.log("Loaded reporter jobs:", jobsWithPhotos.length);
+          console.log("useReporterJobs - Final job cards array:", jobsWithPhotos);
           
           // Always dispatch an event when jobs are loaded to ensure UI updates
           document.dispatchEvent(new CustomEvent('jobsUpdated'));
         } else {
-          console.log("No reporter jobs found in localStorage");
+          console.log("useReporterJobs - No reporter jobs found in localStorage");
           setJobCards([]);
         }
       } catch (error) {
-        console.error("Error loading reporter jobs:", error);
+        console.error("useReporterJobs - Error loading reporter jobs:", error);
         // If there's an error, fall back to empty array
         setJobCards([]);
       }
     };
     
+    // Load jobs initially
     loadReporterJobs();
     
     // Setup a listener for localStorage changes to refresh jobs list

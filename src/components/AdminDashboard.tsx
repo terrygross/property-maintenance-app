@@ -28,13 +28,16 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
   // Enhanced logging for debugging
   useEffect(() => {
     console.log("AdminDashboard - High priority jobs:", highPriorityJobs.length);
-    console.log("AdminDashboard - Unassigned jobs total:", unassignedJobs.length);
-    const highPriorityUnassigned = unassignedJobs.filter(job => 
-      job.priority === "high" || job.highPriority === true
-    );
-    console.log("AdminDashboard - High priority unassigned jobs:", highPriorityUnassigned.length);
+    console.log("AdminDashboard - Unassigned jobs total:", unassignedJobs?.length || 0);
     
-    if (unassignedJobs.length > 0) {
+    const highPriorityUnassigned = unassignedJobs?.filter(job => 
+      job.priority === "high" || job.highPriority === true
+    ) || [];
+    
+    console.log("AdminDashboard - High priority unassigned jobs:", highPriorityUnassigned.length);
+    console.log("AdminDashboard - unassignedJobs array:", unassignedJobs);
+    
+    if (unassignedJobs && unassignedJobs.length > 0) {
       console.log("AdminDashboard - First unassigned job:", unassignedJobs[0]);
     }
     if (highPriorityUnassigned.length > 0) {
