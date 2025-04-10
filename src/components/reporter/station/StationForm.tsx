@@ -52,23 +52,6 @@ const StationForm = ({ defaultValues, onChange, properties, isEditing }: Station
       <div className="space-y-4 py-2">
         <FormField
           control={form.control}
-          name="stationId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Station ID</FormLabel>
-              <FormControl>
-                <Input 
-                  placeholder="Enter station ID"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <FormField
-          control={form.control}
           name="companyName"
           render={({ field }) => (
             <FormItem>
@@ -113,6 +96,23 @@ const StationForm = ({ defaultValues, onChange, properties, isEditing }: Station
                   )}
                 </SelectContent>
               </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="stationId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Station ID</FormLabel>
+              <FormControl>
+                <Input 
+                  placeholder="Enter station ID"
+                  {...field}
+                />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}

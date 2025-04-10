@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -28,9 +27,9 @@ const StationDialog = ({
 }: StationDialogProps) => {
   const { properties } = useAppState();
   const [formValues, setFormValues] = useState<StationFormValues>({
-    stationId: "",
     companyName: "",
     propertyId: "",
+    stationId: "",
     password: "",
   });
 
@@ -38,16 +37,16 @@ const StationDialog = ({
   useEffect(() => {
     if (selectedStation) {
       setFormValues({
-        stationId: selectedStation.stationId,
         companyName: selectedStation.companyName,
         propertyId: selectedStation.propertyId,
+        stationId: selectedStation.stationId,
         password: "",
       });
     } else {
       setFormValues({
-        stationId: "",
         companyName: "",
         propertyId: properties.length > 0 ? properties[0].id : "",
+        stationId: "",
         password: "",
       });
     }
