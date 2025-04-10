@@ -1,8 +1,9 @@
+
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Property } from "@/types/property";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, reporterJobsTable } from "@/integrations/supabase/client";
 
 // Import the smaller components
 import TaskDialogHeader from "./dialog/TaskDialogHeader";
@@ -73,8 +74,7 @@ const NewTaskDialog = ({ open, onOpenChange, technicians, properties }: NewTaskD
         };
         
         // Insert into Supabase
-        const { data, error } = await supabase
-          .from('reporter_jobs')
+        const { data, error } = await reporterJobsTable()
           .insert(jobData);
         
         if (error) {

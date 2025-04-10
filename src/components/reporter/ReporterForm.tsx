@@ -14,7 +14,7 @@ import DescriptionField from "./form-fields/DescriptionField";
 import HighPriorityField from "./form-fields/HighPriorityField";
 import ImageField from "./form-fields/ImageField";
 import SubmitButton from "./form-fields/SubmitButton";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, reporterJobsTable } from "@/integrations/supabase/client";
 
 interface ReporterFormProps {
   stationId: string;
@@ -89,8 +89,7 @@ const ReporterForm = ({ stationId, stationProperty, propertyName }: ReporterForm
       console.log("ReporterForm - Creating new job:", jobData);
       
       // Save to Supabase
-      const { data: insertedJob, error } = await supabase
-        .from('reporter_jobs')
+      const { data: insertedJob, error } = await reporterJobsTable()
         .insert(jobData)
         .select();
       

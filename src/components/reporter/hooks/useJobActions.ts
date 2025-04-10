@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import { useToast } from "@/hooks/use-toast";
 import { useAppState } from "@/context/AppStateContext";
 import { sendPushNotification, notifyTechnicianTeam } from "@/services/NotificationService";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, reporterJobsTable } from "@/integrations/supabase/client";
 
 export const useJobActions = ({ jobCards, setJobCards }) => {
   const { toast } = useToast();
@@ -19,8 +19,7 @@ export const useJobActions = ({ jobCards, setJobCards }) => {
     try {
       console.log(`Assigning job ${jobId} to technician ${technicianId}`);
       
-      const { data, error } = await supabase
-        .from('reporter_jobs')
+      const { data, error } = await reporterJobsTable()
         .update({
           assigned_to: technicianId,
           status: "assigned",
@@ -81,8 +80,7 @@ export const useJobActions = ({ jobCards, setJobCards }) => {
   // Function to handle resending email for a job
   const handleResendEmail = async (jobId) => {
     try {
-      const { data, error } = await supabase
-        .from('reporter_jobs')
+      const { data, error } = await reporterJobsTable()
         .select('*')
         .eq('id', jobId)
         .single();

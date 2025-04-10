@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useAppState } from "@/context/AppStateContext";
 import { Job as JobType } from "@/hooks/jobs/types";
 import { Job as JobListType } from "@/components/jobs/jobsListUtils";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, reporterJobsTable } from "@/integrations/supabase/client";
 
 /**
  * Custom hook to load jobs data from Supabase
@@ -20,8 +20,7 @@ export const useJobsData = () => {
         console.log("Admin Jobs tab - Loading assigned jobs from Supabase");
         
         // Fetch assigned jobs from Supabase
-        const { data, error } = await supabase
-          .from('reporter_jobs')
+        const { data, error } = await reporterJobsTable()
           .select('*')
           .neq('status', 'unassigned')
           .not('assigned_to', 'is', null);

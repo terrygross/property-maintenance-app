@@ -2,7 +2,7 @@
 /**
  * Hook for managing assigned jobs for a technician
  */
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Job, UseAssignedJobsReturn } from "./types";
 import { loadJobsFromStorage, getMockJobs } from "./jobsStorage";
 import { useJobUpdates } from "./useJobUpdates";
@@ -24,20 +24,20 @@ export const useAssignedJobs = (currentUserId: string): UseAssignedJobsReturn =>
 
   useEffect(() => {
     // Load jobs when the component mounts
-    const storedJobs = loadJobsFromStorage(currentUserId);
+    const loadJobs = async () => {
+      const jobs = await loadJobsFromStorage(currentUserId);
+      if (jobs.length > 0) {
+        // Replace mock data with real data from localStorage
+        setAssignedJobs(jobs);
+      }
+    };
     
-    if (storedJobs.length > 0) {
-      // Replace mock data with real data from localStorage
-      setAssignedJobs(storedJobs);
-    }
+    loadJobs();
     
     // Set up event listeners for job updates
     const handleStorageChange = () => {
       console.log("Storage changed, refreshing jobs for technician:", currentUserId);
-      const refreshedJobs = loadJobsFromStorage(currentUserId);
-      if (refreshedJobs.length > 0) {
-        setAssignedJobs(refreshedJobs);
-      }
+      loadJobs();
     };
     
     window.addEventListener('storage', handleStorageChange);

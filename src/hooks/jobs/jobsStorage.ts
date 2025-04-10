@@ -3,7 +3,7 @@
  * Utility functions for loading and saving jobs
  */
 import { Job } from "./types";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, reporterJobsTable } from "@/integrations/supabase/client";
 
 /**
  * Load jobs from Supabase for a given user ID
@@ -11,8 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 export const loadJobsFromStorage = async (userId: string): Promise<Job[]> => {
   try {
     // Fetch jobs from Supabase
-    const { data: jobs, error } = await supabase
-      .from('reporter_jobs')
+    const { data: jobs, error } = await reporterJobsTable()
       .select('*')
       .eq('assigned_to', userId);
     

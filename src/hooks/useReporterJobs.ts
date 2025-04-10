@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { JobCardProps } from "@/components/job/jobCardTypes";
 import { useAppState } from "@/context/AppStateContext";
 import { notifyTechnicianTeam } from "@/services/NotificationService";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, reporterJobsTable } from "@/integrations/supabase/client";
 
 export const useReporterJobs = () => {
   const [jobCards, setJobCards] = useState<JobCardProps[]>([]);
@@ -18,8 +18,7 @@ export const useReporterJobs = () => {
         console.log("useReporterJobs - Loading jobs from Supabase");
         
         // Fetch unassigned jobs from Supabase
-        const { data: jobs, error } = await supabase
-          .from('reporter_jobs')
+        const { data: jobs, error } = await reporterJobsTable()
           .select('*')
           .or('status.eq.unassigned,assigned_to.is.null')
           .neq('status', 'completed');
@@ -72,8 +71,7 @@ export const useReporterJobs = () => {
             notifyTechnicianTeam(technicians, job.title, job.property);
             
             // Mark job as notified in Supabase
-            await supabase
-              .from('reporter_jobs')
+            await reporterJobsTable()
               .update({ notification_sent: true })
               .eq('id', job.id);
           }
