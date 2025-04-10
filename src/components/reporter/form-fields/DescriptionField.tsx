@@ -21,7 +21,6 @@ const DescriptionField = ({ form }: DescriptionFieldProps) => {
               placeholder="Please describe the maintenance issue" 
               className="min-h-[120px]" 
               {...field}
-              required
             />
           </FormControl>
           <FormMessage />

@@ -1,5 +1,5 @@
 
-import { FormField, FormItem, FormControl, FormLabel, FormDescription } from "@/components/ui/form";
+import { FormField, FormItem, FormControl, FormLabel, FormDescription, FormMessage } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { UseFormReturn } from "react-hook-form";
 import { ReporterFormValues } from "../ReporterForm";
@@ -48,6 +48,7 @@ const HighPriorityField = ({ form }: HighPriorityFieldProps) => {
             <FormDescription>
               Check this box if this issue requires immediate attention. This will alert maintenance staff immediately.
             </FormDescription>
+            <FormMessage />
           </div>
         </FormItem>
       )}

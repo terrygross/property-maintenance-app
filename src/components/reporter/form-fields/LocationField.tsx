@@ -20,7 +20,6 @@ const LocationField = ({ form }: LocationFieldProps) => {
             <Input 
               placeholder="Specific location within the property (e.g., Room 101, Lobby, North Wing)" 
               {...field} 
-              required 
             />
           </FormControl>
           <FormMessage />

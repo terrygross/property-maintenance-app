@@ -17,7 +17,7 @@ const ReporterNameField = ({ form }: ReporterNameFieldProps) => {
         <FormItem>
           <FormLabel>Your Name</FormLabel>
           <FormControl>
-            <Input placeholder="Enter your name" {...field} required />
+            <Input placeholder="Enter your name" {...field} />
           </FormControl>
           <FormMessage />
         </FormItem>

@@ -1,6 +1,8 @@
 
 import { useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useAppState } from "@/context/AppStateContext";
@@ -19,6 +21,17 @@ interface ReporterFormProps {
   propertyName: string;
 }
 
+// Form validation schema using zod
+const formSchema = z.object({
+  reporterName: z.string().min(2, { message: "Name must be at least 2 characters" }),
+  propertyId: z.string(),
+  location: z.string().min(3, { message: "Location must be at least 3 characters" }),
+  description: z.string().min(10, { message: "Please provide a more detailed description (at least 10 characters)" }),
+  highPriority: z.boolean(),
+  priority: z.string(),
+  imageUrl: z.string().optional()
+});
+
 // Export this interface for form field components
 export interface ReporterFormValues {
   reporterName: string;
@@ -26,7 +39,7 @@ export interface ReporterFormValues {
   location: string;
   description: string;
   highPriority: boolean;
-  priority?: string; // Add priority field
+  priority?: string;
   imageUrl?: string;
 }
 
@@ -35,8 +48,9 @@ const ReporterForm = ({ stationId, stationProperty, propertyName }: ReporterForm
   const [showCamera, setShowCamera] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Initialize form with react-hook-form
+  // Initialize form with react-hook-form and zod validation
   const form = useForm<ReporterFormValues>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       reporterName: "",
       propertyId: stationProperty,
