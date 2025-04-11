@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useAppState } from "@/context/AppStateContext";
 import ReporterImageCapture from "./ReporterImageCapture";
@@ -69,7 +68,6 @@ const ReporterForm = ({ stationId, stationProperty, propertyName }: ReporterForm
     try {
       // Create timestamp
       const timestamp = new Date().toISOString();
-      const reportDate = timestamp.split("T")[0];
       
       // Create job object with explicit status and priority
       const jobData = {

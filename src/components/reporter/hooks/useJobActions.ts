@@ -23,7 +23,6 @@ export const useJobActions = ({ jobCards, setJobCards }) => {
         .update({
           assigned_to: technicianId,
           status: "assigned",
-          assigned_date: new Date().toISOString()
         })
         .eq('id', jobId)
         .select();

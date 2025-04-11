@@ -25,10 +25,14 @@ export const useAssignedJobs = (currentUserId: string): UseAssignedJobsReturn =>
   useEffect(() => {
     // Load jobs when the component mounts
     const loadJobs = async () => {
-      const jobs = await loadJobsFromStorage(currentUserId);
-      if (jobs.length > 0) {
-        // Replace mock data with real data from localStorage
-        setAssignedJobs(jobs);
+      try {
+        const loadedJobs = await loadJobsFromStorage(currentUserId);
+        if (loadedJobs.length > 0) {
+          // Replace mock data with real data from localStorage
+          setAssignedJobs(loadedJobs);
+        }
+      } catch (error) {
+        console.error("Error loading assigned jobs:", error);
       }
     };
     

@@ -27,8 +27,8 @@ export const loadJobsFromStorage = async (userId: string): Promise<Job[]> => {
         // Ensure photos have the right structure
         const photos = {
           reporter: job.image_url || undefined,
-          before: job.before_photo || undefined,
-          after: job.after_photo || undefined
+          before: undefined, // These are not in the database yet
+          after: undefined   // These are not in the database yet
         };
         
         // Log the photo structure for debugging
@@ -39,11 +39,11 @@ export const loadJobsFromStorage = async (userId: string): Promise<Job[]> => {
           title: job.title || job.description,
           location: job.property || job.location,
           priority: job.priority || "medium",
-          dueDate: new Date(job.due_date || job.report_date || Date.now()),
+          dueDate: new Date(job.report_date || Date.now()),
           status: job.status || "assigned",
           assignedTo: job.assigned_to,
-          accepted: job.accepted || false,
-          comments: job.comments || [],
+          accepted: false, // Not in database yet
+          comments: [], // Not in database yet
           photos: photos
         };
       });

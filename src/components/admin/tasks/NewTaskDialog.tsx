@@ -62,6 +62,7 @@ const NewTaskDialog = ({ open, onOpenChange, technicians, properties }: NewTaskD
         const jobData = {
           title: jobTitle,
           property: jobLocation,
+          location: jobLocation, // Set location to match property for now
           description: jobDescription,
           priority: priority,
           high_priority: priority === "high",
@@ -69,7 +70,6 @@ const NewTaskDialog = ({ open, onOpenChange, technicians, properties }: NewTaskD
           assigned_to: techId,
           report_date: new Date().toISOString(),
           reported_by: "Admin",
-          due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
           notification_sent: true
         };
         

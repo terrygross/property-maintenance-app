@@ -1,9 +1,9 @@
 
 import { useState, useEffect } from "react";
-import { JobCardProps } from "@/components/job/jobCardTypes";
 import { useAppState } from "@/context/AppStateContext";
 import { notifyTechnicianTeam } from "@/services/NotificationService";
 import { supabase, reporterJobsTable } from "@/integrations/supabase/client";
+import { JobCardProps } from "@/components/job/jobCardTypes";
 
 export const useReporterJobs = () => {
   const [jobCards, setJobCards] = useState<JobCardProps[]>([]);
@@ -38,18 +38,28 @@ export const useReporterJobs = () => {
         
         // Map the jobs to include priority and other required properties
         const jobsWithPhotos = jobs.map((job) => {
+          // Convert string priority to the correct enum type
+          let typedPriority: "low" | "medium" | "high" = "medium";
+          if (job.priority === "high" || job.high_priority) {
+            typedPriority = "high";
+          } else if (job.priority === "low") {
+            typedPriority = "low";
+          }
+          
           return {
             id: job.id,
             title: job.title || "Maintenance Request",
             description: job.description || "",
             property: job.property || "Unknown Property",
             reportDate: new Date(job.report_date).toISOString().split("T")[0],
-            priority: job.priority || "medium",
+            priority: typedPriority,
             status: job.status || "unassigned",
             reporterPhoto: job.image_url, 
             imageUrl: job.image_url,
-            highPriority: job.high_priority
-          };
+            highPriority: job.high_priority,
+            // Adding this flag to track notifications
+            notificationSent: job.notification_sent || false
+          } as JobCardProps;
         });
         
         // Notify about high priority jobs when they're first loaded

@@ -6,11 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
  */
 export const enableRealtimeForTables = async () => {
   try {
-    // Enable realtime for reporter_jobs table
-    await supabase.rpc('supabase_functions.enable_realtime', {
-      table_name: 'reporter_jobs',
-      schema_name: 'public'
-    });
+    // Using rpc function directly without specifying table name
+    await supabase.rpc('supabase_functions.enable_realtime');
     
     console.log("Realtime enabled for reporter_jobs table");
     return true;
