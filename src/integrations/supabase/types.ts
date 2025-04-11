@@ -50,8 +50,13 @@ export type Database = {
       }
       reporter_jobs: {
         Row: {
+          accepted: boolean | null
+          after_photo: string | null
           assigned_to: string | null
+          before_photo: string | null
+          comments: Json | null
           description: string
+          due_date: string | null
           high_priority: boolean
           id: string
           image_url: string | null
@@ -66,8 +71,13 @@ export type Database = {
           title: string
         }
         Insert: {
+          accepted?: boolean | null
+          after_photo?: string | null
           assigned_to?: string | null
+          before_photo?: string | null
+          comments?: Json | null
           description: string
+          due_date?: string | null
           high_priority?: boolean
           id?: string
           image_url?: string | null
@@ -82,8 +92,13 @@ export type Database = {
           title: string
         }
         Update: {
+          accepted?: boolean | null
+          after_photo?: string | null
           assigned_to?: string | null
+          before_photo?: string | null
+          comments?: Json | null
           description?: string
+          due_date?: string | null
           high_priority?: boolean
           id?: string
           image_url?: string | null
