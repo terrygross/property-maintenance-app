@@ -18,13 +18,15 @@ export const enableRealtimeForTables = async () => {
         document.dispatchEvent(new CustomEvent('jobsUpdated', { detail: payload }));
         
         // Also check if this is a high priority job
-        if (
-          payload.new && 
-          (payload.new.high_priority === true || payload.new.priority === 'high')
-        ) {
-          console.log('High priority job detected in realtime!', payload.new);
-          // Force refresh of dashboard data
-          document.dispatchEvent(new CustomEvent('highPriorityJobAdded', { detail: payload.new }));
+        // Type checking and safely accessing properties
+        if (payload.new) {
+          const newData = payload.new as Record<string, any>;
+          
+          if (newData.high_priority === true || newData.priority === 'high') {
+            console.log('High priority job detected in realtime!', newData);
+            // Force refresh of dashboard data
+            document.dispatchEvent(new CustomEvent('highPriorityJobAdded', { detail: newData }));
+          }
         }
       })
       .subscribe((status) => {
