@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAppState } from "@/context/AppStateContext";
 import { notifyTechnicianTeam } from "@/services/NotificationService";
 import { supabase, reporterJobsTable } from "@/integrations/supabase/client";
@@ -9,13 +9,27 @@ export const useReporterJobs = () => {
   const [jobCards, setJobCards] = useState<JobCardProps[]>([]);
   const { users } = useAppState();
   const [isLoading, setIsLoading] = useState(true);
+  const isInitialLoad = useRef(true);
+  const lastFetchTime = useRef<number>(0);
+  const MIN_FETCH_INTERVAL = 1000; // Minimum 1 second between fetches
 
   // Load job cards from Supabase
   useEffect(() => {
     const loadReporterJobs = async () => {
+      // Prevent too frequent refreshes
+      const now = Date.now();
+      if (!isInitialLoad.current && now - lastFetchTime.current < MIN_FETCH_INTERVAL) {
+        console.log("useReporterJobs - Skipping fetch, too soon since last fetch");
+        return;
+      }
+      
       try {
-        setIsLoading(true);
+        if (isInitialLoad.current || isLoading) {
+          setIsLoading(true);
+        }
+        
         console.log("useReporterJobs - Loading jobs from Supabase");
+        lastFetchTime.current = now;
         
         // Fetch unassigned jobs from Supabase - using or() to combine conditions
         const { data: jobs, error } = await reporterJobsTable()
@@ -33,6 +47,7 @@ export const useReporterJobs = () => {
           console.log("useReporterJobs - No unassigned jobs found");
           setJobCards([]);
           setIsLoading(false);
+          isInitialLoad.current = false;
           return;
         }
         
@@ -77,32 +92,34 @@ export const useReporterJobs = () => {
           console.error("Failed to store jobs in localStorage:", storageError);
         }
         
-        // Notify about high priority jobs when they're first loaded
-        const highPriorityJobs = jobsWithPhotos.filter((job) => 
-          (job.priority === "high" || job.highPriority === true) && 
-          !job.notificationSent
-        );
-        
-        // Mark high priority jobs as notified
-        if (highPriorityJobs.length > 0) {
-          // Get all technicians
-          const technicians = users.filter(user => 
-            user.role === "maintenance_tech" || user.role === "contractor"
+        // Notify about high priority jobs when they're first loaded - only on initial load
+        if (isInitialLoad.current) {
+          const highPriorityJobs = jobsWithPhotos.filter((job) => 
+            (job.priority === "high" || job.highPriority === true) && 
+            !job.notificationSent
           );
           
-          // Send notifications for each high priority job
-          for (const job of highPriorityJobs) {
-            try {
-              notifyTechnicianTeam(technicians, job.title, job.property);
-              
-              // Mark job as notified in Supabase
-              await reporterJobsTable()
-                .update({ notification_sent: true })
-                .eq('id', job.id);
+          // Mark high priority jobs as notified
+          if (highPriorityJobs.length > 0) {
+            // Get all technicians
+            const technicians = users.filter(user => 
+              user.role === "maintenance_tech" || user.role === "contractor"
+            );
+            
+            // Send notifications for each high priority job
+            for (const job of highPriorityJobs) {
+              try {
+                notifyTechnicianTeam(technicians, job.title, job.property);
                 
-              console.log(`Marked job ${job.id} as notified`);
-            } catch (notifyError) {
-              console.error("Failed to send notification or mark job as notified:", notifyError);
+                // Mark job as notified in Supabase
+                await reporterJobsTable()
+                  .update({ notification_sent: true })
+                  .eq('id', job.id);
+                  
+                console.log(`Marked job ${job.id} as notified`);
+              } catch (notifyError) {
+                console.error("Failed to send notification or mark job as notified:", notifyError);
+              }
             }
           }
         }
@@ -112,6 +129,7 @@ export const useReporterJobs = () => {
         setJobCards([]);
       } finally {
         setIsLoading(false);
+        isInitialLoad.current = false;
       }
     };
     
@@ -130,7 +148,7 @@ export const useReporterJobs = () => {
       )
       .subscribe();
     
-    // Setup a listener for manual refreshes
+    // Setup a listener for manual refreshes with debounce
     const handleJobUpdated = () => {
       console.log("useReporterJobs - Manual jobs update event received");
       loadReporterJobs();
