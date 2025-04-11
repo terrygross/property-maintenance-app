@@ -14,18 +14,30 @@ export const getTabCount = (tabId: string, users: any[], properties: any[], unas
   // Special handling for reporter tab to ensure we get the correct count
   if (tabId === "reporter") {
     console.log("getTabCount for reporter tab called with:", {
-      unassignedJobsArray: unassignedJobs,
-      unassignedJobsLength: unassignedJobs?.length || 0,
-      isArray: Array.isArray(unassignedJobs)
+      unassignedJobs: Array.isArray(unassignedJobs) ? unassignedJobs.length : 'not an array',
+      unassignedJobsContent: unassignedJobs
     });
     
-    // Return the length of unassignedJobs if it's an array
-    if (Array.isArray(unassignedJobs)) {
-      return unassignedJobs.length;
+    // Direct localStorage check for unassigned jobs as a fallback
+    if (!Array.isArray(unassignedJobs) || unassignedJobs.length === 0) {
+      try {
+        const savedJobs = localStorage.getItem('reporterJobs');
+        if (savedJobs) {
+          const parsedJobs = JSON.parse(savedJobs);
+          const unassignedJobsCount = parsedJobs.filter((job: any) => 
+            (!job.assignedTo || job.status === "unassigned") && job.status !== "completed"
+          ).length;
+          
+          console.log(`getTabCount - Direct localStorage check found ${unassignedJobsCount} unassigned jobs`);
+          return unassignedJobsCount > 0 ? unassignedJobsCount : 0;
+        }
+      } catch (error) {
+        console.error("Error checking localStorage for unassigned jobs:", error);
+      }
     }
     
-    // Fallback to 0 if unassignedJobs is undefined or not an array
-    return 0;
+    // Return the length of unassignedJobs if it's an array
+    return Array.isArray(unassignedJobs) ? unassignedJobs.length : 0;
   }
   
   switch (tabId) {
@@ -121,6 +133,23 @@ export const getIconColor = (index: number): string => {
 export const hasHighPriorityJobs = (jobs: any[]): boolean => {
   if (!jobs || !Array.isArray(jobs) || jobs.length === 0) {
     console.log("hasHighPriorityJobs - No jobs or invalid jobs array");
+    
+    // Fallback to check localStorage directly
+    try {
+      const savedJobs = localStorage.getItem('reporterJobs');
+      if (savedJobs) {
+        const parsedJobs = JSON.parse(savedJobs);
+        const highPriorityJobs = parsedJobs.filter((job: any) => 
+          job.priority === "high" || job.highPriority === true
+        );
+        
+        console.log(`hasHighPriorityJobs - Direct localStorage check found ${highPriorityJobs.length} high priority jobs`);
+        return highPriorityJobs.length > 0;
+      }
+    } catch (error) {
+      console.error("Error checking localStorage for high priority jobs:", error);
+    }
+    
     return false;
   }
   

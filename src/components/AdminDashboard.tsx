@@ -24,7 +24,67 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
   const highPriorityJobs = useHighPriorityJobsMonitor();
   const [isInitialized, setIsInitialized] = useState(false);
   const location = useLocation();
-  const { jobCards: unassignedJobs } = useReporterJobs();
+  const { jobCards: unassignedJobs, isLoading: jobsLoading } = useReporterJobs();
+  
+  // Force an initial check for all types of jobs when the dashboard loads
+  useEffect(() => {
+    // Immediately check for jobs on first load
+    const checkAllJobs = async () => {
+      console.log("AdminDashboard - Initial check for all jobs");
+      
+      try {
+        // First check high priority jobs
+        const { data: highPriorityData, error: highPriorityError } = await reporterJobsTable()
+          .select('id, high_priority, priority, title')
+          .or('high_priority.eq.true,priority.eq.high');
+          
+        if (highPriorityError) throw highPriorityError;
+        
+        if (highPriorityData?.length > 0) {
+          console.log("AdminDashboard - Found high priority jobs:", highPriorityData);
+          // Dispatch event for high priority jobs
+          document.dispatchEvent(new CustomEvent('highPriorityJobsExist', { 
+            detail: { count: highPriorityData.length } 
+          }));
+        }
+        
+        // Then check unassigned jobs
+        const { data: unassignedData, error: unassignedError } = await reporterJobsTable()
+          .select('*')
+          .or('status.eq.unassigned,assigned_to.is.null')
+          .neq('status', 'completed');
+          
+        if (unassignedError) throw unassignedError;
+        
+        if (unassignedData?.length > 0) {
+          console.log("AdminDashboard - Found unassigned jobs:", unassignedData);
+          // Dispatch event to update UI
+          document.dispatchEvent(new Event('jobsUpdated'));
+        }
+        
+        // Store jobs in localStorage as a fallback
+        if (unassignedData && Array.isArray(unassignedData)) {
+          try {
+            localStorage.setItem('reporterJobs', JSON.stringify(unassignedData));
+            console.log("AdminDashboard - Stored jobs in localStorage for fallback");
+          } catch (err) {
+            console.error("Error storing jobs in localStorage:", err);
+          }
+        }
+      } catch (err) {
+        console.error("Error checking for jobs:", err);
+      }
+    };
+    
+    checkAllJobs();
+    
+    // Force refresh after a short delay to ensure all data is loaded
+    const refreshTimer = setTimeout(() => {
+      document.dispatchEvent(new Event('jobsUpdated'));
+    }, 1000);
+    
+    return () => clearTimeout(refreshTimer);
+  }, []);
   
   // Enhanced logging for debugging
   useEffect(() => {
@@ -36,41 +96,13 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
     ) || [];
     
     console.log("AdminDashboard - High priority unassigned jobs:", highPriorityUnassigned.length);
-    
-    // Additional direct check against database for high priority jobs
-    const checkDatabaseForHighPriorityJobs = async () => {
-      try {
-        const { data, error } = await reporterJobsTable()
-          .select('id, high_priority, priority, title')
-          .or('high_priority.eq.true,priority.eq.high');
-          
-        if (error) throw error;
-        
-        console.log("AdminDashboard - Direct database check for high priority jobs:", data);
-        
-        // If we found some but our state doesn't have them, refresh
-        if (data?.length > 0 && highPriorityJobs.length === 0 && highPriorityUnassigned.length === 0) {
-          console.log("AdminDashboard - Triggering refresh for missing high priority jobs");
-          document.dispatchEvent(new Event('jobsUpdated'));
-          document.dispatchEvent(new CustomEvent('highPriorityJobsExist', { 
-            detail: { count: data.length } 
-          }));
-        }
-      } catch (err) {
-        console.error("Error checking for high priority jobs directly:", err);
-      }
-    };
-    
-    // Initial check
-    checkDatabaseForHighPriorityJobs();
-    
   }, [highPriorityJobs, unassignedJobs]);
   
   // Force a periodic refresh of the data
   useEffect(() => {
     const refreshInterval = setInterval(() => {
       // Dispatch event to force refresh of job data
-      document.dispatchEvent(new CustomEvent('jobsUpdated'));
+      document.dispatchEvent(new Event('jobsUpdated'));
     }, 5000); // Check every 5 seconds
     
     return () => clearInterval(refreshInterval);
@@ -143,14 +175,16 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           userRole={userRole}
-          currentUserId={currentUserId}
+          currentUserId="4" // This is hardcoded in the original
         />
       </Tabs>
       
       <NewTaskDialog
         open={showNewTaskDialog}
         onOpenChange={setShowNewTaskDialog}
-        technicians={technicians}
+        technicians={users.filter(user => 
+          user.role === "maintenance_tech" || user.role === "contractor"
+        )}
         properties={properties}
       />
     </div>

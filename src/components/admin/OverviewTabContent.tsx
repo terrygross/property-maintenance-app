@@ -11,6 +11,7 @@ import DashboardCard from "./dashboard/DashboardCard";
 import { JobCardProps } from "@/components/job/jobCardTypes";
 import { getCardStyles, getIconColor, getTabCount, hasHighPriorityJobs } from "./dashboard/dashboardUtils";
 import { useAppState } from "@/context/AppStateContext";
+import { supabase, reporterJobsTable } from "@/integrations/supabase/client";
 
 interface OverviewTabContentProps {
   setActiveTab?: (tab: string) => void;
@@ -20,11 +21,36 @@ interface OverviewTabContentProps {
 const OverviewTabContent = ({ setActiveTab, unassignedJobs = [] }: OverviewTabContentProps) => {
   const { users, properties } = useAppState();
   
-  // Debug jobs data
+  // Debug jobs data and check directly from Supabase if needed
   useEffect(() => {
     console.log("OverviewTabContent - Unassigned jobs received:", unassignedJobs);
     console.log("OverviewTabContent - Unassigned jobs array:", Array.isArray(unassignedJobs));
     console.log("OverviewTabContent - Total unassigned jobs count:", unassignedJobs?.length || 0);
+    
+    // If we don't have unassigned jobs in props, check Supabase directly
+    if ((!unassignedJobs || unassignedJobs.length === 0) && Array.isArray(unassignedJobs)) {
+      const checkUnassignedJobsDirectly = async () => {
+        try {
+          const { data, error } = await reporterJobsTable()
+            .select('*')
+            .or('status.eq.unassigned,assigned_to.is.null')
+            .neq('status', 'completed');
+            
+          if (error) throw error;
+          
+          if (data && data.length > 0) {
+            console.log("OverviewTabContent - Direct Supabase check found unassigned jobs:", data.length);
+            
+            // Force a refresh of the job data
+            document.dispatchEvent(new Event('jobsUpdated'));
+          }
+        } catch (err) {
+          console.error("Error checking for unassigned jobs directly:", err);
+        }
+      };
+      
+      checkUnassignedJobsDirectly();
+    }
     
     if (unassignedJobs && unassignedJobs.length > 0) {
       console.log("OverviewTabContent - First unassigned job:", unassignedJobs[0]);
@@ -63,15 +89,43 @@ const OverviewTabContent = ({ setActiveTab, unassignedJobs = [] }: OverviewTabCo
             // Check if this is the reporter tab and if there are high priority jobs
             const isReporterTab = tab.id === "reporter";
             const hasUnassignedJobs = unassignedJobs && Array.isArray(unassignedJobs) && unassignedJobs.length > 0;
-            const hasHighPriorityUnassignedJobs = isReporterTab && hasHighPriorityJobs(unassignedJobs);
             
-            // Log for debugging reporter card
+            // For reporter tab, check directly for high priority jobs
+            let hasHighPriorityUnassignedJobs = false;
+            
             if (isReporterTab) {
-              console.log("Reporter tab card - Has high priority jobs:", hasHighPriorityUnassignedJobs);
-              console.log("Reporter tab card - Unassigned job count:", unassignedJobs?.length || 0);
-              console.log("Reporter tab card - Is array:", Array.isArray(unassignedJobs));
+              // First check props
+              if (hasUnassignedJobs) {
+                hasHighPriorityUnassignedJobs = unassignedJobs.some(job => 
+                  job.priority === "high" || job.highPriority === true
+                );
+              }
               
-              // Check localStorage directly
+              // If no high priority found in props, check localStorage
+              if (!hasHighPriorityUnassignedJobs) {
+                try {
+                  const savedJobs = localStorage.getItem('reporterJobs');
+                  if (savedJobs) {
+                    const parsedJobs = JSON.parse(savedJobs);
+                    hasHighPriorityUnassignedJobs = parsedJobs.some((job: any) => 
+                      (job.priority === "high" || job.highPriority === true) &&
+                      (!job.assignedTo || job.status === "unassigned") && 
+                      job.status !== "completed"
+                    );
+                  }
+                } catch (error) {
+                  console.error("Reporter tab card - Error checking localStorage:", error);
+                }
+              }
+              
+              console.log("Reporter tab card - Has high priority jobs:", hasHighPriorityUnassignedJobs);
+            }
+            
+            // Get the count for this tab
+            let count = getTabCount(tab.id, users, properties, unassignedJobs);
+            
+            // For reporter tab without count from getTabCount, check localStorage directly
+            if (isReporterTab && (count === 0 || count === null)) {
               try {
                 const savedJobs = localStorage.getItem('reporterJobs');
                 if (savedJobs) {
@@ -79,21 +133,16 @@ const OverviewTabContent = ({ setActiveTab, unassignedJobs = [] }: OverviewTabCo
                   const unassignedDirectCount = parsedJobs.filter((job: any) => 
                     (!job.assignedTo || job.status === "unassigned") && job.status !== "completed"
                   ).length;
-                  console.log(`Reporter tab card - Direct localStorage check: ${unassignedDirectCount} unassigned jobs`);
+                  if (unassignedDirectCount > 0) {
+                    count = unassignedDirectCount;
+                  }
                 }
               } catch (error) {
                 console.error("Reporter tab card - Error checking localStorage:", error);
               }
             }
             
-            // Get the count for this tab
-            let count = getTabCount(tab.id, users, properties, unassignedJobs);
-            
-            // Force reporter tab count to reflect actual jobs array length
-            if (isReporterTab && Array.isArray(unassignedJobs)) {
-              count = unassignedJobs.length;
-              console.log("Reporter tab card - Final count:", count);
-            }
+            console.log(`Tab ${tab.id} count:`, count);
             
             return (
               <DashboardCard
