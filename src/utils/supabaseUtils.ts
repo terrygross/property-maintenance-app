@@ -6,6 +6,15 @@ import { supabase } from "@/integrations/supabase/client";
  */
 export const enableRealtimeForTables = async () => {
   try {
+    // Enable PostgreSQL replication for the reporter_jobs table to support realtime
+    await supabase.rpc('supabase_realtime', { 
+      table: 'reporter_jobs',
+      insert: true,
+      update: true,
+      delete: true,
+      source: ''
+    });
+    
     // Create a realtime channel with proper configuration
     const channel = supabase.channel('public:reporter_jobs')
       .on('postgres_changes', { 
@@ -13,7 +22,7 @@ export const enableRealtimeForTables = async () => {
         schema: 'public', 
         table: 'reporter_jobs' 
       }, payload => {
-        console.log('Change received!', payload);
+        console.log('Realtime change received!', payload);
         
         // Type checking and safely accessing properties
         if (payload.new) {

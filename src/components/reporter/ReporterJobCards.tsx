@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import { useReporterJobs } from "@/hooks/useReporterJobs";
 import { useJobActions } from "./hooks/useJobActions";
 import ReporterJobCardItem from "./ReporterJobCardItem";
@@ -16,19 +16,12 @@ const ReporterJobCards = ({ setActiveTab }: ReporterJobCardsProps) => {
     jobCards,
     setJobCards,
   });
-  const hasDispatchedUpdate = useRef(false);
   
   useEffect(() => {
     console.log("ReporterJobCards - Current job cards:", jobCards);
     console.log("ReporterJobCards - High priority jobs:", 
       jobCards.filter(job => job.priority === "high" || job.highPriority).length);
-    
-    // Only dispatch an update once when component mounts to prevent flashing
-    if (!hasDispatchedUpdate.current) {
-      document.dispatchEvent(new Event('jobsUpdated'));
-      hasDispatchedUpdate.current = true;
-    }
-  }, []);
+  }, [jobCards]);
 
   return (
     <div className="space-y-6">

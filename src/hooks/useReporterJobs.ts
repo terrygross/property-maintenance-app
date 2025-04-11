@@ -85,13 +85,6 @@ export const useReporterJobs = () => {
         setJobCards(jobsWithPhotos);
         console.log("useReporterJobs - Final job cards array set:", jobsWithPhotos.length);
         
-        // Store jobs in localStorage for fallback
-        try {
-          localStorage.setItem('reporterJobs', JSON.stringify(jobsWithPhotos));
-        } catch (storageError) {
-          console.error("Failed to store jobs in localStorage:", storageError);
-        }
-        
         // Notify about high priority jobs when they're first loaded - only on initial load
         if (isInitialLoad.current) {
           const highPriorityJobs = jobsWithPhotos.filter((job) => 
@@ -125,7 +118,7 @@ export const useReporterJobs = () => {
         }
       } catch (error) {
         console.error("useReporterJobs - Error loading reporter jobs:", error);
-        // If there's an error, fall back to empty array
+        // If there's an error, just set an empty array
         setJobCards([]);
       } finally {
         setIsLoading(false);

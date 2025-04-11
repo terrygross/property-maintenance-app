@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from "react";
 import { useAppState } from "@/context/AppStateContext";
-import { Job as JobType } from "@/hooks/jobs/types";
 import { Job as JobListType } from "@/components/jobs/jobsListUtils";
 import { supabase, reporterJobsTable } from "@/integrations/supabase/client";
 
@@ -58,8 +57,8 @@ export const useJobsData = () => {
             dueDate: new Date(new Date(job.report_date).getTime() + 7 * 24 * 60 * 60 * 1000),
             photos: { 
               reporter: job.image_url,
-              before: "",  // These fields don't exist in the database yet
-              after: ""    // These fields don't exist in the database yet
+              before: job.before_photo || "",
+              after: job.after_photo || ""
             }
           };
         });

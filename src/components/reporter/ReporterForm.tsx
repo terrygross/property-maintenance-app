@@ -108,35 +108,6 @@ const ReporterForm = ({ stationId, stationProperty, propertyName }: ReporterForm
       
       console.log("ReporterForm - Job saved to Supabase:", insertedJob);
       
-      // Also save to localStorage for compatibility with existing code
-      try {
-        const savedJobs = localStorage.getItem('reporterJobs') || '[]';
-        const parsedJobs = JSON.parse(savedJobs);
-        
-        // Add the new job to the array
-        const newJobForStorage = {
-          id: insertedJob?.[0]?.id || `temp-${Date.now()}`,
-          title: jobData.title,
-          description: jobData.description,
-          property: jobData.property,
-          location: jobData.location,
-          reportDate: timestamp,
-          priority: priorityValue,
-          highPriority: isHighPriority,
-          status: "unassigned",
-          reportedBy: data.reporterName,
-          imageUrl: data.imageUrl,
-          timestamp
-        };
-        
-        parsedJobs.push(newJobForStorage);
-        localStorage.setItem('reporterJobs', JSON.stringify(parsedJobs));
-        console.log("ReporterForm - Also saved job to localStorage for compatibility");
-      } catch (storageError) {
-        console.error("Error saving to localStorage:", storageError);
-        // Continue even if localStorage fails
-      }
-      
       // Trigger custom event to refresh jobs list in other components
       document.dispatchEvent(new Event('jobsUpdated'));
       

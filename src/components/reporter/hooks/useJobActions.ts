@@ -1,122 +1,109 @@
 
-import { v4 as uuidv4 } from "uuid";
+import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { useAppState } from "@/context/AppStateContext";
-import { sendPushNotification, notifyTechnicianTeam } from "@/services/NotificationService";
+import { JobCardProps } from "@/components/job/jobCardTypes";
 import { supabase, reporterJobsTable } from "@/integrations/supabase/client";
 
-export const useJobActions = ({ jobCards, setJobCards }) => {
-  const { toast } = useToast();
-  const { users } = useAppState();
-  
-  const technicians = users.filter(user => 
-    user.role === "maintenance_tech" || user.role === "contractor"
-  );
+interface UseJobActionsProps {
+  jobCards: JobCardProps[];
+  setJobCards: React.Dispatch<React.SetStateAction<JobCardProps[]>>;
+}
 
-  // Function to handle assigning a job to a technician
-  const handleAssignJob = async (jobId, technicianId) => {
-    // Update job in Supabase
+export const useJobActions = ({ jobCards, setJobCards }: UseJobActionsProps) => {
+  const { toast } = useToast();
+  const [isAssigning, setIsAssigning] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+
+  const handleAssignJob = async (jobId: string, technicianId: string) => {
+    if (isAssigning) return;
+    setIsAssigning(true);
+
     try {
       console.log(`Assigning job ${jobId} to technician ${technicianId}`);
       
+      // Update job in Supabase
       const { data, error } = await reporterJobsTable()
-        .update({
+        .update({ 
           assigned_to: technicianId,
-          status: "assigned",
+          status: 'assigned'
         })
         .eq('id', jobId)
-        .select();
-      
-      if (error) {
-        throw error;
-      }
-      
-      console.log("Assignment update result:", data);
-      
-      // Check if this is a high priority job
-      const job = jobCards.find(j => j.id === jobId);
-      if (job && (job.priority === "high" || job.highPriority)) {
-        // Find the technician details to get their phone number
-        const technician = users.find(user => user.id === technicianId);
-        
-        // Send notification to the specific technician assigned
-        if (technician && technician.phone) {
-          const title = "⚠️ HIGH PRIORITY JOB ASSIGNED";
-          const message = `You have been assigned a high priority job: ${job.title}`;
-          sendPushNotification(title, { 
-            body: message,
-            requireInteraction: true
-          });
-        }
-      }
-      
-      // Update local state to remove assigned job
-      setJobCards(jobCards.filter((job) => job.id !== jobId));
-      
-      // Show success message
-      toast({
-        title: "Job assigned",
-        description: "The job has been successfully assigned.",
-      });
-      
-      // Dispatch custom event to notify other components
-      document.dispatchEvent(new Event("jobsUpdated"));
-      
-      return true;
-    } catch (error) {
-      console.error("Error assigning job:", error);
-      
-      toast({
-        title: "Error",
-        description: "There was an error assigning the job.",
-        variant: "destructive",
-      });
-    }
-    
-    return false;
-  };
-
-  // Function to handle resending email for a job
-  const handleResendEmail = async (jobId) => {
-    try {
-      const { data, error } = await reporterJobsTable()
-        .select('*')
-        .eq('id', jobId)
+        .select()
         .single();
       
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
       
-      if (data) {
-        // Mock email resend (replace with actual email service integration)
-        console.log(`[MOCK] Resending email for job ${jobId} to reporter`);
-        
-        toast({
-          title: "Email resent",
-          description: "The email has been resent to the reporter.",
-        });
-        
-        return true;
-      } else {
-        toast({
-          title: "Error",
-          description: "Job not found.",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      console.error("Error resending email:", error);
+      console.log("Job assigned in Supabase:", data);
+      
+      // Update UI by filtering out the assigned job
+      setJobCards(jobCards.filter(job => job.id !== jobId));
+      
+      // Trigger a refresh of job data
+      document.dispatchEvent(new Event('jobsUpdated'));
       
       toast({
-        title: "Error",
-        description: "There was an error resending the email.",
+        title: "Job Assigned",
+        description: "The job has been successfully assigned to the technician.",
+      });
+    } catch (error) {
+      console.error("Error assigning job:", error);
+      toast({
+        title: "Assignment Failed",
+        description: "There was an error assigning the job. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsAssigning(false);
     }
-    
-    return true;
   };
 
-  return { handleAssignJob, handleResendEmail };
+  const handleResendEmail = async (jobId: string) => {
+    if (isResending) return;
+    setIsResending(true);
+
+    try {
+      console.log(`Resending email for job ${jobId}`);
+      
+      // Find the job to get details
+      const job = jobCards.find(job => job.id === jobId);
+      
+      if (!job) {
+        throw new Error("Job not found");
+      }
+      
+      // Update notification sent status in Supabase
+      const { error } = await reporterJobsTable()
+        .update({ notification_sent: true })
+        .eq('id', jobId);
+      
+      if (error) throw error;
+      
+      // Here you would typically call an API to send the actual email
+      // For now, we're just updating the status
+      
+      toast({
+        title: "Email Resent",
+        description: "The notification email has been resent to the maintenance team.",
+      });
+      
+      // Trigger a refresh of job data
+      document.dispatchEvent(new Event('jobsUpdated'));
+    } catch (error) {
+      console.error("Error resending email:", error);
+      toast({
+        title: "Resend Failed",
+        description: "There was an error resending the notification. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsResending(false);
+    }
+  };
+
+  return {
+    handleAssignJob,
+    handleResendEmail,
+    isAssigning,
+    isResending,
+  };
 };
