@@ -19,27 +19,6 @@ export const getTabCount = (tabId: string, users: any[], properties: any[], unas
       isArray: Array.isArray(unassignedJobs)
     });
     
-    // Directly access localStorage to verify
-    try {
-      const savedJobs = localStorage.getItem('reporterJobs');
-      if (savedJobs) {
-        const parsedJobs = JSON.parse(savedJobs);
-        const unassignedCount = parsedJobs.filter((job: any) => 
-          (!job.assignedTo || job.status === "unassigned") && job.status !== "completed"
-        ).length;
-        
-        console.log(`Direct localStorage check - Found ${unassignedCount} unassigned jobs out of ${parsedJobs.length} total jobs`);
-        
-        // If we found unassigned jobs but the passed array is empty, use the direct count
-        if (unassignedCount > 0 && (!unassignedJobs || unassignedJobs.length === 0)) {
-          console.log(`Override: Using direct count ${unassignedCount} instead of passed array length 0`);
-          return unassignedCount;
-        }
-      }
-    } catch (error) {
-      console.error("Error checking localStorage directly:", error);
-    }
-    
     // Return the length of unassignedJobs if it's an array
     if (Array.isArray(unassignedJobs)) {
       return unassignedJobs.length;
@@ -89,27 +68,27 @@ export const getCardDescription = (tabId: string): string => {
 // Get background colors for cards
 export const getCardStyles = (index: number, hasAlert: boolean = false): string => {
   if (hasAlert) {
-    return "bg-white hover:bg-red-50 border-red-400 animate-pulse";
+    return "bg-white hover:bg-red-50";
   }
   
   const colorClasses = [
-    "bg-white hover:bg-blue-50 border-blue-300",
-    "bg-white hover:bg-green-50 border-blue-300",
-    "bg-white hover:bg-purple-50 border-blue-300",
-    "bg-white hover:bg-yellow-50 border-blue-300",
-    "bg-white hover:bg-red-50 border-blue-300",
-    "bg-white hover:bg-teal-50 border-blue-300",
-    "bg-white hover:bg-slate-50 border-blue-300",
-    "bg-white hover:bg-indigo-50 border-blue-300",
-    "bg-white hover:bg-orange-50 border-blue-300",
-    "bg-white hover:bg-emerald-50 border-blue-300",
-    "bg-white hover:bg-pink-50 border-blue-300",
-    "bg-white hover:bg-cyan-50 border-blue-300",
-    "bg-white hover:bg-amber-50 border-blue-300",
-    "bg-white hover:bg-lime-50 border-blue-300",
-    "bg-white hover:bg-violet-50 border-blue-300",
-    "bg-white hover:bg-fuchsia-50 border-blue-300",
-    "bg-white hover:bg-rose-50 border-blue-300"
+    "bg-white hover:bg-blue-50",
+    "bg-white hover:bg-green-50",
+    "bg-white hover:bg-purple-50",
+    "bg-white hover:bg-yellow-50",
+    "bg-white hover:bg-red-50",
+    "bg-white hover:bg-teal-50",
+    "bg-white hover:bg-slate-50",
+    "bg-white hover:bg-indigo-50",
+    "bg-white hover:bg-orange-50",
+    "bg-white hover:bg-emerald-50",
+    "bg-white hover:bg-pink-50",
+    "bg-white hover:bg-cyan-50",
+    "bg-white hover:bg-amber-50",
+    "bg-white hover:bg-lime-50",
+    "bg-white hover:bg-violet-50",
+    "bg-white hover:bg-fuchsia-50",
+    "bg-white hover:bg-rose-50"
   ];
   return colorClasses[index % colorClasses.length];
 };
@@ -150,6 +129,10 @@ export const hasHighPriorityJobs = (jobs: any[]): boolean => {
   );
   
   console.log(`hasHighPriorityJobs - Found ${highPriorityJobs.length} high priority jobs out of ${jobs.length} total`);
+  
+  if (highPriorityJobs.length > 0) {
+    console.log("First high priority job:", highPriorityJobs[0]);
+  }
   
   return highPriorityJobs.length > 0;
 };

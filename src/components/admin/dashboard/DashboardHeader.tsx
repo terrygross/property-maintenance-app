@@ -26,9 +26,13 @@ const DashboardHeader = ({
   
   // Log alert count for debugging
   useEffect(() => {
-    console.log("High priority jobs count:", highPriorityJobs.length);
-    console.log("High priority unassigned jobs count:", highPriorityUnassigned.length);
-    console.log("Total alert count:", totalAlertCount);
+    console.log("DashboardHeader - High priority jobs count:", highPriorityJobs.length);
+    console.log("DashboardHeader - High priority unassigned jobs count:", highPriorityUnassigned.length);
+    console.log("DashboardHeader - Total alert count:", totalAlertCount);
+    
+    if (highPriorityUnassigned.length > 0) {
+      console.log("DashboardHeader - First high priority unassigned job:", highPriorityUnassigned[0]);
+    }
   }, [highPriorityJobs.length, highPriorityUnassigned.length, totalAlertCount]);
   
   return (

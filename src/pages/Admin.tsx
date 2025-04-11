@@ -16,7 +16,25 @@ const Admin = () => {
   
   // Initialize realtime
   useEffect(() => {
-    enableRealtimeForTables();
+    const setupRealtime = async () => {
+      const result = await enableRealtimeForTables();
+      if (result) {
+        console.log("Realtime functionality enabled for tables");
+        // Force an initial refresh of jobs data
+        document.dispatchEvent(new Event('jobsUpdated'));
+      } else {
+        console.error("Failed to enable realtime functionality");
+      }
+    };
+    
+    setupRealtime();
+    
+    // Set up periodic refresh to ensure we get all updates
+    const refreshInterval = setInterval(() => {
+      document.dispatchEvent(new Event('jobsUpdated'));
+    }, 10000); // Check every 10 seconds
+    
+    return () => clearInterval(refreshInterval);
   }, []);
 
   return (

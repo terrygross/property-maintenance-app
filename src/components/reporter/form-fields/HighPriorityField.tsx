@@ -36,6 +36,7 @@ const HighPriorityField = ({ form }: HighPriorityFieldProps) => {
                 // If checked, also set priority to high
                 if (checked) {
                   form.setValue("priority", "high");
+                  console.log("Setting priority to HIGH");
                 }
               }}
             />

@@ -40,7 +40,7 @@ export const useReporterJobs = () => {
         const jobsWithPhotos = jobs.map((job) => {
           // Convert string priority to the correct enum type
           let typedPriority: "low" | "medium" | "high" = "medium";
-          if (job.priority === "high" || job.high_priority) {
+          if (job.priority === "high" || job.high_priority === true) {
             typedPriority = "high";
           } else if (job.priority === "low") {
             typedPriority = "low";
@@ -56,7 +56,7 @@ export const useReporterJobs = () => {
             status: job.status || "unassigned",
             reporterPhoto: job.image_url, 
             imageUrl: job.image_url,
-            highPriority: job.high_priority,
+            highPriority: job.high_priority === true,
             // Adding this flag to track notifications
             notificationSent: job.notification_sent || false
           } as JobCardProps;
@@ -81,9 +81,15 @@ export const useReporterJobs = () => {
             notifyTechnicianTeam(technicians, job.title, job.property);
             
             // Mark job as notified in Supabase
-            await reporterJobsTable()
-              .update({ notification_sent: true })
-              .eq('id', job.id);
+            try {
+              await reporterJobsTable()
+                .update({ notification_sent: true })
+                .eq('id', job.id);
+                
+              console.log(`Marked job ${job.id} as notified`);
+            } catch (updateError) {
+              console.error("Failed to mark job as notified:", updateError);
+            }
           }
         }
         
@@ -111,22 +117,24 @@ export const useReporterJobs = () => {
       .channel('reporter-jobs-changes')
       .on('postgres_changes', 
         { event: '*', schema: 'public', table: 'reporter_jobs' }, 
-        () => {
-          console.log("useReporterJobs - Supabase realtime update received");
+        (payload) => {
+          console.log("useReporterJobs - Supabase realtime update received:", payload);
           loadReporterJobs();
         }
       )
       .subscribe();
     
     // Setup a listener for manual refreshes
-    document.addEventListener('jobsUpdated', () => {
+    const handleJobUpdated = () => {
       console.log("useReporterJobs - Manual jobs update event received");
       loadReporterJobs();
-    });
+    };
+    
+    document.addEventListener('jobsUpdated', handleJobUpdated);
     
     return () => {
       supabase.removeChannel(channel);
-      document.removeEventListener('jobsUpdated', loadReporterJobs as EventListener);
+      document.removeEventListener('jobsUpdated', handleJobUpdated);
     };
   }, [users]);
 

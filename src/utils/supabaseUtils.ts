@@ -6,30 +6,34 @@ import { supabase } from "@/integrations/supabase/client";
  */
 export const enableRealtimeForTables = async () => {
   try {
-    // Direct PostgreSQL channel creation for realtime functionality
-    // This approach avoids the type issues with the RPC call
-    const channel = supabase.channel('schema-db-changes')
+    // Create a realtime channel with proper configuration
+    const channel = supabase.channel('public:reporter_jobs')
       .on('postgres_changes', { 
         event: '*', 
         schema: 'public', 
         table: 'reporter_jobs' 
       }, payload => {
         console.log('Change received!', payload);
+        // Dispatch an event to notify components
+        document.dispatchEvent(new Event('jobsUpdated'));
       })
       .subscribe();
     
-    console.log("Realtime channel created for reporter_jobs table");
+    console.log("Realtime channel created and subscribed for reporter_jobs table");
     
-    // Also attempt to use the RPC method as fallback
+    // Verify table connection
     try {
-      await supabase.from('reporter_jobs')
+      const { data, error } = await supabase.from('reporter_jobs')
         .select('id')
         .limit(1);
         
-      // If we reach here, the table exists and we can communicate with it
-      console.log("Verified reporter_jobs table connection");
+      if (error) {
+        throw error;
+      }
+      
+      console.log("Successfully connected to reporter_jobs table:", data);
     } catch (innerError) {
-      console.error("Error verifying reporter_jobs table:", innerError);
+      console.error("Error verifying reporter_jobs table connection:", innerError);
     }
     
     return true;

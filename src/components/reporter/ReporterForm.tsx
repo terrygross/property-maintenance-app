@@ -69,6 +69,9 @@ const ReporterForm = ({ stationId, stationProperty, propertyName }: ReporterForm
       // Create timestamp
       const timestamp = new Date().toISOString();
       
+      // Determine priority - explicitly set both fields for consistency
+      const isPriorityHigh = data.highPriority || data.priority === "high";
+      
       // Create job object with explicit status and priority
       const jobData = {
         title: `Maintenance Request - ${propertyName}`,
@@ -76,8 +79,8 @@ const ReporterForm = ({ stationId, stationProperty, propertyName }: ReporterForm
         property: propertyName,
         location: data.location,
         report_date: timestamp,
-        priority: data.highPriority ? "high" : "medium",
-        high_priority: data.highPriority,
+        priority: isPriorityHigh ? "high" : data.priority || "medium",
+        high_priority: isPriorityHigh,
         status: "unassigned",
         reported_by: data.reporterName,
         image_url: data.imageUrl,

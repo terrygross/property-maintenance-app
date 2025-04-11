@@ -32,13 +32,15 @@ const DashboardCard = ({
       ? "Base (2) + (1) Additional station"
       : description;
       
-  const borderClass = hasAlert ? "border-red-400 border-2" : "border";
+  const borderClass = hasAlert ? "border-red-500 border-2" : "border";
   const iconClass = hasAlert ? "text-red-500" : iconColorClass;
   const animationClass = hasAlert ? "animate-pulse" : "";
 
   // Enhanced debugging - always log card props
   useEffect(() => {
-    console.log(`DashboardCard ${id}: hasAlert=${hasAlert}, count=${count}, description=${description}`);
+    if (id === "reporter") {
+      console.log(`DashboardCard ${id}: hasAlert=${hasAlert}, count=${count}, description=${description}`);
+    }
   }, [id, hasAlert, count, description]);
 
   return (

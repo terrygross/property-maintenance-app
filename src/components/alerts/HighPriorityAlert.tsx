@@ -22,18 +22,22 @@ const HighPriorityAlert = ({ count, onClick }: HighPriorityAlertProps) => {
     return () => clearInterval(interval);
   }, [count]);
   
+  useEffect(() => {
+    console.log("HighPriorityAlert - Alert count:", count);
+  }, [count]);
+  
   if (count === 0) return null;
   
   return (
     <button
       onClick={onClick}
       className={cn(
-        "relative flex items-center justify-center p-1 rounded-full",
+        "relative flex items-center justify-center p-2 rounded-full",
         "transition-colors duration-200",
         isFlashing ? "bg-red-600" : "bg-red-400",
         "animate-pulse hover:bg-red-700",
         "shadow-lg", // Add shadow for more emphasis
-        "h-8 w-8" // Set explicit size
+        "h-10 w-10" // Set explicit size
       )}
       aria-label={`${count} high priority alerts`}
     >
