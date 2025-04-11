@@ -62,7 +62,7 @@ const AdminDashboardTabs: React.FC<AdminDashboardTabsProps> = ({
         </TabsContent>
         
         <TabsContent value="reporter">
-          <ReporterJobCards />
+          <ReporterJobCards setActiveTab={setActiveTab} />
         </TabsContent>
         
         <TabsContent value="reporter-management">

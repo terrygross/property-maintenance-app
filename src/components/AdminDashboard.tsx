@@ -146,6 +146,10 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
   const handleAlertClick = () => {
     // Navigate to jobs tab which will show high priority jobs
     setActiveTab("reporter");
+    // Force refresh job data when navigating
+    setTimeout(() => {
+      document.dispatchEvent(new Event('jobsUpdated'));
+    }, 100);
   };
 
   return (

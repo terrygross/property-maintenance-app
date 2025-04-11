@@ -66,15 +66,22 @@ export const useReporterJobs = () => {
         console.log("useReporterJobs - High priority count:", 
           jobsWithPhotos.filter(j => j.priority === "high" || j.highPriority).length);
         
+        // Set the job cards
+        setJobCards(jobsWithPhotos);
+        console.log("useReporterJobs - Final job cards array set:", jobsWithPhotos.length);
+        
+        // Store jobs in localStorage for fallback
+        try {
+          localStorage.setItem('reporterJobs', JSON.stringify(jobsWithPhotos));
+        } catch (storageError) {
+          console.error("Failed to store jobs in localStorage:", storageError);
+        }
+        
         // Notify about high priority jobs when they're first loaded
         const highPriorityJobs = jobsWithPhotos.filter((job) => 
           (job.priority === "high" || job.highPriority === true) && 
           !job.notificationSent
         );
-        
-        // Set the job cards
-        setJobCards(jobsWithPhotos);
-        console.log("useReporterJobs - Final job cards array set:", jobsWithPhotos.length);
         
         // Mark high priority jobs as notified
         if (highPriorityJobs.length > 0) {
@@ -85,17 +92,17 @@ export const useReporterJobs = () => {
           
           // Send notifications for each high priority job
           for (const job of highPriorityJobs) {
-            notifyTechnicianTeam(technicians, job.title, job.property);
-            
-            // Mark job as notified in Supabase
             try {
+              notifyTechnicianTeam(technicians, job.title, job.property);
+              
+              // Mark job as notified in Supabase
               await reporterJobsTable()
                 .update({ notification_sent: true })
                 .eq('id', job.id);
                 
               console.log(`Marked job ${job.id} as notified`);
-            } catch (updateError) {
-              console.error("Failed to mark job as notified:", updateError);
+            } catch (notifyError) {
+              console.error("Failed to send notification or mark job as notified:", notifyError);
             }
           }
         }

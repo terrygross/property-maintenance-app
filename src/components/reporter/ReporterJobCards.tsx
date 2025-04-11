@@ -21,7 +21,10 @@ const ReporterJobCards = ({ setActiveTab }: ReporterJobCardsProps) => {
     console.log("ReporterJobCards - Current job cards:", jobCards);
     console.log("ReporterJobCards - High priority jobs:", 
       jobCards.filter(job => job.priority === "high" || job.highPriority).length);
-  }, [jobCards]);
+    
+    // Force an additional jobs update when component mounts
+    document.dispatchEvent(new Event('jobsUpdated'));
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -45,7 +48,7 @@ const ReporterJobCards = ({ setActiveTab }: ReporterJobCardsProps) => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {jobCards.length > 0 ? (
+          {jobCards && jobCards.length > 0 ? (
             jobCards.map(job => (
               <ReporterJobCardItem
                 key={job.id}
