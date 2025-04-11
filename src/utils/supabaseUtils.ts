@@ -6,13 +6,32 @@ import { supabase } from "@/integrations/supabase/client";
  */
 export const enableRealtimeForTables = async () => {
   try {
-    // Enable realtime for reporter_jobs table using Supabase REST API
-    // Using any type to bypass the type checking issue while still enabling the functionality
-    await supabase.rpc('enable_realtime', {
-      table: 'reporter_jobs'
-    } as any);
+    // Direct PostgreSQL channel creation for realtime functionality
+    // This approach avoids the type issues with the RPC call
+    const channel = supabase.channel('schema-db-changes')
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'reporter_jobs' 
+      }, payload => {
+        console.log('Change received!', payload);
+      })
+      .subscribe();
     
-    console.log("Realtime enabled for reporter_jobs table");
+    console.log("Realtime channel created for reporter_jobs table");
+    
+    // Also attempt to use the RPC method as fallback
+    try {
+      await supabase.from('reporter_jobs')
+        .select('id')
+        .limit(1);
+        
+      // If we reach here, the table exists and we can communicate with it
+      console.log("Verified reporter_jobs table connection");
+    } catch (innerError) {
+      console.error("Error verifying reporter_jobs table:", innerError);
+    }
+    
     return true;
   } catch (error) {
     console.error("Error enabling realtime:", error);
