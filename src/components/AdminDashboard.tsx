@@ -11,6 +11,7 @@ import AdminDashboardTabs from "./admin/dashboard/AdminDashboardTabs";
 import DashboardHeader from "./admin/dashboard/DashboardHeader";
 import { useLocation } from "react-router-dom";
 import { useReporterJobs } from "@/hooks/useReporterJobs";
+import { supabase, reporterJobsTable } from "@/integrations/supabase/client";
 
 interface AdminDashboardProps {
   userRole?: UserRole;
@@ -29,20 +30,6 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
   useEffect(() => {
     console.log("AdminDashboard - High priority jobs:", highPriorityJobs.length);
     console.log("AdminDashboard - Unassigned jobs total:", unassignedJobs?.length || 0);
-    console.log("AdminDashboard - Raw unassigned jobs:", unassignedJobs);
-    
-    // Check if localStorage has any jobs
-    try {
-      const savedJobs = localStorage.getItem('reporterJobs');
-      if (savedJobs) {
-        const parsedJobs = JSON.parse(savedJobs);
-        console.log("AdminDashboard - Direct localStorage check - Total jobs:", parsedJobs.length);
-      } else {
-        console.log("AdminDashboard - Direct localStorage check - No 'reporterJobs' key found");
-      }
-    } catch (error) {
-      console.error("AdminDashboard - Error checking localStorage:", error);
-    }
     
     const highPriorityUnassigned = unassignedJobs?.filter(job => 
       job.priority === "high" || job.highPriority === true
@@ -50,12 +37,33 @@ const AdminDashboard = ({ userRole = "admin" }: AdminDashboardProps) => {
     
     console.log("AdminDashboard - High priority unassigned jobs:", highPriorityUnassigned.length);
     
-    if (unassignedJobs && unassignedJobs.length > 0) {
-      console.log("AdminDashboard - First unassigned job:", unassignedJobs[0]);
-    }
-    if (highPriorityUnassigned.length > 0) {
-      console.log("AdminDashboard - First high priority unassigned job:", highPriorityUnassigned[0]);
-    }
+    // Additional direct check against database for high priority jobs
+    const checkDatabaseForHighPriorityJobs = async () => {
+      try {
+        const { data, error } = await reporterJobsTable()
+          .select('id, high_priority, priority, title')
+          .or('high_priority.eq.true,priority.eq.high');
+          
+        if (error) throw error;
+        
+        console.log("AdminDashboard - Direct database check for high priority jobs:", data);
+        
+        // If we found some but our state doesn't have them, refresh
+        if (data?.length > 0 && highPriorityJobs.length === 0 && highPriorityUnassigned.length === 0) {
+          console.log("AdminDashboard - Triggering refresh for missing high priority jobs");
+          document.dispatchEvent(new Event('jobsUpdated'));
+          document.dispatchEvent(new CustomEvent('highPriorityJobsExist', { 
+            detail: { count: data.length } 
+          }));
+        }
+      } catch (err) {
+        console.error("Error checking for high priority jobs directly:", err);
+      }
+    };
+    
+    // Initial check
+    checkDatabaseForHighPriorityJobs();
+    
   }, [highPriorityJobs, unassignedJobs]);
   
   // Force a periodic refresh of the data

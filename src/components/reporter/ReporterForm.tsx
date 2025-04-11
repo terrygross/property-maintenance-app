@@ -70,7 +70,15 @@ const ReporterForm = ({ stationId, stationProperty, propertyName }: ReporterForm
       const timestamp = new Date().toISOString();
       
       // Determine priority - explicitly set both fields for consistency
-      const isPriorityHigh = data.highPriority || data.priority === "high";
+      const isHighPriority = data.highPriority || data.priority === "high";
+      const priorityValue = isHighPriority ? "high" : (data.priority || "medium");
+      
+      console.log("ReporterForm - Form submission data:", {
+        highPriority: data.highPriority,
+        priority: data.priority,
+        isHighPriority: isHighPriority,
+        priorityValue: priorityValue
+      });
       
       // Create job object with explicit status and priority
       const jobData = {
@@ -79,15 +87,15 @@ const ReporterForm = ({ stationId, stationProperty, propertyName }: ReporterForm
         property: propertyName,
         location: data.location,
         report_date: timestamp,
-        priority: isPriorityHigh ? "high" : data.priority || "medium",
-        high_priority: isPriorityHigh,
+        priority: priorityValue,
+        high_priority: isHighPriority,
         status: "unassigned",
         reported_by: data.reporterName,
         image_url: data.imageUrl,
         timestamp
       };
       
-      console.log("ReporterForm - Creating new job:", jobData);
+      console.log("ReporterForm - Creating new job with data:", jobData);
       
       // Save to Supabase
       const { data: insertedJob, error } = await reporterJobsTable()
@@ -100,13 +108,43 @@ const ReporterForm = ({ stationId, stationProperty, propertyName }: ReporterForm
       
       console.log("ReporterForm - Job saved to Supabase:", insertedJob);
       
+      // Also save to localStorage for compatibility with existing code
+      try {
+        const savedJobs = localStorage.getItem('reporterJobs') || '[]';
+        const parsedJobs = JSON.parse(savedJobs);
+        
+        // Add the new job to the array
+        const newJobForStorage = {
+          id: insertedJob?.[0]?.id || `temp-${Date.now()}`,
+          title: jobData.title,
+          description: jobData.description,
+          property: jobData.property,
+          location: jobData.location,
+          reportDate: timestamp,
+          priority: priorityValue,
+          highPriority: isHighPriority,
+          status: "unassigned",
+          reportedBy: data.reporterName,
+          imageUrl: data.imageUrl,
+          timestamp
+        };
+        
+        parsedJobs.push(newJobForStorage);
+        localStorage.setItem('reporterJobs', JSON.stringify(parsedJobs));
+        console.log("ReporterForm - Also saved job to localStorage for compatibility");
+      } catch (storageError) {
+        console.error("Error saving to localStorage:", storageError);
+        // Continue even if localStorage fails
+      }
+      
       // Trigger custom event to refresh jobs list in other components
       document.dispatchEvent(new Event('jobsUpdated'));
       
       // Show success message
       toast({
-        title: "Maintenance request submitted",
+        title: isHighPriority ? "HIGH PRIORITY Maintenance request submitted" : "Maintenance request submitted",
         description: "Your request has been recorded and will be addressed soon.",
+        variant: isHighPriority ? "destructive" : "default",
       });
       
       // Reset form

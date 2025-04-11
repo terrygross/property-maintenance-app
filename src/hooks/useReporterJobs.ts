@@ -56,7 +56,7 @@ export const useReporterJobs = () => {
             status: job.status || "unassigned",
             reporterPhoto: job.image_url, 
             imageUrl: job.image_url,
-            highPriority: job.high_priority === true,
+            highPriority: job.high_priority === true || job.priority === "high",
             // Adding this flag to track notifications
             notificationSent: job.notification_sent || false
           } as JobCardProps;
@@ -90,6 +90,29 @@ export const useReporterJobs = () => {
             } catch (updateError) {
               console.error("Failed to mark job as notified:", updateError);
             }
+          }
+          
+          // Also save to localStorage for compatibility
+          try {
+            const savedJobs = localStorage.getItem('reporterJobs') || '[]';
+            let parsedJobs = JSON.parse(savedJobs);
+            
+            // Update notification status for these jobs in localStorage
+            highPriorityJobs.forEach(job => {
+              parsedJobs = parsedJobs.map((localJob: any) => {
+                if (localJob.id === job.id) {
+                  return {
+                    ...localJob,
+                    notificationSent: true
+                  };
+                }
+                return localJob;
+              });
+            });
+            
+            localStorage.setItem('reporterJobs', JSON.stringify(parsedJobs));
+          } catch (storageError) {
+            console.error("Error updating localStorage:", storageError);
           }
         }
         
@@ -131,10 +154,12 @@ export const useReporterJobs = () => {
     };
     
     document.addEventListener('jobsUpdated', handleJobUpdated);
+    document.addEventListener('highPriorityJobAdded', handleJobUpdated);
     
     return () => {
       supabase.removeChannel(channel);
       document.removeEventListener('jobsUpdated', handleJobUpdated);
+      document.removeEventListener('highPriorityJobAdded', handleJobUpdated);
     };
   }, [users]);
 

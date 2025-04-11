@@ -23,10 +23,15 @@ const HighPriorityAlert = ({ count, onClick }: HighPriorityAlertProps) => {
   }, [count]);
   
   useEffect(() => {
-    console.log("HighPriorityAlert - Alert count:", count);
+    console.log("HighPriorityAlert - Alert count updated:", count);
   }, [count]);
   
-  if (count === 0) return null;
+  if (count === 0) {
+    console.log("HighPriorityAlert - Zero count, not rendering");
+    return null;
+  }
+  
+  console.log("HighPriorityAlert - Rendering with count:", count);
   
   return (
     <button
@@ -37,12 +42,13 @@ const HighPriorityAlert = ({ count, onClick }: HighPriorityAlertProps) => {
         isFlashing ? "bg-red-600" : "bg-red-400",
         "animate-pulse hover:bg-red-700",
         "shadow-lg", // Add shadow for more emphasis
-        "h-10 w-10" // Set explicit size
+        "h-12 w-12", // Increased size for visibility
+        "focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
       )}
       aria-label={`${count} high priority alerts`}
     >
-      <AlertCircle className="h-6 w-6 text-white" />
-      <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-white text-xs font-bold text-red-600 border border-red-600">
+      <AlertCircle className="h-7 w-7 text-white" />
+      <span className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-white text-xs font-bold text-red-600 border border-red-600 shadow">
         {count}
       </span>
     </button>

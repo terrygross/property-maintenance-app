@@ -9,6 +9,7 @@ import { Toaster } from "sonner";
 import ChatDrawer from "@/components/chat/ChatDrawer";
 import { useAppState } from "@/context/AppStateContext";
 import { enableRealtimeForTables } from "@/utils/supabaseUtils";
+import { reporterJobsTable } from "@/integrations/supabase/client";
 
 const Admin = () => {
   const { currentUser } = useAppState();
@@ -17,10 +18,34 @@ const Admin = () => {
   // Initialize realtime
   useEffect(() => {
     const setupRealtime = async () => {
-      const result = await enableRealtimeForTables();
-      if (result) {
+      const channel = await enableRealtimeForTables();
+      if (channel) {
         console.log("Realtime functionality enabled for tables");
-        // Force an initial refresh of jobs data
+        
+        // Force an initial check for high priority jobs
+        const checkForHighPriorityJobs = async () => {
+          try {
+            const { data, error } = await reporterJobsTable()
+              .select('id, high_priority, priority')
+              .or('high_priority.eq.true,priority.eq.high');
+              
+            if (error) throw error;
+            
+            if (data && data.length > 0) {
+              console.log("Admin - Initial check found high priority jobs:", data.length);
+              // Dispatch event to update UI
+              document.dispatchEvent(new CustomEvent('highPriorityJobsExist', { 
+                detail: { count: data.length } 
+              }));
+            }
+          } catch (err) {
+            console.error("Error in initial high priority jobs check:", err);
+          }
+        };
+        
+        checkForHighPriorityJobs();
+        
+        // Also force a refresh of all jobs data
         document.dispatchEvent(new Event('jobsUpdated'));
       } else {
         console.error("Failed to enable realtime functionality");

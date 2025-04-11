@@ -16,6 +16,7 @@ const HighPriorityField = ({ form }: HighPriorityFieldProps) => {
     const subscription = form.watch((value, { name }) => {
       if (name === "highPriority" && value.highPriority) {
         form.setValue("priority", "high");
+        console.log("HighPriorityField - Setting priority to HIGH");
       }
     });
     
@@ -36,7 +37,7 @@ const HighPriorityField = ({ form }: HighPriorityFieldProps) => {
                 // If checked, also set priority to high
                 if (checked) {
                   form.setValue("priority", "high");
-                  console.log("Setting priority to HIGH");
+                  console.log("HighPriorityField - Checkbox setting priority to HIGH");
                 }
               }}
             />
