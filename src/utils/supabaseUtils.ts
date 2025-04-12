@@ -12,7 +12,7 @@ export const enableRealtimeForTables = async () => {
       insert: true,
       update: true,
       delete: true,
-      source: ''
+      source: null // Changed from empty string to null as required by the type definition
     });
     
     // Create a realtime channel with proper configuration
