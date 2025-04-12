@@ -7,12 +7,12 @@ import { supabase } from "@/integrations/supabase/client";
 export const enableRealtimeForTables = async () => {
   try {
     // Enable PostgreSQL replication for the reporter_jobs table to support realtime
-    // Fix: Remove the table parameter which is causing type errors
+    // The supabase_realtime RPC call doesn't accept a 'table' parameter
+    // It just needs to know which operations to enable
     await supabase.rpc('supabase_realtime', { 
       insert: true,
       update: true,
-      delete: true,
-      // The source parameter is causing a type error, so we need to remove it entirely
+      delete: true
     });
     
     // Create a realtime channel with proper configuration
