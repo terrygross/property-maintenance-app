@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 /**
@@ -11,7 +12,7 @@ export const enableRealtimeForTables = async () => {
       insert: true,
       update: true,
       delete: true,
-      // Remove the source parameter entirely as it's not needed
+      // Completely remove the source parameter as it's causing a type error
     });
     
     // Create a realtime channel with proper configuration

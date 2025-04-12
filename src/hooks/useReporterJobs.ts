@@ -11,20 +11,29 @@ export const useReporterJobs = () => {
   const [isLoading, setIsLoading] = useState(true);
   const isInitialLoad = useRef(true);
   const lastFetchTime = useRef<number>(0);
-  const MIN_FETCH_INTERVAL = 1000; // Minimum 1 second between fetches
+  const MIN_FETCH_INTERVAL = 3000; // Increased to 3 seconds to prevent flashing
+  const pendingRequestRef = useRef<boolean>(false);
 
   // Load job cards from Supabase
   useEffect(() => {
     const loadReporterJobs = async () => {
-      // Prevent too frequent refreshes
+      // Prevent too frequent refreshes and concurrent requests
       const now = Date.now();
       if (!isInitialLoad.current && now - lastFetchTime.current < MIN_FETCH_INTERVAL) {
         console.log("useReporterJobs - Skipping fetch, too soon since last fetch");
         return;
       }
       
+      // Prevent multiple concurrent requests
+      if (pendingRequestRef.current) {
+        console.log("useReporterJobs - Skipping fetch, request already in progress");
+        return;
+      }
+      
+      pendingRequestRef.current = true;
+      
       try {
-        if (isInitialLoad.current || isLoading) {
+        if (isInitialLoad.current) {
           setIsLoading(true);
         }
         
@@ -48,6 +57,7 @@ export const useReporterJobs = () => {
           setJobCards([]);
           setIsLoading(false);
           isInitialLoad.current = false;
+          pendingRequestRef.current = false;
           return;
         }
         
@@ -123,19 +133,28 @@ export const useReporterJobs = () => {
       } finally {
         setIsLoading(false);
         isInitialLoad.current = false;
+        pendingRequestRef.current = false;
       }
     };
     
     // Load jobs initially
     loadReporterJobs();
     
-    // Setup a listener for Supabase realtime updates
+    // Setup a listener for Supabase realtime updates with debounce
     const channel = supabase
       .channel('reporter-jobs-changes')
       .on('postgres_changes', 
         { event: '*', schema: 'public', table: 'reporter_jobs' }, 
         (payload) => {
           console.log("useReporterJobs - Supabase realtime update received:", payload);
+          
+          // Debounce the update
+          const now = Date.now();
+          if (now - lastFetchTime.current < MIN_FETCH_INTERVAL) {
+            console.log("useReporterJobs - Debouncing realtime update");
+            return;
+          }
+          
           loadReporterJobs();
         }
       )
@@ -144,6 +163,14 @@ export const useReporterJobs = () => {
     // Setup a listener for manual refreshes with debounce
     const handleJobUpdated = () => {
       console.log("useReporterJobs - Manual jobs update event received");
+      
+      // Debounce the update
+      const now = Date.now();
+      if (now - lastFetchTime.current < MIN_FETCH_INTERVAL) {
+        console.log("useReporterJobs - Debouncing manual update");
+        return;
+      }
+      
       loadReporterJobs();
     };
     

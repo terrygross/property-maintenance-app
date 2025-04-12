@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useReporterJobs } from "@/hooks/useReporterJobs";
 import { useJobActions } from "./hooks/useJobActions";
 import ReporterJobCardItem from "./ReporterJobCardItem";
@@ -16,12 +16,37 @@ const ReporterJobCards = ({ setActiveTab }: ReporterJobCardsProps) => {
     jobCards,
     setJobCards,
   });
+  const [lastUpdateTime, setLastUpdateTime] = useState(Date.now());
   
+  // Add debounced update counter to prevent too frequent refreshes
   useEffect(() => {
     console.log("ReporterJobCards - Current job cards:", jobCards);
     console.log("ReporterJobCards - High priority jobs:", 
       jobCards.filter(job => job.priority === "high" || job.highPriority).length);
   }, [jobCards]);
+  
+  // Add event handler with debounce to prevent flashing
+  useEffect(() => {
+    const MIN_UPDATE_INTERVAL = 3000; // 3 seconds minimum between updates
+    
+    const handleJobsUpdated = () => {
+      const now = Date.now();
+      if (now - lastUpdateTime < MIN_UPDATE_INTERVAL) {
+        console.log("Skipping update due to debounce");
+        return;
+      }
+      
+      setLastUpdateTime(now);
+      // The actual update is handled by useReporterJobs hook
+    };
+    
+    // Listen to job updates
+    document.addEventListener("jobsUpdated", handleJobsUpdated);
+    
+    return () => {
+      document.removeEventListener("jobsUpdated", handleJobsUpdated);
+    };
+  }, [lastUpdateTime]);
 
   return (
     <div className="space-y-6">
