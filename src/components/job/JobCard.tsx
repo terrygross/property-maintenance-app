@@ -21,6 +21,9 @@ const JobCard = ({
   onResendEmail,
   onAcceptJob
 }: JobCardProps) => {
+  // Create a handler for assignment that checks if onAssign is defined
+  const handleAssign = onAssign ? () => onAssign(id, "", priority) : undefined;
+  
   return (
     <Card className="h-full">
       <CardHeader className="pb-2">

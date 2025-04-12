@@ -14,30 +14,71 @@ export const useJobActions = ({ jobCards, setJobCards }: UseJobActionsProps) => 
   const [isAssigning, setIsAssigning] = useState(false);
   const [isResending, setIsResending] = useState(false);
 
-  const handleAssignJob = async (jobId: string, technicianId: string) => {
+  const handleAssignJob = async (jobId: string, technicianId: string, priority: string) => {
     if (isAssigning) return;
     setIsAssigning(true);
 
     try {
-      console.log(`Assigning job ${jobId} to technician ${technicianId}`);
+      console.log(`Assigning job ${jobId} to technician ${technicianId} with priority ${priority}`);
       
       // Add delay to ensure the UI state is updated before making the database call
       await new Promise(resolve => setTimeout(resolve, 100));
       
-      // Update job in Supabase
-      const { data, error } = await reporterJobsTable()
-        .update({ 
-          assigned_to: technicianId,
-          status: 'assigned'
-        })
-        .eq('id', jobId);
-      
-      if (error) {
-        console.error("Supabase update error:", error);
-        throw error;
+      // First validate that the job is still assignable
+      const { data: jobData, error: jobError } = await reporterJobsTable()
+        .select('*')
+        .eq('id', jobId)
+        .maybeSingle();
+        
+      if (jobError) {
+        console.error("Error checking job status:", jobError);
+        throw new Error("Could not verify job status");
       }
       
-      console.log("Job successfully assigned in Supabase:", data);
+      if (!jobData) {
+        throw new Error("Job not found");
+      }
+      
+      if (jobData.assigned_to) {
+        throw new Error("Job already assigned");
+      }
+      
+      // Update job in Supabase with retry mechanism
+      let retries = 2;
+      let success = false;
+      let lastError = null;
+      
+      while (retries > 0 && !success) {
+        try {
+          const { data, error } = await reporterJobsTable()
+            .update({ 
+              assigned_to: technicianId,
+              status: 'assigned',
+              priority: priority
+            })
+            .eq('id', jobId);
+          
+          if (error) {
+            console.error("Supabase update error:", error);
+            lastError = error;
+            retries--;
+            // Wait before retry
+            await new Promise(resolve => setTimeout(resolve, 300));
+          } else {
+            success = true;
+            console.log("Job successfully assigned in Supabase:", data);
+          }
+        } catch (updateError) {
+          console.error("Exception during job assignment:", updateError);
+          lastError = updateError;
+          retries--;
+          await new Promise(resolve => setTimeout(resolve, 300));
+        }
+      }
+      
+      if (!success) {
+        throw lastError || new Error("Failed to update job after multiple attempts");
+      }
       
       // Update UI by filtering out the assigned job
       setJobCards(prevCards => prevCards.filter(job => job.id !== jobId));
@@ -58,6 +99,7 @@ export const useJobActions = ({ jobCards, setJobCards }: UseJobActionsProps) => 
         description: "There was an error assigning the job. Please try again.",
         variant: "destructive",
       });
+      throw error; // Re-throw to signal failure to the dialog
     } finally {
       setIsAssigning(false);
     }
