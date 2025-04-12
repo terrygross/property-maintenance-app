@@ -31,7 +31,8 @@ const ReporterJobCardItem = ({
   };
   
   const handleResendEmail = (jobId: string) => {
-    onResendEmail(jobId, "");
+    // Fix: Call onResendEmail with only one argument
+    onResendEmail(jobId);
   };
   
   return (
