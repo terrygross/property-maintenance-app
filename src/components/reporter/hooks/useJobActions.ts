@@ -21,25 +21,31 @@ export const useJobActions = ({ jobCards, setJobCards }: UseJobActionsProps) => 
     try {
       console.log(`Assigning job ${jobId} to technician ${technicianId}`);
       
+      // Add delay to ensure the UI state is updated before making the database call
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       // Update job in Supabase
       const { data, error } = await reporterJobsTable()
         .update({ 
           assigned_to: technicianId,
           status: 'assigned'
         })
-        .eq('id', jobId)
-        .select()
-        .single();
+        .eq('id', jobId);
       
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase update error:", error);
+        throw error;
+      }
       
-      console.log("Job assigned in Supabase:", data);
+      console.log("Job successfully assigned in Supabase:", data);
       
       // Update UI by filtering out the assigned job
-      setJobCards(jobCards.filter(job => job.id !== jobId));
+      setJobCards(prevCards => prevCards.filter(job => job.id !== jobId));
       
-      // Trigger a refresh of job data
-      document.dispatchEvent(new Event('jobsUpdated'));
+      // Trigger a refresh of job data after a small delay to ensure the database has updated
+      setTimeout(() => {
+        document.dispatchEvent(new Event('jobsUpdated'));
+      }, 300);
       
       toast({
         title: "Job Assigned",

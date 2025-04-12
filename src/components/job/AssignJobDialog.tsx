@@ -31,6 +31,7 @@ const AssignJobDialog = ({
 }: AssignJobDialogProps) => {
   const [selectedTechnician, setSelectedTechnician] = useState("");
   const [selectedPriority, setSelectedPriority] = useState<string>(initialPriority);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { users } = useAppState();
 
   // Filter technicians (maintenance_tech) and contractors
@@ -43,18 +44,35 @@ const AssignJobDialog = ({
     if (open) {
       setSelectedTechnician("");
       setSelectedPriority(initialPriority);
+      setIsSubmitting(false);
     }
   }, [open, initialPriority]);
 
-  const handleAssign = () => {
-    if (selectedTechnician) {
-      onAssign(jobId, selectedTechnician, selectedPriority);
-      onOpenChange(false);
+  const handleAssign = async () => {
+    if (selectedTechnician && !isSubmitting) {
+      setIsSubmitting(true);
+      
+      try {
+        // Call the onAssign function
+        await onAssign(jobId, selectedTechnician, selectedPriority);
+        
+        // Close the dialog after successful assignment
+        onOpenChange(false);
+      } catch (error) {
+        console.error("Error in handleAssign:", error);
+        // Dialog stays open on error (error toast is shown by parent component)
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(newOpen) => {
+      // Prevent closing dialog during submission
+      if (isSubmitting && !newOpen) return;
+      onOpenChange(newOpen);
+    }}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Assign Job</DialogTitle>
@@ -68,6 +86,7 @@ const AssignJobDialog = ({
             <Select 
               value={selectedTechnician} 
               onValueChange={setSelectedTechnician}
+              disabled={isSubmitting}
             >
               <SelectTrigger id="technician">
                 <SelectValue placeholder="Select technician" />
@@ -89,6 +108,7 @@ const AssignJobDialog = ({
               value={selectedPriority}
               onValueChange={setSelectedPriority}
               className="flex space-x-2"
+              disabled={isSubmitting}
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="low" id="low" />
@@ -109,9 +129,9 @@ const AssignJobDialog = ({
           <Button 
             type="button" 
             onClick={handleAssign}
-            disabled={!selectedTechnician}
+            disabled={!selectedTechnician || isSubmitting}
           >
-            Assign
+            {isSubmitting ? "Assigning..." : "Assign"}
           </Button>
         </DialogFooter>
       </DialogContent>
